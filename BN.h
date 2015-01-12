@@ -6,10 +6,7 @@
  */
 
 #ifndef _BN_H
-#define        _BN_H
-
-//TODO: переделать функции со сдвигами!
-//TODO: переделка функций сдвига не повлияла на скорость!
+#define _BN_H
 
 #include <string>
 #include <vector>
@@ -141,5 +138,5 @@ public:
     ~BN();
 };
 
-#endif        /* _BN_H */
+#endif /* _BN_H */
 

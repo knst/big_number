@@ -13,35 +13,6 @@
 #include <vector>
 
 
-class SDbn {
-private:
-    int lenght;
-    char *d;
-public:
-    int Lenght();
-    SDbn(const SDbn&);
-    SDbn(const BN&);
-    SDbn operator = (const SDbn&);
-    char operator [] (int);
-};
-
-class Fbc {
-private:
-    BN ** G;
-    BN m;
-    int h;
-    int v;
-    int b;
-    int a;
-    int BinaryToInt (int t, int *e);
-public:
-    Fbc(BN g, BN mod, int bitcount);
-    ~Fbc();
-    BN fixed_base_comb(BN exp);
-};
-
-
-
 BN gcdEuclidean(BN x,BN y);
 BN gcdBinary(BN x,BN y);
 BN gcdLehmer(BN x,BN y);
@@ -60,7 +31,6 @@ BN expFixedBaseWindow(const vector <BN> & g, BN exp, BN mod);
 BN expFixedBaseEuclidean(const vector<BN> & g, BN exp, BN mod);
 
 //exponent-recording
-BN expSignDigitRightToLeft(BN g, BN exponent, BN mod);
 vector <int> karyStringReplacementRepresentation(BN exp, int k);
 BN expkaryStringReplacement(const BN &g, const vector <int> & exp, const BN & mod, int k);
 

@@ -40,8 +40,6 @@ int testingExp_ij(int max1,int max2, int i,int j) {
     if(mod.is0())
         return 0;
 
-    SDbn sd = g;
-
     int k_slide = 8;          // TODO - rand!
     int K = 3;
     vector <BN> precomp = g.expLeftToRightK_aryPrecomputation(mod);
@@ -72,15 +70,10 @@ int testingExp_ij(int max1,int max2, int i,int j) {
     else
         res8 = expFixedBaseEuclidean(precompFixWind, exp, mod);
 
-    BN res9 = expSignDigitRightToLeft(g, exp, mod);
-
     int k = 5;
     BN res10 = expkaryStringReplacement(g,
             karyStringReplacementRepresentation(exp, k),
             mod, k);
-
-    Fbc fbc(g, mod, exp.bitcount());
-    BN res11 = fbc.fixed_base_comb(exp);
 
     BN res12 = g.expBest_Slide(exp, mod, precompSlideU);
 
@@ -93,9 +86,7 @@ int testingExp_ij(int max1,int max2, int i,int j) {
             res1 != res6 ||
             res1 != res7 ||
 //            res1 != res8 ||
-            res1 != res9 ||
             res1 != res10||
-            res1 != res11||
             res1 != res12) {
         printf("g:\t");         g.PrintDec();
         printf("exp:\t");       exp.PrintDec();
@@ -109,9 +100,7 @@ int testingExp_ij(int max1,int max2, int i,int j) {
         printf("bn1MMbn2:\t");  res6.PrintDec();
         printf("bn1FWbn2:\t");  res7.PrintDec();
         printf("bn1FEbn2:\t");  res8.PrintDec();
-        printf("bn1SDbn2:\t");  res9.PrintDec();
         printf("bn1SRbn2:\t");  res10.PrintDec();
-        printf("bn1cCbn2:\t");  res11.PrintDec();
         printf("bn1##bn2:\t");  res12.PrintDec();
         printf("precompFixWind:\n");
         for(vector <BN> :: iterator iter = precompFixWind.begin(); iter != precompFixWind.end(); iter++)
@@ -729,19 +718,12 @@ void fixtest(int base,int test) {
         expFixedBaseEuclidean(precompFixWind, *e, mod);
     float t3 = clock() - t + t_2_3;
 
-    t = clock();
-    Fbc fbc(g, mod, base*bz8);
-    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-        fbc.fixed_base_comb(*e);
-    float t4 = clock() - t;
-
     float diviser = 1000.0 * test;
     t1 /= diviser;
     t2 /= diviser;
     t3 /= diviser;
-    t4 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2, t3, t4);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2, t3);
 }
 
 
@@ -771,20 +753,14 @@ void exptest(int base,int test) {
 
     t = clock();
     for(vector <BN> :: iterator i = g.begin(), j = exp.begin(), k = mod.begin(); i != g.end(); i++, j++, k++)
-        expSignDigitRightToLeft(*i, *j, *k);
-    float t2 = clock() - t;
-
-    t = clock();
-    for(vector <BN> :: iterator i = g.begin(), j = exp.begin(), k = mod.begin(); i != g.end(); i++, j++, k++)
         expkaryStringReplacement(*i, karyStringReplacementRepresentation(*j, 5),*k, 5);
-    float t3 = clock() - t;
+    float t2 = clock() - t;
 
     float diviser = 1000.0 * test;
     t1 /= diviser;
     t2 /= diviser;
-    t3 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test,t1, t2, t3);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test,t1, t2);
 }
 
 
@@ -899,7 +875,7 @@ void resulttest() {
     simtest(128,2);
 
     cout<<"Test \"Method with Fixed-base\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (ms)\tWindow (ms)\tEuclidean (ms)\tComb-base (ms)"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tWindow (ms)\tEuclidean (ms)"<<endl;
 
     fixtest(16, 50);
     fixtest(32, 50);
@@ -922,7 +898,7 @@ void resulttest() {
     fixtest(128, 2);
 
     cout<<"Test \"Method with exponent-recording\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (ms)\tSigned (ms)\tSR(ms)"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tSR(ms)"<<endl;
 
     exptest(16, 50);
     exptest(32, 25);
