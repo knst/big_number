@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   BNsign.cpp
  * Author: knst
- * 
+ *
  * Created on 27 Май 2010 г., 3:18
  */
 
@@ -20,64 +20,64 @@ BNsign::~BNsign()
 
 BNsign::BNsign()
 {
-	sign=false;
-	return;
+   sign=false;
+   return;
 }
 
 BNsign::BNsign(const BN &bn,const bool bnsign)
 {
         value=bn;
-	sign=bnsign;
-	return;
+   sign=bnsign;
+   return;
 }
 
 BNsign::BNsign(const BNsign &bn)
 {
-	value=bn.value;
-	sign=bn.sign;
-	return;
+   value=bn.value;
+   sign=bn.sign;
+   return;
 }
 
 BNsign & BNsign:: operator = (const BNsign& bn)
 {
-	if(this==&bn)
-		return *this;
+   if(this==&bn)
+      return *this;
 
-	value = bn.value;
-	sign = bn.sign;
-	return *this;
+   value = bn.value;
+   sign = bn.sign;
+   return *this;
 }
 
 BNsign BNsign::operator + (const BNsign& bn)const
 {
-	BNsign res;
-	if(sign == bn.sign)
-		res.value = this->value + bn.value;
-	else
-		res.value = this->value - bn.value;
-	bool first_is_greater = (this->value >= bn.value);
-	res.sign = ((bn.sign && !first_is_greater) || (sign && first_is_greater));
-	return res;
+   BNsign res;
+   if(sign == bn.sign)
+      res.value = this->value + bn.value;
+   else
+      res.value = this->value - bn.value;
+   bool first_is_greater = (this->value >= bn.value);
+   res.sign = ((bn.sign && !first_is_greater) || (sign && first_is_greater));
+   return res;
 }
 
 BNsign BNsign::operator - (const BNsign& bn)const
 {
-	BNsign res;
-	if(sign == bn.sign)
-		res.value = this->value - bn.value;
-	else
-		res.value = this->value + bn.value;
-	bool first_is_greater = (this->value >= bn.value);
-	res.sign = ((!bn.sign && !first_is_greater) || (sign && first_is_greater));
-	return res;
+   BNsign res;
+   if(sign == bn.sign)
+      res.value = this->value - bn.value;
+   else
+      res.value = this->value + bn.value;
+   bool first_is_greater = (this->value >= bn.value);
+   res.sign = ((!bn.sign && !first_is_greater) || (sign && first_is_greater));
+   return res;
 }
 
 BNsign BNsign::operator * (const BNsign& bn)const
 {
-	BNsign res;
-	res.value = this->value * bn.value;
-	res.sign = (this->sign ^ bn.sign);
-	return res;
+   BNsign res;
+   res.value = this->value * bn.value;
+   res.sign = (this->sign ^ bn.sign);
+   return res;
 }
 
 //BNsign BNsign::operator / (const BNsign&)const;
@@ -85,10 +85,10 @@ BNsign BNsign::operator * (const BNsign& bn)const
 //bool BNsign::operator != (const BNsign&)const;
 /*bool BNsign::operator >= (const BNsign& bn)const
 {
-	bool first_is_greater = (this->value >= bn.value);
-	return
-		(sign && first_is_greater) ||
-			(!bn.sign && !first_is_greater);
+   bool first_is_greater = (this->value >= bn.value);
+   return
+      (sign && first_is_greater) ||
+         (!bn.sign && !first_is_greater);
 }*/
 
 

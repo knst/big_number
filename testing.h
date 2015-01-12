@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   testing.h
  * Author: knst
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef _TESTING_H
-#define	_TESTING_H
+#define _TESTING_H
 
 
 int testingExp();
@@ -18,5 +18,5 @@ void gcdtest(int base,int test);
 void qrtest(int base,int test);
 void resulttest(bool latex_style);
 
-#endif	/* _TESTING_H */
+#endif /* _TESTING_H */
 

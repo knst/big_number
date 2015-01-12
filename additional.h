@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   additional.h
  * Author: knst
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef _ADDITIONAL_H
-#define	_ADDITIONAL_H
+#define _ADDITIONAL_H
 
 #include "BN.h"
 #include "BNsign.h"
@@ -64,5 +64,5 @@ BN expSignDigitRightToLeft(BN g, BN exponent, BN mod);
 vector <int> karyStringReplacementRepresentation(BN exp, int k);
 BN expkaryStringReplacement(const BN &g, const vector <int> & exp, const BN & mod, int k);
 
-#endif	/* _ADDITIONAL_H */
+#endif /* _ADDITIONAL_H */
 

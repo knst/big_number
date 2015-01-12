@@ -12,137 +12,137 @@
 
 
 int testingMul_ij(int max1,int max2, int i,int j) {
-	BN bn1(rand()%max1+1,-1);
-	BN bn2(rand()%max2+1,-1);
-        BN mul = bn1*bn2;
-        BN f_m = bn1.fast_mul(bn2);
-        BN c_m = bn1.karatsuba(bn2);
-        BN c_o = bn1.karatsuba_old(bn2);
-        if(mul != f_m || mul != c_m || mul != c_o) {
-            printf("bn1:\t");       bn1.PrintDec();
-            printf("bn2:\t");       bn2.PrintDec();
-            printf("bn1*bn2:\t");   mul.PrintDec();
-            printf("bn1**bn2:\t");  f_m.PrintDec();
-            printf("bn1c*bn2:\t");  c_m.PrintDec();
-            printf("bn1cobn2:\t");  c_o.PrintDec();
-            return 1;
-	}
-	return 0;
+    BN bn1(rand()%max1+1,-1);
+    BN bn2(rand()%max2+1,-1);
+    BN mul = bn1*bn2;
+    BN f_m = bn1.fast_mul(bn2);
+    BN c_m = bn1.karatsuba(bn2);
+    BN c_o = bn1.karatsuba_old(bn2);
+    if(mul != f_m || mul != c_m || mul != c_o) {
+        printf("bn1:\t");       bn1.PrintDec();
+        printf("bn2:\t");       bn2.PrintDec();
+        printf("bn1*bn2:\t");   mul.PrintDec();
+        printf("bn1**bn2:\t");  f_m.PrintDec();
+        printf("bn1c*bn2:\t");  c_m.PrintDec();
+        printf("bn1cobn2:\t");  c_o.PrintDec();
+        return 1;
+    }
+    return 0;
 }
 
 int testingExp_ij(int max1,int max2, int i,int j) {
-	BN g(rand()%max1 + 1, -1);
-	BN exp(rand()%max2 + 1, -1);
-	BN mod(rand()%max2 + 1, -1);
-        int vsize = rand() % (rand()%2 ? max1 : max2) + 1;
-        if(vsize >  (int) sizeof(unsigned int) * 8 - 2)
-            return 0;
-        if(mod.is0())
-            return 0;
-
-        SDbn sd = g;
-
-        int k_slide = 8;          // TODO - rand!
-        int K = 3;
-        vector <BN> precomp = g.expLeftToRightK_aryPrecomputation(mod);
-        vector <BN> precompVar = g.expLeftToRightK_aryVarPrecomputation(mod, K);
-        vector <BN> precompModif = g.expLeftToRightK_aryModifPrecomputation(mod);
-        vector <BN> precompSlide = g.expSlidingWindowPrecomputation(mod, k_slide);
-        vector <BN> precompSlideU = g.expBest_SlidePrecomp(mod);
-        vector <BN> precompFixWind = expFixedBaseWindowPrecomputation(g,exp.basecount()-1,mod);
-
-        BN res1 = g.expLeftToRight(exp,mod);
-        BN res2 = g.expRightToLeft(exp,mod);
-        BN res3 = g.expLeftToRightK_ary(exp,mod,precomp);
-        BN res3_1 = g.expLeftToRightK_aryVar(exp, mod, precompVar, K);
-        BN res4 = g.expLeftToRightK_aryMod(exp,mod,precompModif);
-        BN res5 = g.expSlidingWindow(exp, mod, precompSlide, k_slide);
-        BN res6;
-        if(gcdBinary(mod, (BN)bsize) == (BN) 1)
-            res6 = g.expMontgomery(exp,mod);
-        else {
-            //cerr<<"!";
-            res6 = res1;
-        }
-
-        BN res7 = expFixedBaseWindow(precompFixWind, exp, mod);
-        BN res8;
-        if(exp.basecount() < 3)
-            res8 = res7;
-        else
-            res8 = expFixedBaseEuclidean(precompFixWind, exp, mod);
-
-        BN res9 = expSignDigitRightToLeft(g, exp, mod);
-
-        int k = 5;
-        BN res10 = expkaryStringReplacement(g,
-                karyStringReplacementRepresentation(exp, k),
-                mod, k);
-
-        Fbc fbc(g, mod, exp.bitcount());
-        BN res11 = fbc.fixed_base_comb(exp);
-
-        BN res12 = g.expBest_Slide(exp, mod, precompSlideU);
-
-        if(
-                res1 != res2 ||
-                res1 != res3 ||
-                res1 != res3_1 ||
-                res1 != res4 ||
-                res1 != res5 ||
-                res1 != res6 ||
-                res1 != res7 ||
-                res1 != res8 ||
-                res1 != res9 ||
-                res1 != res10||
-                res1 != res11||
-                res1 != res12) {
-            printf("g:\t");         g.PrintDec();
-            printf("exp:\t");       exp.PrintDec();
-            printf("mod:\t");       mod.PrintDec();
-            printf("bn1->bn2:\t");  res1.PrintDec();
-            printf("bn1<-bn2:\t");  res2.PrintDec();
-            printf("bn1=>bn2:\t");  res3.PrintDec();
-            printf("bn1==bn2:\t");  res3_1.PrintDec();
-            printf("bn1!>bn2:\t");  res4.PrintDec();
-            printf("bn1>>bn2:\t");  res5.PrintDec();
-            printf("bn1MMbn2:\t");  res6.PrintDec();
-            printf("bn1FWbn2:\t");  res7.PrintDec();
-            printf("bn1FEbn2:\t");  res8.PrintDec();
-            printf("bn1SDbn2:\t");  res9.PrintDec();
-            printf("bn1SRbn2:\t");  res10.PrintDec();
-            printf("bn1cCbn2:\t");  res11.PrintDec();
-            printf("bn1##bn2:\t");  res12.PrintDec();
-            printf("precompFixWind:\n");
-            for(vector <BN> :: iterator iter = precompFixWind.begin(); iter != precompFixWind.end(); iter++)
-                iter->PrintDec();
-            puts("");
-            return 1;
-	}
+    BN g(rand()%max1 + 1, -1);
+    BN exp(rand()%max2 + 1, -1);
+    BN mod(rand()%max2 + 1, -1);
+    int vsize = rand() % (rand()%2 ? max1 : max2) + 1;
+    if(vsize >  (int) sizeof(unsigned int) * 8 - 2)
         return 0;
-        if ( j % 5 == 0) {
-            vector <BN> vg(vsize);
-            vector <BN> ve(vsize);
-            for(int i = 0; i < vsize; i++) {
-                vg[i] = BN(rand() % max1 + 1, -1);
-                ve[i] = BN(rand() % max2 + 1, -1);
-            }
-            vector <BN> G = expSimutaneousMulPrecomputation(vg,ve,mod);
-            BN res1 = expSimutaneousMul(G,ve,mod);
-            BN res2 = (BN) 1;
-            for(int i = 0; i < vsize; i++) {
-                res2 = res2 * vg[i].PowMod(ve[i], mod) % mod;
-            }
-            if(res1 != res2) {
+    if(mod.is0())
+        return 0;
 
-                printf("res1:\t");  res1.PrintDec();
-                printf("res2:\t");  res2.PrintDec();
-                return 1;
-            }
+    SDbn sd = g;
 
+    int k_slide = 8;          // TODO - rand!
+    int K = 3;
+    vector <BN> precomp = g.expLeftToRightK_aryPrecomputation(mod);
+    vector <BN> precompVar = g.expLeftToRightK_aryVarPrecomputation(mod, K);
+    vector <BN> precompModif = g.expLeftToRightK_aryModifPrecomputation(mod);
+    vector <BN> precompSlide = g.expSlidingWindowPrecomputation(mod, k_slide);
+    vector <BN> precompSlideU = g.expBest_SlidePrecomp(mod);
+    vector <BN> precompFixWind = expFixedBaseWindowPrecomputation(g,exp.basecount()-1,mod);
+
+    BN res1 = g.expLeftToRight(exp,mod);
+    BN res2 = g.expRightToLeft(exp,mod);
+    BN res3 = g.expLeftToRightK_ary(exp,mod,precomp);
+    BN res3_1 = g.expLeftToRightK_aryVar(exp, mod, precompVar, K);
+    BN res4 = g.expLeftToRightK_aryMod(exp,mod,precompModif);
+    BN res5 = g.expSlidingWindow(exp, mod, precompSlide, k_slide);
+    BN res6;
+    if(gcdBinary(mod, (BN)bsize) == (BN) 1)
+        res6 = g.expMontgomery(exp,mod);
+    else {
+        //cerr<<"!";
+        res6 = res1;
+    }
+
+    BN res7 = expFixedBaseWindow(precompFixWind, exp, mod);
+    BN res8;
+    if(exp.basecount() < 3)
+        res8 = res7;
+    else
+        res8 = expFixedBaseEuclidean(precompFixWind, exp, mod);
+
+    BN res9 = expSignDigitRightToLeft(g, exp, mod);
+
+    int k = 5;
+    BN res10 = expkaryStringReplacement(g,
+            karyStringReplacementRepresentation(exp, k),
+            mod, k);
+
+    Fbc fbc(g, mod, exp.bitcount());
+    BN res11 = fbc.fixed_base_comb(exp);
+
+    BN res12 = g.expBest_Slide(exp, mod, precompSlideU);
+
+    if(
+            res1 != res2 ||
+            res1 != res3 ||
+            res1 != res3_1 ||
+            res1 != res4 ||
+            res1 != res5 ||
+            res1 != res6 ||
+            res1 != res7 ||
+            res1 != res8 ||
+            res1 != res9 ||
+            res1 != res10||
+            res1 != res11||
+            res1 != res12) {
+        printf("g:\t");         g.PrintDec();
+        printf("exp:\t");       exp.PrintDec();
+        printf("mod:\t");       mod.PrintDec();
+        printf("bn1->bn2:\t");  res1.PrintDec();
+        printf("bn1<-bn2:\t");  res2.PrintDec();
+        printf("bn1=>bn2:\t");  res3.PrintDec();
+        printf("bn1==bn2:\t");  res3_1.PrintDec();
+        printf("bn1!>bn2:\t");  res4.PrintDec();
+        printf("bn1>>bn2:\t");  res5.PrintDec();
+        printf("bn1MMbn2:\t");  res6.PrintDec();
+        printf("bn1FWbn2:\t");  res7.PrintDec();
+        printf("bn1FEbn2:\t");  res8.PrintDec();
+        printf("bn1SDbn2:\t");  res9.PrintDec();
+        printf("bn1SRbn2:\t");  res10.PrintDec();
+        printf("bn1cCbn2:\t");  res11.PrintDec();
+        printf("bn1##bn2:\t");  res12.PrintDec();
+        printf("precompFixWind:\n");
+        for(vector <BN> :: iterator iter = precompFixWind.begin(); iter != precompFixWind.end(); iter++)
+            iter->PrintDec();
+        puts("");
+        return 1;
+    }
+    return 0;
+    if ( j % 5 == 0) {
+        vector <BN> vg(vsize);
+        vector <BN> ve(vsize);
+        for(int i = 0; i < vsize; i++) {
+            vg[i] = BN(rand() % max1 + 1, -1);
+            ve[i] = BN(rand() % max2 + 1, -1);
+        }
+        vector <BN> G = expSimutaneousMulPrecomputation(vg,ve,mod);
+        BN res1 = expSimutaneousMul(G,ve,mod);
+        BN res2 = (BN) 1;
+        for(int i = 0; i < vsize; i++) {
+            res2 = res2 * vg[i].PowMod(ve[i], mod) % mod;
+        }
+        if(res1 != res2) {
+
+            printf("res1:\t");  res1.PrintDec();
+            printf("res2:\t");  res2.PrintDec();
+            return 1;
         }
 
-	return 0;
+    }
+
+    return 0;
 }
 
 int testingMul() {
@@ -167,13 +167,13 @@ int testingMul() {
                 max2=100;
                 break;
         }
-	for(int j=0;j<100000;j++) {
+        for(int j=0;j<100000;j++) {
             int res=testingMul_ij(max1,max2,i,j);
             if(res != 0) {
                 printf("Error int Mul-test: i=%d j=%d\ttest=%d\n",i,j,res);
                 return res;
             }
-	}
+        }
     }
     cout<<"Multiple test: OK" << endl;
     return 0;
@@ -202,7 +202,7 @@ int testingExp() {
                 break;
         }
         int j_max = 20;
-	for(int j=0;j< j_max;j++) {
+        for(int j=0;j< j_max;j++) {
             int res=testingExp_ij(max1,max2,i,j);
             if(j % 5 == 0)
                 cerr << j*100/j_max << "% ...";
@@ -210,7 +210,7 @@ int testingExp() {
                 printf("Error int Exp-test: i=%d j=%d\ttest=%d\n",i,j,res);
                 return res;
             }
-	}
+        }
         cerr<<"100 %" <<endl;
     }
     cerr << "Exp test: OK" << endl;
@@ -219,133 +219,133 @@ int testingExp() {
 
 int testing_ij(int max1,int max2, int i,int j)
 {
-	BN bn_0 = 0;
-	BN bn_1 = 1;
-	BN bn1(rand()%max1+1,-1);
-	BN bn2(rand()%max2+1,-1);
-	BN mod(rand()%max2+1,-1);
-        
-	if(bn1!=bn_0&&bn2!=bn_0&&mod!=bn_0)
-	{
-		if((bn1+bn2-bn1)*bn1!=bn1*bn2)
-		{
-			printf("bn1:\t");	bn1.PrintDec();
-			printf("bn2:\t");	bn2.PrintDec();
-			printf("bn1+bn2:\t");	(bn1+bn2).PrintDec();
-			printf("bn1*bn2:\t");	(bn1*bn2).PrintDec();
-			printf("f1:\t");	(bn1+bn2-bn1).PrintDec();
-			printf("f2:\t");	(bn1*bn2/bn1).PrintDec();
-			BN bn1bn2=bn1*bn2;
-			printf("bn1bn2:\t");	bn1bn2.PrintDec();
-			printf("f22:\t");	(bn1bn2/bn1).PrintDec();
-			return 1;
-		}
-		if((ull)(bn1*bn2/bn1/bn2)!=1)
-			return 2;
-		if(bn1/bn2*bn2-bn1!=bn1%bn2+bn_0)
-			return 3;
-		if((ull)(bn1*bn2)!=(ull)bn1*(ull)bn2)
-			return 4;
-		if(bn1*bn1!=bn1.Qrt())
-			return 5;
-		ull pow=(ull)bn1;
-		BN powbn(pow);
-		if(j % 10 == 0 && mod!=bn_0&&bn2.PowMod(pow,mod)!=bn2.PowMod(powbn,mod))
-		{
-			printf("bn2:");bn2.PrintDec();
-			printf("pow:");printf("%lld\n",pow);
-			printf("pBN:");powbn.PrintDec();
-			printf("mod:");mod.PrintDec();
-			printf("Pll:");bn2.PowMod(pow,mod).PrintDec();
-			printf("Pbn:");bn2.PowMod(powbn,mod).PrintDec();
-			return 6;
-	}
-		BN gcd=gcdEuclidean(bn1,mod);
-		if(gcd!=gcdBinary(bn1,mod))
-		{
-			gcdEuclidean(bn1,mod).PrintDec();
-			gcdBinary(bn1,mod).PrintDec();
-			bn1.PrintDec();
-			mod.PrintDec();
-			return 7;
-		}
-		if(gcd!=gcdLehmer(bn1,mod))
-		{
-			gcdEuclidean(bn1,mod).PrintDec();
-			gcdLehmer(bn1,mod).PrintDec();
-			bn1.PrintDec();
-			mod.PrintDec();
-			return 7;
-		}
-		BN gcdInverse=gcdInverseEuclidean(bn1,mod);
-		BN gcdInverseBin=gcdInverseEuclideanBinary(bn1,mod);
-		if(gcdInverse!=gcdInverseBin)
-		{
-			printf("bn1:\t");	bn1.PrintDec();
-			printf("mod:\t");	mod.PrintDec();
-			printf("inverse:\t");	gcdInverse.PrintDec();
-			printf("inverseB:\t");	gcdInverseBin.PrintDec();
-			gcdExtendedEuclideanBinary(bn1,mod);//(.PrintDec();
-			return 8;
-		}
-		if(gcd!=bn_1||mod==bn_1)
-		{
-			if(gcdInverse!=bn_0)
-			{
-				printf("bn1: ");	bn1.PrintDec();
-				printf("mod: ");	mod.PrintDec();
-				printf("inverse: ");	gcdInverseEuclidean(bn1,mod).PrintDec();
-				printf("nod: ");	gcdBinary(bn1,mod).PrintDec();
-				(gcdInverseEuclidean(bn1,mod)*bn1).PrintDec();
-				(gcdInverseEuclidean(bn1,mod)*bn1%mod).PrintDec();
-				return 9;
-			}
-		}
-	else
-		{
-			if(gcdInverse*bn1%mod!=bn_1||gcdInverse>=mod)
-			{
-				printf("bn1: ");	bn1.PrintDec();
-				printf("mod: ");	mod.PrintDec();
-				printf("inverse: ");	gcdInverseEuclidean(bn1,mod).PrintDec();
-				printf("nod: ");	gcdBinary(bn1,mod).PrintDec();
-				(gcdInverseEuclidean(bn1,mod)*bn1).PrintDec();
-				(gcdInverseEuclidean(bn1,mod)*bn1%mod).PrintDec();
-				return 10;
-			}
-		}
-		if(i<2)
-		{
-			BN sqrt = bn1.Sqrt();
-			BN sqrt1 = sqrt;
-			++sqrt1;
-			BN odin(1);
-			if(sqrt*sqrt>bn1||sqrt1*sqrt1<=bn1)
-			{
-				sqrt.PrintDec();
-				bn1.PrintDec();
-				return 11;
-			}
-	}
-	}
-	else
-		if(mod!=bn_0)
-		{
-			if(bn1*bn2!=bn_0||bn1+bn2!=max(bn1,bn2))
-				return 11;
-		}
-		else if(bn1*mod!=bn_0||bn1+mod!=max(bn1,mod))
-			return 12;
-	return 0;
+        BN bn_0 = 0;
+        BN bn_1 = 1;
+        BN bn1(rand()%max1+1,-1);
+        BN bn2(rand()%max2+1,-1);
+        BN mod(rand()%max2+1,-1);
+
+        if(bn1!=bn_0&&bn2!=bn_0&&mod!=bn_0)
+        {
+                if((bn1+bn2-bn1)*bn1!=bn1*bn2)
+                {
+                        printf("bn1:\t");        bn1.PrintDec();
+                        printf("bn2:\t");        bn2.PrintDec();
+                        printf("bn1+bn2:\t");        (bn1+bn2).PrintDec();
+                        printf("bn1*bn2:\t");        (bn1*bn2).PrintDec();
+                        printf("f1:\t");        (bn1+bn2-bn1).PrintDec();
+                        printf("f2:\t");        (bn1*bn2/bn1).PrintDec();
+                        BN bn1bn2=bn1*bn2;
+                        printf("bn1bn2:\t");        bn1bn2.PrintDec();
+                        printf("f22:\t");        (bn1bn2/bn1).PrintDec();
+                        return 1;
+                }
+                if((ull)(bn1*bn2/bn1/bn2)!=1)
+                        return 2;
+                if(bn1/bn2*bn2-bn1!=bn1%bn2+bn_0)
+                        return 3;
+                if((ull)(bn1*bn2)!=(ull)bn1*(ull)bn2)
+                        return 4;
+                if(bn1*bn1!=bn1.Qrt())
+                        return 5;
+                ull pow=(ull)bn1;
+                BN powbn(pow);
+                if(j % 10 == 0 && mod!=bn_0&&bn2.PowMod(pow,mod)!=bn2.PowMod(powbn,mod))
+                {
+                        printf("bn2:");bn2.PrintDec();
+                        printf("pow:");printf("%lld\n",pow);
+                        printf("pBN:");powbn.PrintDec();
+                        printf("mod:");mod.PrintDec();
+                        printf("Pll:");bn2.PowMod(pow,mod).PrintDec();
+                        printf("Pbn:");bn2.PowMod(powbn,mod).PrintDec();
+                        return 6;
+        }
+                BN gcd=gcdEuclidean(bn1,mod);
+                if(gcd!=gcdBinary(bn1,mod))
+                {
+                        gcdEuclidean(bn1,mod).PrintDec();
+                        gcdBinary(bn1,mod).PrintDec();
+                        bn1.PrintDec();
+                        mod.PrintDec();
+                        return 7;
+                }
+                if(gcd!=gcdLehmer(bn1,mod))
+                {
+                        gcdEuclidean(bn1,mod).PrintDec();
+                        gcdLehmer(bn1,mod).PrintDec();
+                        bn1.PrintDec();
+                        mod.PrintDec();
+                        return 7;
+                }
+                BN gcdInverse=gcdInverseEuclidean(bn1,mod);
+                BN gcdInverseBin=gcdInverseEuclideanBinary(bn1,mod);
+                if(gcdInverse!=gcdInverseBin)
+                {
+                        printf("bn1:\t");        bn1.PrintDec();
+                        printf("mod:\t");        mod.PrintDec();
+                        printf("inverse:\t");        gcdInverse.PrintDec();
+                        printf("inverseB:\t");        gcdInverseBin.PrintDec();
+                        gcdExtendedEuclideanBinary(bn1,mod);//(.PrintDec();
+                        return 8;
+                }
+                if(gcd!=bn_1||mod==bn_1)
+                {
+                        if(gcdInverse!=bn_0)
+                        {
+                                printf("bn1: ");        bn1.PrintDec();
+                                printf("mod: ");        mod.PrintDec();
+                                printf("inverse: ");        gcdInverseEuclidean(bn1,mod).PrintDec();
+                                printf("nod: ");        gcdBinary(bn1,mod).PrintDec();
+                                (gcdInverseEuclidean(bn1,mod)*bn1).PrintDec();
+                                (gcdInverseEuclidean(bn1,mod)*bn1%mod).PrintDec();
+                                return 9;
+                        }
+                }
+        else
+                {
+                        if(gcdInverse*bn1%mod!=bn_1||gcdInverse>=mod)
+                        {
+                                printf("bn1: ");        bn1.PrintDec();
+                                printf("mod: ");        mod.PrintDec();
+                                printf("inverse: ");        gcdInverseEuclidean(bn1,mod).PrintDec();
+                                printf("nod: ");        gcdBinary(bn1,mod).PrintDec();
+                                (gcdInverseEuclidean(bn1,mod)*bn1).PrintDec();
+                                (gcdInverseEuclidean(bn1,mod)*bn1%mod).PrintDec();
+                                return 10;
+                        }
+                }
+                if(i<2)
+                {
+                        BN sqrt = bn1.Sqrt();
+                        BN sqrt1 = sqrt;
+                        ++sqrt1;
+                        BN odin(1);
+                        if(sqrt*sqrt>bn1||sqrt1*sqrt1<=bn1)
+                        {
+                                sqrt.PrintDec();
+                                bn1.PrintDec();
+                                return 11;
+                        }
+        }
+        }
+        else
+                if(mod!=bn_0)
+                {
+                        if(bn1*bn2!=bn_0||bn1+bn2!=max(bn1,bn2))
+                                return 11;
+                }
+                else if(bn1*mod!=bn_0||bn1+mod!=max(bn1,mod))
+                        return 12;
+        return 0;
 }
 
 int testingBN()
 {
-	for(int i=0;i<=3;i++)
-	{
-		int max1=0;
-		int max2=0;
-		switch(i) {
+        for(int i=0;i<=3;i++)
+        {
+                int max1=0;
+                int max2=0;
+                switch(i) {
                     case 0:
                         max1=3;
                         max2=3;
@@ -362,107 +362,107 @@ int testingBN()
                         max1=100;
                         max2=100;
                         break;
-		}
-		for(int j=0;j<1000;j++)
-		{
-			if(j%250==0)
-				cout<<"i="<<i<<"\tj="<<j<<'\n';
-			int res=testing_ij(max1,max2,i,j);
-			if(res!=0)
-			{
-				printf("Error: i=%d j=%d\ttest=%d\n",i,j,res);
-				return res;
-			}
-		}
-	}
-	return 0;
+                }
+                for(int j=0;j<1000;j++)
+                {
+                        if(j%250==0)
+                                cout<<"i="<<i<<"\tj="<<j<<'\n';
+                        int res=testing_ij(max1,max2,i,j);
+                        if(res!=0)
+                        {
+                                printf("Error: i=%d j=%d\ttest=%d\n",i,j,res);
+                                return res;
+                        }
+                }
+        }
+        return 0;
 }
 
 void testing() {
-	BN bn0(1,0);
-	BN bn1(15000,-1);
-	BN bn2(15000,-1);
-	std::cout<<"Test 1:\t";
-	cout.flush();
-	if(bn1+bn2-bn1!=bn1*bn2/bn1)
-		cout<<"FAIL\n";
-	else
-		cout<<"OK\n";
-	cout<<"Test 2:\t";
-	cout.flush();
-	if((ull)(bn1*bn2/bn1/bn2)!=1)
-		cout<<"FAIL\n";
-	else
-		cout<<"OK\n";
-	cout<<"Test 3:\t";
-	cout.flush();
-	if(bn1/bn2*bn2-bn1!=bn1%bn2+bn0)
-		cout<<"FAIL\n";
-	else
-		cout<<"OK\n";
-	cout<<"Test 4:\t";
-	cout.flush();
-	if((ull)(bn1*bn2)!=(ull)bn1*(ull)bn2)
-		cout<<"FAIL\n";
-	else
-		cout<<"OK\n";
-	cout<<"Test sqrt:\t";
-	cout.flush();
-	BN sqrt;
-	BN bnn(400,-1);
-	sqrt=bnn.Sqrt();
-	BN sqrt1=sqrt;
-	++sqrt1;
-	if(bnn-sqrt*sqrt>bnn||(++sqrt)*(++sqrt)<=bnn)
-		cout<<"FAIL\n";
-	else
-		cout<<"OK\n";
-	cout<<"Test qrt:\t";
-	cout.flush();
-	if(bn1*bn1!=bn1.Qrt())
-		cout<<"FAIL\n";
-	else
-		cout<<"OK\n";
-	cout.flush();
-	cout<<"Test gcd:\t";
-	cout.flush();
-	BN bnn1(2500,-1);
-	BN bnn2(2500,-1);
-	BN bngcd1=gcdEuclidean(bnn1,bnn2);
-	cout<<"HaBePHo OK :)"<<endl;
-	cout<<"Test binary gcd:\t";
-	cout.flush();
-	BN bngcd2=gcdBinary(bnn1,bnn2);
-	if(bngcd1==bngcd2)
-		cout<<"OK\n";
-	else
-		cout<<"FAIL\n";
+        BN bn0(1,0);
+        BN bn1(15000,-1);
+        BN bn2(15000,-1);
+        std::cout<<"Test 1:\t";
+        cout.flush();
+        if(bn1+bn2-bn1!=bn1*bn2/bn1)
+                cout<<"FAIL\n";
+        else
+                cout<<"OK\n";
+        cout<<"Test 2:\t";
+        cout.flush();
+        if((ull)(bn1*bn2/bn1/bn2)!=1)
+                cout<<"FAIL\n";
+        else
+                cout<<"OK\n";
+        cout<<"Test 3:\t";
+        cout.flush();
+        if(bn1/bn2*bn2-bn1!=bn1%bn2+bn0)
+                cout<<"FAIL\n";
+        else
+                cout<<"OK\n";
+        cout<<"Test 4:\t";
+        cout.flush();
+        if((ull)(bn1*bn2)!=(ull)bn1*(ull)bn2)
+                cout<<"FAIL\n";
+        else
+                cout<<"OK\n";
+        cout<<"Test sqrt:\t";
+        cout.flush();
+        BN sqrt;
+        BN bnn(400,-1);
+        sqrt=bnn.Sqrt();
+        BN sqrt1=sqrt;
+        ++sqrt1;
+        if(bnn-sqrt*sqrt>bnn||(++sqrt)*(++sqrt)<=bnn)
+                cout<<"FAIL\n";
+        else
+                cout<<"OK\n";
+        cout<<"Test qrt:\t";
+        cout.flush();
+        if(bn1*bn1!=bn1.Qrt())
+                cout<<"FAIL\n";
+        else
+                cout<<"OK\n";
+        cout.flush();
+        cout<<"Test gcd:\t";
+        cout.flush();
+        BN bnn1(2500,-1);
+        BN bnn2(2500,-1);
+        BN bngcd1=gcdEuclidean(bnn1,bnn2);
+        cout<<"HaBePHo OK :)"<<endl;
+        cout<<"Test binary gcd:\t";
+        cout.flush();
+        BN bngcd2=gcdBinary(bnn1,bnn2);
+        if(bngcd1==bngcd2)
+                cout<<"OK\n";
+        else
+                cout<<"FAIL\n";
 
-	cout<<"Exiting...\n";
-	cout.flush();
+        cout<<"Exiting...\n";
+        cout.flush();
 
 }
 
 void multest(int base,int test, bool latex_style)
 {
-	ull t;
-	vector <BN> v1;
-	vector <BN> v2;
+        ull t;
+        vector <BN> v1;
+        vector <BN> v2;
 
-	for(int i=0;i<test;i++) {
-		v1.push_back( BN(base,-1) );
-		v2.push_back( BN(base,-1) );
-	}
+        for(int i=0;i<test;i++) {
+                v1.push_back( BN(base,-1) );
+                v2.push_back( BN(base,-1) );
+        }
 
-	t = clock();
-	for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-		(*i) * (*j);
-	float t1 = clock() - t;
+        t = clock();
+        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
+                (*i) * (*j);
+        float t1 = clock() - t;
 
-	t = clock();
-	for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-		(*i).fast_mul(*j);
-	float t2 = clock() - t;
+        t = clock();
+        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
+                (*i).fast_mul(*j);
+        float t2 = clock() - t;
 
 //        t = clock();
 //        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
@@ -479,7 +479,7 @@ void multest(int base,int test, bool latex_style)
         t2 /= diviser;
         t3 /= diviser;
 
-	if(latex_style)
+        if(latex_style)
             printf("%d & %.2f & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8), t1, t2, t3);
         else
             printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),(int)test, t1, t2, t3);
@@ -520,7 +520,7 @@ void modtest(int base,int test, bool latex_style) {
     t1 /= diviser;
     t2 /= diviser;
     t3 /= diviser;
-    
+
     if(latex_style)
         printf("%d & %.2f & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8), t1, t2, t3);
     else
@@ -685,7 +685,7 @@ void simtest(int base,int test, bool latex_style) {
     vector <BN> vg(test);
     vector <BN> ve(test);
     BN mod(base, -1);
-    
+
     for(int i = 0; i < test; i++) {
         vg[i] = BN(base, -1);
         ve[i] = BN(base, -1);
@@ -804,7 +804,7 @@ void exptest(int base,int test, bool latex_style) {
     t1 /= diviser;
     t2 /= diviser;
     t3 /= diviser;
-    
+
     if(latex_style)
         printf("%d & %.2f & %.2f & %.2f \\\\\n", (int)(base*sizeof(bt)*8),t1, t2, t3);
     else
@@ -834,7 +834,7 @@ void restest(int base,int test, bool latex_style) {
     for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
         g.expBest_Slide(*e, mod, precomp_expBest_Slide);
     float t2 = clock() - t;
-    
+
 //    t = clock();
 //    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
 //        expSignDigitRightToLeft(g, *e, mod);
@@ -853,42 +853,42 @@ void restest(int base,int test, bool latex_style) {
 
 void cout_table_line()
 {
-	char hline		[100] = "\\hline\n";
-	cout
-	<< hline;
-	return;
+        char hline                [100] = "\\hline\n";
+        cout
+        << hline;
+        return;
 }
 
 void cout_table_start(char caption[1000], char tabular[1000])
 {
-	char table_start	[100] = "\\begin{table}[h!]\n";
-	char table_caption	[100] = "\\caption{\\textbf{";
-	char center_start	[100] = "\\begin{center}\n";
-	char tabular_start	[100] = "\\begin{tabular}{";
-	cout
-		<< table_start
-		<< table_caption
-		<< caption
-		<< "}}\n"
-		<< center_start
-		<< tabular_start
-		<< tabular
-		<< "}\n";
-	cout_table_line();
-	return;
+        char table_start        [100] = "\\begin{table}[h!]\n";
+        char table_caption        [100] = "\\caption{\\textbf{";
+        char center_start        [100] = "\\begin{center}\n";
+        char tabular_start        [100] = "\\begin{tabular}{";
+        cout
+                << table_start
+                << table_caption
+                << caption
+                << "}}\n"
+                << center_start
+                << tabular_start
+                << tabular
+                << "}\n";
+        cout_table_line();
+        return;
 }
 
 void cout_table_end()
 {
-	char tabular_stop	[100] = "\\end{tabular}\n";
-	char center_stop	[100] = "\\end{center}\n";
-	char table_end		[100] = "\\end{table}\n";
-	cout_table_line();
-	cout
-		<< tabular_stop
-		<< center_stop
-		<< table_end;
-	return;
+    char tabular_stop[100] = "\\end{tabular}\n";
+    char center_stop[100] = "\\end{center}\n";
+    char table_end[100] = "\\end{table}\n";
+    cout_table_line();
+    cout
+            << tabular_stop
+            << center_stop
+            << table_end;
+    return;
 }
 
 void resulttest(bool latex_style) {
