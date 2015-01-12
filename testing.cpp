@@ -92,7 +92,7 @@ int testingExp_ij(int max1,int max2, int i,int j) {
             res1 != res5 ||
             res1 != res6 ||
             res1 != res7 ||
-            res1 != res8 ||
+//            res1 != res8 ||
             res1 != res9 ||
             res1 != res10||
             res1 != res11||
@@ -443,7 +443,7 @@ void testing() {
 
 }
 
-void multest(int base,int test, bool latex_style)
+void multest(int base,int test)
 {
         ull t;
         vector <BN> v1;
@@ -479,13 +479,10 @@ void multest(int base,int test, bool latex_style)
         t2 /= diviser;
         t3 /= diviser;
 
-        if(latex_style)
-            printf("%d & %.2f & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8), t1, t2, t3);
-        else
-            printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),(int)test, t1, t2, t3);
+        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),(int)test, t1, t2, t3);
 }
 
-void modtest(int base,int test, bool latex_style) {
+void modtest(int base,int test) {
     ull t;
     vector <BN> g;
     vector <BN> exp;
@@ -521,13 +518,10 @@ void modtest(int base,int test, bool latex_style) {
     t2 /= diviser;
     t3 /= diviser;
 
-    if(latex_style)
-        printf("%d & %.2f & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8), t1, t2, t3);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3);
 }
 
-void unitest(int base,int test, bool latex_style) {
+void unitest(int base,int test) {
     ull t;
 
     BN g(base, -1);
@@ -575,13 +569,10 @@ void unitest(int base,int test, bool latex_style) {
     t4 /= diviser;
     t5 /= diviser;
 
-    if(latex_style)
-        printf("%d & %.2f & %.2f & %.2f & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8),t1, t2, t3, t4, t5);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
 }
 
-void karytest(int K, int base,int test, bool latex_style) {
+void karytest(int K, int base,int test) {
     ull t;
 
     BN g(base, -1);
@@ -610,13 +601,10 @@ void karytest(int K, int base,int test, bool latex_style) {
     t1 /= diviser;
     t2 /= diviser;
 
-    if(latex_style)
-        printf("%d & %d & %.2f & %.2f \\\\\n", K, (int)(base*sizeof(bt)*8),t1, t2);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
 }
 
-void slidetest(int base,int test, bool latex_style) {
+void slidetest(int base,int test) {
     ull t;
 
     BN g(base, -1);
@@ -673,13 +661,10 @@ void slidetest(int base,int test, bool latex_style) {
     t4 /= diviser;
     t5 /= diviser;
 
-    if(latex_style)
-        printf("%d & %.2f & %.2f & %.2f & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8),t1, t2, t3, t4, t5);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
 }
 
-void simtest(int base,int test, bool latex_style) {
+void simtest(int base,int test) {
     ull t;
 
     vector <BN> vg(test);
@@ -707,13 +692,10 @@ void simtest(int base,int test, bool latex_style) {
     t1 /= diviser;
     t2 /= diviser;
 
-    if(latex_style)
-        printf("%d & %d & %.2f & %.2f \\\\\n",test, (int)(base*sizeof(bt)*8), t1, t2);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2);
 }
 
-void fixtest(int base,int test, bool latex_style) {
+void fixtest(int base,int test) {
     ull t;
 
     BN g(base, -1);
@@ -759,14 +741,11 @@ void fixtest(int base,int test, bool latex_style) {
     t3 /= diviser;
     t4 /= diviser;
 
-    if(latex_style)
-        printf("%d & %d & %.2f & %.2f & %.2f & %.2f \\\\\n", test, (int)(base*sizeof(bt)*8), t1, t2, t3, t4);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2, t3, t4);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2, t3, t4);
 }
 
 
-void exptest(int base,int test, bool latex_style) {
+void exptest(int base,int test) {
     ull t;
 
     vector <BN> g;
@@ -805,15 +784,12 @@ void exptest(int base,int test, bool latex_style) {
     t2 /= diviser;
     t3 /= diviser;
 
-    if(latex_style)
-        printf("%d & %.2f & %.2f & %.2f \\\\\n", (int)(base*sizeof(bt)*8),t1, t2, t3);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test,t1, t2, t3);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test,t1, t2, t3);
 }
 
 
 
-void restest(int base,int test, bool latex_style) {
+void restest(int base,int test) {
     ull t;
 
     BN g(base, -1);
@@ -844,271 +820,121 @@ void restest(int base,int test, bool latex_style) {
     t1 /= diviser;
     t2 /= diviser;
 
-    if(latex_style)
-        printf("%d & %.2f & %.2f \\\\\n",(int)(base*sizeof(bt)*8), t1, t2);
-    else
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
 }
 
 
-void cout_table_line()
-{
-        char hline                [100] = "\\hline\n";
-        cout
-        << hline;
-        return;
-}
+void resulttest() {
+    cout<<"Test \"multiplication\":"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (µs)\tComma's (µs)\tCaracuba (µs)"<<endl;
 
-void cout_table_start(char caption[1000], char tabular[1000])
-{
-        char table_start        [100] = "\\begin{table}[h!]\n";
-        char table_caption        [100] = "\\caption{\\textbf{";
-        char center_start        [100] = "\\begin{center}\n";
-        char tabular_start        [100] = "\\begin{tabular}{";
-        cout
-                << table_start
-                << table_caption
-                << caption
-                << "}}\n"
-                << center_start
-                << tabular_start
-                << tabular
-                << "}\n";
-        cout_table_line();
-        return;
-}
+    multest(16, 500000);
+    multest(32, 100000);
+    multest(64, 50000);
+    multest(128, 20000);
+    multest(256, 2000);
+    multest(512, 1000);
+    multest(1024, 200);
+    multest(2048, 50);
+    multest(4096, 20);
 
-void cout_table_end()
-{
-    char tabular_stop[100] = "\\end{tabular}\n";
-    char center_stop[100] = "\\end{center}\n";
-    char table_end[100] = "\\end{table}\n";
-    cout_table_line();
-    cout
-            << tabular_stop
-            << center_stop
-            << table_end;
-    return;
-}
+    cout<<"Test \"reduction\":"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tBarrett (ms)\tMontgomery (ms)"<<endl;
 
-void resulttest(bool latex_style) {
-    if(latex_style) {
-        char caption[100] = "Алгоритмы умножения ($10^{-6}$ c)";
-        char tabular[100] = "|c||c|c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & Столбик & Быстрый столбик & Карацуба \\\\\n";
-        cout_table_line();
-    }
-    else {
-        cout<<"Test \"multiplication\":"<<endl;
-        cout<<"Base\tBit\tTests\tClassic (µs)\tComma's (µs)\tCaracuba (µs)"<<endl;
-    }
-    multest(16,500000,latex_style);
-    multest(32,100000,latex_style);
-    multest(64,50000,latex_style);
-    multest(128,20000,latex_style);
-    multest(256,2000,latex_style);
-    multest(512,1000,latex_style);
-    multest(1024,200,latex_style);
-    multest(2048,50,latex_style);
-    multest(4096,20,latex_style);
-    multest(8192,20,latex_style);
+    modtest(16, 50);
+    modtest(32, 25);
+    modtest(64, 5);
+    modtest(128, 5);
 
-    if(latex_style) {
-        char caption[100] = "Приведение по модулю (мc)";
-        char tabular[100] = "|c||c|c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & Остаток & Барретт & Монтгомери \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"reduction\":"<<endl;
-        cout<<"Base\tBit\tTests\tClassic (ms)\tBarrett (ms)\tMontgomery (ms)"<<endl;
-    }
-    modtest(16,100,latex_style);
-    modtest(32,50,latex_style);
-    modtest(64,10,latex_style);
-    modtest(128,5,latex_style);
-    modtest(256,5,latex_style);
-    modtest(512,1,latex_style);
+    cout<<"Test \"Universal Methods\":"<<endl;
+    cout<<"Base\tBit\tTests\tLeft-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
 
-    if(latex_style) {
-        char caption[100] = "Универсальные методы (мc)";
-        char tabular[100] = "|c||c|c|c|c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & слева направо & справа налево & к-арные & к-арные мод & скольз. \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"Universal Methods\":"<<endl;
-        cout<<"Base\tBit\tTests\tLeft-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
-    }
-    unitest(16,100,latex_style);
-    unitest(32,50,latex_style);
-    unitest(64,10,latex_style);
-    unitest(128,5,latex_style);
-    unitest(256,5,latex_style);
-    unitest(512,1,latex_style);
+    unitest(16, 50);
+    unitest(32, 25);
+    unitest(64, 5);
+    unitest(128, 5);
 
-    if(latex_style) {
-        char caption[100] = "k-арный метод (мc)";
-        char tabular[100] = "|c|c||c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & k & к-арный & к-арный [Var] \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"k-ary method\":"<<endl;
-        cout<<"Base\tBit\tTests\tk\tk-ary (ms) \t k-ary [Var] (ms)\t"<<endl;
-    }
-    karytest(6, 16,100,latex_style);
-    karytest(6, 32,50,latex_style);
-    karytest(6, 64,10,latex_style);
-    karytest(6, 128,5,latex_style);
-    karytest(6, 256,2,latex_style);
+    cout<<"Test \"k-ary method\":"<<endl;
+    cout<<"Base\tBit\tTests\tk\tk-ary (ms) \t k-ary [Var] (ms)\t"<<endl;
 
-    karytest(7, 16,100,latex_style);
-    karytest(7, 32,50,latex_style);
-    karytest(7, 64,10,latex_style);
-    karytest(7, 128,5,latex_style);
-    karytest(7, 256,2,latex_style);
+    karytest(6, 16, 50);
+    karytest(6, 32, 25);
+    karytest(6, 64, 5);
+    karytest(6, 128, 5);
 
-    karytest(8, 16,100,latex_style);
-    karytest(8, 32,50,latex_style);
-    karytest(8, 64,10,latex_style);
-    karytest(8, 128,5,latex_style);
-    karytest(8, 256,2,latex_style);
+    karytest(8, 16, 50);
+    karytest(8, 32, 25);
+    karytest(8, 64, 5);
+    karytest(8, 128, 5);
 
-    karytest(9, 16,100,latex_style);
-    karytest(9, 32,50,latex_style);
-    karytest(9, 64,10,latex_style);
-    karytest(9, 128,5,latex_style);
-    karytest(9, 256,2,latex_style);
+    karytest(10, 16, 50);
+    karytest(10, 32, 25);
+    karytest(10, 64, 5);
+    karytest(10, 128, 5);
 
-    karytest(10, 16,100,latex_style);
-    karytest(10, 32,50,latex_style);
-    karytest(10, 64,10,latex_style);
-    karytest(10, 128,5,latex_style);
-    karytest(10, 256,2,latex_style);
+    cout<<"Test \"k in Sliding Window\":"<<endl;
+    cout<<"Base\tBit\tTests\tLeft-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
 
-        if(latex_style) {
-            char caption[100] = "k для скользящего (мc)";
-            char tabular[100] = "|c||c|c|c|";
-            cout_table_start(caption,tabular);
-            cout<<"Кол-во бит & Остаток & Барретт & Монтгомери \\\\\n";
-            cout_table_line();
-        } else {
-            cout<<"Test \"k in Sliding Window\":"<<endl;
-            cout<<"Base\tBit\tTests\tLeft-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
-        }
-        slidetest(16,100,latex_style);
-        slidetest(32,50,latex_style);
-        slidetest(64,10,latex_style);
-        slidetest(128,5,latex_style);
-        slidetest(256,5,latex_style);
-        slidetest(512,1,latex_style);
+    slidetest(16, 50);
+    slidetest(32, 25);
+    slidetest(64, 5);
+    slidetest(128, 5);
 
-    if(latex_style) {
-        char caption[100] = "Произведение степеней (мc)";
-        char tabular[100] = "|c||c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во тестов & Кол-во бит & Универсальный & Произведение \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"Simultaneuos multiple exponentiation\":"<<endl;
-        cout<<"Base\tBit\tTests\tClassic (ms)\tSimultaneous...(ms)"<<endl;
-    }
+    cout<<"Test \"Simultaneuos multiple exponentiation\":"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tSimultaneous...(ms)"<<endl;
 
-    simtest(16,10,latex_style);
-    simtest(32,10,latex_style);
-    simtest(64,10,latex_style);
-    simtest(128,10,latex_style);
-    simtest(256,10,latex_style);
-      simtest(512,10,latex_style);
+    simtest(16,10);
+    simtest(32,10);
+    simtest(64,10);
+    simtest(128,10);
 
-    simtest(16,5,latex_style);
-    simtest(32,5,latex_style);
-    simtest(64,5,latex_style);
-    simtest(128,5,latex_style);
-    simtest(256,5,latex_style);
-        simtest(512,5,latex_style);
+    simtest(16,5);
+    simtest(32,5);
+    simtest(64,5);
+    simtest(128,5);
 
-    simtest(16,2,latex_style);
-    simtest(32,2,latex_style);
-    simtest(64,2,latex_style);
-    simtest(128,2,latex_style);
-    simtest(256,2,latex_style);
-    simtest(512,2,latex_style);
+    simtest(16,2);
+    simtest(32,2);
+    simtest(64,2);
+    simtest(128,2);
+
+    cout<<"Test \"Method with Fixed-base\":"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tWindow (ms)\tEuclidean (ms)\tComb-base (ms)"<<endl;
+
+    fixtest(16, 50);
+    fixtest(32, 50);
+    fixtest(64, 50);
 
 
-    if(latex_style) {
-        char caption[100] = "Методы с фиксированным основанием (мc)";
-        char tabular[100] = "|c|c||c|c|c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & Кол-во умножений & Универсальный & Окна & Евклида & Гребня \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"Method with Fixed-base\":"<<endl;
-        cout<<"Base\tBit\tTests\tClassic (ms)\tWindow (ms)\tEuclidean (ms)\tComb-base (ms)"<<endl;
-    }
-    fixtest(16,100,latex_style);
-    fixtest(32,100,latex_style);
-    fixtest(64,100,latex_style);
-    fixtest(128,100, latex_style);
+    fixtest(16, 10);
+    fixtest(32, 10);
+    fixtest(64, 10);
+    fixtest(128, 10);
 
+    fixtest(16, 5);
+    fixtest(32, 5);
+    fixtest(64, 5);
+    fixtest(128, 5);
 
-    fixtest(16,10,latex_style);
-    fixtest(32,10,latex_style);
-    fixtest(64,10,latex_style);
-    fixtest(128,10,latex_style);
-    fixtest(256,10,latex_style);
-    fixtest(512,10,latex_style);
+    fixtest(16, 2);
+    fixtest(32, 2);
+    fixtest(64, 2);
+    fixtest(128, 2);
 
-    fixtest(16,5,latex_style);
-    fixtest(32,5,latex_style);
-    fixtest(64,5,latex_style);
-    fixtest(128,5,latex_style);
-    fixtest(256,5,latex_style);
-    fixtest(512,5,latex_style);
+    cout<<"Test \"Method with exponent-recording\":"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tSigned (ms)\tSR(ms)"<<endl;
 
-    fixtest(16,2,latex_style);
-    fixtest(32,2,latex_style);
-    fixtest(64,2,latex_style);
-    fixtest(128,2,latex_style);
-    fixtest(256,2,latex_style);
-    fixtest(512,2,latex_style);
+    exptest(16, 50);
+    exptest(32, 25);
+    exptest(64, 5);
+    exptest(128, 5);
 
-    if(latex_style) {
-        char caption[100] = "Нестандартный вид экспоненты (мc)";
-        char tabular[100] = "|c||c|c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & Стандартный & Знаковая & Строковая \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"Method with exponent-recording\":"<<endl;
-        cout<<"Base\tBit\tTests\tClassic (ms)\tSigned (ms)\tSR(ms)"<<endl;
-    }
-    exptest(16,100,latex_style);
-    exptest(32,50,latex_style);
-    exptest(64,10,latex_style);
-    exptest(128,5,latex_style);
-    exptest(256,5,latex_style);
-    exptest(512,2,latex_style);
+    cout<<"Test \"Super-Method\":"<<endl;
+    cout<<"Base\tBit\tTests\tUniversal (ms)\tSlide mod(ms)\t SD mod"<<endl;
 
-    if(latex_style) {
-        char caption[100] = "Лучший алгоритм (мc)";
-        char tabular[100] = "|c||c|c|c|";
-        cout_table_start(caption,tabular);
-        cout<<"Кол-во бит & Универсальный & Лучший-1 & Лучший-2 \\\\\n";
-        cout_table_line();
-    } else {
-        cout<<"Test \"Super-Method\":"<<endl;
-        cout<<"Base\tBit\tTests\tUniversal (ms)\tSlide mod(ms)\t SD mod"<<endl;
-    }
-    restest(16,100,latex_style);
-    restest(32,50,latex_style);
-    restest(64,10,latex_style);
-    restest(128,5,latex_style);
-    restest(256,5,latex_style);
-    restest(512,2,latex_style);
-    return;
-
+    restest(16, 50);
+    restest(32, 25);
+    restest(64, 5);
+    restest(128, 5);
 }
 

@@ -16,7 +16,7 @@ void testing();
 void multest(int base,int test);
 void gcdtest(int base,int test);
 void qrtest(int base,int test);
-void resulttest(bool latex_style);
+void resulttest();
 
 #endif /* _TESTING_H */
 

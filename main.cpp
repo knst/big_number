@@ -23,12 +23,14 @@ int main(int argc, char** argv) {
         testingMul();
         testingBN();
         testing();
-        resulttest(false);
+        if (argc > 1)
+            resulttest();
     } catch (char const * str) {
         cout<<str;
         return -1;
     }
-    cout << (clock() - t) << endl;
+    cout.precision(3);
+    cout << "Seconds: " << fixed << static_cast<double>(clock() - t) / CLOCKS_PER_SEC << endl;
     return 0;
 }
 
