@@ -61,7 +61,7 @@ BN::BN()
     GetMemory(2);
 }
 
-BN::BN(ull basecount,const int &value)
+BN::BN(uint64_t basecount,const int &value)
 {
         if(basecount<=0)
                 throw "Base count <= 0";
@@ -70,9 +70,9 @@ BN::BN(ull basecount,const int &value)
         GetMemory(value);
 }
 
-BN::BN(ull x)
+BN::BN(uint64_t x)
 {
-        rbc=(sizeof(ull)+bz-1)/bz;                //преобразуем из long long => размер BN должен быть такой же как у (не меньше чем) long long
+        rbc=(sizeof(uint64_t)+bz-1)/bz;                //преобразуем из long long => размер BN должен быть такой же как у (не меньше чем) long long
         bc=rbc+1;
         GetMemory(2);
         for(int i=0;i<rbc;i++,x>>=bz8)
@@ -1129,34 +1129,34 @@ BN BN::reduction_special(const BN &mod)const {
     return r_sum;
 }
 
-BN BN::Pow(ull power)const
+BN BN::Pow(uint64_t power)const
 {
         BN Res(1);
-        if(power==(ll)0)
+        if(power==(int64_t)0)
                 return Res;
         BN t=(*this);
         while(power)
         {
-                if(power&(ll)1)
+                if(power&(int64_t)1)
                         Res=Res*t;
                 t=t*t;
-                power>>=(ll)1;
+                power>>=(int64_t)1;
         }
         return Res;
 }
 
-BN BN::PowMod(ull power, BN mod)const
+BN BN::PowMod(uint64_t power, BN mod)const
 {
         BN Res(1);
-        if(power==(ll)0)
+        if(power==(int64_t)0)
                 return Res;
         BN t=(*this)%mod;
         while(power)
         {
-                if(power&(ll)1)
+                if(power&(int64_t)1)
                         Res=(Res*t)%mod;
                 t=(t*t)%mod;
-                power>>=(ll)1;
+                power>>=(int64_t)1;
         }
         return Res%mod;
 }
@@ -1576,11 +1576,11 @@ bool BN::bitI(unsigned int index)const {
     return false;
 }
 
-BN::operator ull ()const {
-    ull result=0;
+BN::operator uint64_t ()const {
+    uint64_t result=0;
     //for(int i = rbc-1;i>=0;i--)
     for(
-            int i = (unsigned)rbc-1 > sizeof(ull)/bz ? sizeof(ull)/bz-1:rbc-1;
+            int i = (unsigned)rbc-1 > sizeof(uint64_t)/bz ? sizeof(uint64_t)/bz-1:rbc-1;
             i>=0;
             i--) {
         result<<=bz8;

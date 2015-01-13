@@ -17,7 +17,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    ull t = clock();
+    uint64_t t = clock();
     try {
         testingExp();
         testingMul();

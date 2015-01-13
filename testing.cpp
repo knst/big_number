@@ -10,6 +10,7 @@
 #include "BN.h"
 #include "additional.h"
 
+#include <inttypes.h>
 
 int testingMul_ij(int max1,int max2, int i,int j) {
     BN bn1(rand()%max1+1,-1);
@@ -184,20 +185,20 @@ int testing_ij(int max1,int max2, int i,int j)
                         printf("f22:\t");        (bn1bn2/bn1).PrintDec();
                         return 1;
                 }
-                if((ull)(bn1*bn2/bn1/bn2)!=1)
+                if((uint64_t)(bn1*bn2/bn1/bn2)!=1)
                         return 2;
                 if(bn1/bn2*bn2-bn1!=bn1%bn2+bn_0)
                         return 3;
-                if((ull)(bn1*bn2)!=(ull)bn1*(ull)bn2)
+                if((uint64_t)(bn1*bn2)!=(uint64_t)bn1*(uint64_t)bn2)
                         return 4;
                 if(bn1*bn1!=bn1.Qrt())
                         return 5;
-                ull pow=(ull)bn1;
+                uint64_t pow=(uint64_t)bn1;
                 BN powbn(pow);
                 if(j % 10 == 0 && mod!=bn_0&&bn2.PowMod(pow,mod)!=bn2.PowMod(powbn,mod))
                 {
                         printf("bn2:");bn2.PrintDec();
-                        printf("pow:");printf("%lld\n",pow);
+                        printf("pow:");printf("%" PRIu64 "\n",pow);
                         printf("pBN:");powbn.PrintDec();
                         printf("mod:");mod.PrintDec();
                         printf("Pll:");bn2.PowMod(pow,mod).PrintDec();
@@ -334,7 +335,7 @@ void testing() {
                 cout<<"OK\n";
         cout<<"Test 2:\t";
         cout.flush();
-        if((ull)(bn1*bn2/bn1/bn2)!=1)
+        if((uint64_t)(bn1*bn2/bn1/bn2)!=1)
                 cout<<"FAIL\n";
         else
                 cout<<"OK\n";
@@ -346,7 +347,7 @@ void testing() {
                 cout<<"OK\n";
         cout<<"Test 4:\t";
         cout.flush();
-        if((ull)(bn1*bn2)!=(ull)bn1*(ull)bn2)
+        if((uint64_t)(bn1*bn2)!=(uint64_t)bn1*(uint64_t)bn2)
                 cout<<"FAIL\n";
         else
                 cout<<"OK\n";
@@ -389,7 +390,7 @@ void testing() {
 
 void multest(int base,int test)
 {
-        ull t;
+        uint64_t t;
         vector <BN> v1;
         vector <BN> v2;
 
@@ -427,7 +428,7 @@ void multest(int base,int test)
 }
 
 void modtest(int base,int test) {
-    ull t;
+    uint64_t t;
     vector <BN> g;
     vector <BN> exp;
     vector <BN> mod;
@@ -466,7 +467,7 @@ void modtest(int base,int test) {
 }
 
 void unitest(int base,int test) {
-    ull t;
+    uint64_t t;
 
     BN g(base, -1);
     vector <BN> exp;
@@ -517,7 +518,7 @@ void unitest(int base,int test) {
 }
 
 void karytest(int K, int base,int test) {
-    ull t;
+    uint64_t t;
 
     BN g(base, -1);
     vector <BN> exp;
@@ -549,7 +550,7 @@ void karytest(int K, int base,int test) {
 }
 
 void slidetest(int base,int test) {
-    ull t;
+    uint64_t t;
 
     BN g(base, -1);
     vector <BN> exp;
@@ -609,7 +610,7 @@ void slidetest(int base,int test) {
 }
 
 void restest(int base,int test) {
-    ull t;
+    uint64_t t;
 
     BN g(base, -1);
     vector <BN> exp;

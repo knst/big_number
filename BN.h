@@ -13,9 +13,6 @@
 
 using namespace std;
 
-#define ull        unsigned long long
-#define ll        long long
-
 #define bt        unsigned char
 #define bt2        unsigned short
 #define bt2s        short
@@ -63,8 +60,8 @@ private:
     BN karatsubaRecursive(const BN & bn, int start, int len) const;
 public:
     BN();
-    BN(ull basecount,const int &value);         //[value] 0:fill 0; 1:fill 1; -1:rand().
-    BN(ull x);
+    BN(uint64_t basecount,const int &value);         //[value] 0:fill 0; 1:fill 1; -1:rand().
+    BN(uint64_t x);
     BN(const BN&);
     BN(const BN&, int start, int count=-1);
     BN(const string &,const int & base = 0);        // base - 0: Hex, 1: Dec
@@ -105,8 +102,8 @@ public:
     BN reduction_montgomery (const BN& mod, bt m1, BN T ) const;
     BN reduction_barrett    (const BN&,const BN&        ) const;
     BN reduction_special    (const BN&                  ) const;
-    BN Pow(ull)const;
-    BN PowMod(ull,BN)const;
+    BN Pow(uint64_t)const;
+    BN PowMod(uint64_t,BN)const;
     BN PowMod(BN,BN)const;
     BN PowModBarrett(BN, BN)const;
     BN expRightToLeft(BN, BN)const;
@@ -129,7 +126,7 @@ public:
     BN Qrt()const;
     int countzeroright()const;
     bool bitI(unsigned int i)const;
-    operator ull()const;
+    operator uint64_t()const;
     bool is0()const;
     bool isEven()const;
     void Print(bool newstr=true)const;
