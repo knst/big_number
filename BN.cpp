@@ -72,12 +72,12 @@ BN::BN(uint64_t basecount,const int &value)
 
 BN::BN(uint64_t x)
 {
-        rbc=(sizeof(uint64_t)+bz-1)/bz;                //преобразуем из long long => размер BN должен быть такой же как у (не меньше чем) long long
-        bc=rbc+1;
-        GetMemory(2);
-        for(int i=0;i<rbc;i++,x>>=bz8)
-                ba[i]=(bt)x;
-        Norm();
+    rbc = (sizeof(uint64_t) + bz - 1) / bz;
+    bc = rbc+1;
+    GetMemory(2);
+    for(int i = 0; i < rbc; i++, x >>= bz8)
+        ba[i] = static_cast<bt>(x);
+    Norm();
 }
 
 BN::BN(const BN& bn)
@@ -108,7 +108,7 @@ BN::BN(const BN& bn, int start, int count) {
     for(int i = 0; i < count && i + start < bn.rbc; i++)
         ba[i] = bn.ba[i + start];
 
-    int bbstart = max(0, bn.rbc - start);
+    int bbstart = max<size_t>(0, bn.rbc - start);
     for(int i = bbstart; i < bc; i++)
         ba[i] = 0;
     Norm();
@@ -458,10 +458,9 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
     int result_len = max(count_1, count_2);
     BN result(result_len + 1, 2);
 
-    int max_1 = min(count_1, bn1.rbc - start_1);
-    int max_2 = min(count_2, bn2.rbc - start_2);
-    int m_min = min(max_1, max_2);
-
+    size_t max_1 = min<size_t>(count_1, bn1.rbc - start_1);
+    size_t max_2 = min<size_t>(count_2, bn2.rbc - start_2);
+    size_t m_min = min<size_t>(max_1, max_2);
 
     bt2 res = 0;
     int pos = 0;
@@ -989,7 +988,7 @@ bt BN::operator [](const int index)const
         {
                 int buf_len=1000;
                 char *buffer=new char [buf_len];
-                snprintf(buffer,buf_len,"Error in index.\nIndex: %d\nAvailable range of index: 0 - %d\n",index,rbc-1);
+                snprintf(buffer,buf_len,"Error in index.\nIndex: %d\nAvailable range of index: 0 - %zu\n",index,rbc-1);
                 throw buffer;
         }
         return ba[index];

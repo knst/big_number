@@ -41,9 +41,11 @@ constexpr size_t caracuba_const = 50;
 class BN {
 private:
     bt *ba;
-    int bc;                                 //количество выделенных баз
-    int rbc;                                //количество реально используемых баз
-    void GetMemory(int value=2);
+    // allocated memory (base count)
+    size_t bc;
+    // used memory (base count)
+    size_t rbc;
+    void GetMemory(int value = 2);
     void FreeMemory();
     int Norm();                             //пересчитать rbc
 
