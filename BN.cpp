@@ -252,10 +252,7 @@ BN & BN::operator ++()
 
 const BN BN::operator - (const BN& bn)const
 {
-    if(*this >= bn)
-        return this -> sub(bn);
-    else
-        return bn.sub(*this);
+    return this->sub(bn);
 }
 
 BN & BN::operator --()
@@ -647,13 +644,13 @@ BN BN::sub(const BN& bn)const
     bool flag = 0;
     size_t pos = 0;
 
-    for (; pos < bn.rbc; ++pos) {
+    for (; pos < bn.rbc && pos < rbc; ++pos) {
         bt2s res = static_cast<bt2s>(ba[pos]) - bn.ba[pos] - flag;
         result.ba[pos] = static_cast<bt>(res);
         flag = (res < 0);
     }
 
-    for (; flag; ++pos) {
+    for (; flag & pos < rbc; ++pos) {
         result.ba[pos] = ba[pos] - 1;
         flag = (result.ba[pos] > ba[pos]);
     }
