@@ -629,32 +629,27 @@ BN BN::modbaseappr(const bt &diviser)
 
 BN BN::sub(const BN& bn)const
 {
-        BN result(rbc,2);
+    BN result(rbc, 2);
 
-        bool flag=0;
-        bt2s res;
-        int pos=0;
-        for(;pos< bn.rbc;pos++)
-        {
-                res=(bt2s)ba[pos] - (bt2s)bn.ba[pos] - (bt2s)flag;
-                result.ba[pos]=res;
-                if(res<0)
-                        flag=true;
-                else
-                        flag=false;
-        }
-        for(;flag&&pos<rbc;pos++)
-        {
-                result.ba[pos]=ba[pos] - flag;
-                if(result.ba[pos] > ba[pos])
-                        flag=true;
-                else
-                        flag=false;
-        }
-        for(;pos < rbc; pos++)
-                result.ba[pos] = ba[pos];
-        result.Norm();
-        return result;
+    bool flag = 0;
+    size_t pos = 0;
+
+    for (; pos < bn.rbc; ++pos) {
+        bt2s res = static_cast<bt2s>(ba[pos]) - bn.ba[pos] - flag;
+        result.ba[pos] = static_cast<bt>(res);
+        flag = (res < 0);
+    }
+
+    for (; flag; ++pos) {
+        result.ba[pos] = ba[pos] - 1;
+        flag = (result.ba[pos] > ba[pos]);
+    }
+
+    for(;pos < rbc; pos++)
+        result.ba[pos] = ba[pos];
+
+    result.Norm();
+    return result;
 }
 
 bool BN::lessorequal(const BN&bn,const int &shift)const        //считается, что bn справа дополнен shift нулями
