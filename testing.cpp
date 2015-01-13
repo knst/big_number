@@ -47,7 +47,6 @@ int testingExp_ij(int max1,int max2, int i,int j) {
     vector <BN> precompModif = g.expLeftToRightK_aryModifPrecomputation(mod);
     vector <BN> precompSlide = g.expSlidingWindowPrecomputation(mod, k_slide);
     vector <BN> precompSlideU = g.expBest_SlidePrecomp(mod);
-    vector <BN> precompFixWind = expFixedBaseWindowPrecomputation(g,exp.basecount()-1,mod);
 
     BN res1 = g.expLeftToRight(exp,mod);
     BN res2 = g.expRightToLeft(exp,mod);
@@ -63,18 +62,6 @@ int testingExp_ij(int max1,int max2, int i,int j) {
         res6 = res1;
     }
 
-    BN res7 = expFixedBaseWindow(precompFixWind, exp, mod);
-    BN res8;
-    if(exp.basecount() < 3)
-        res8 = res7;
-    else
-        res8 = expFixedBaseEuclidean(precompFixWind, exp, mod);
-
-    int k = 5;
-    BN res10 = expkaryStringReplacement(g,
-            karyStringReplacementRepresentation(exp, k),
-            mod, k);
-
     BN res12 = g.expBest_Slide(exp, mod, precompSlideU);
 
     if(
@@ -84,9 +71,6 @@ int testingExp_ij(int max1,int max2, int i,int j) {
             res1 != res4 ||
             res1 != res5 ||
             res1 != res6 ||
-            res1 != res7 ||
-//            res1 != res8 ||
-            res1 != res10||
             res1 != res12) {
         printf("g:\t");         g.PrintDec();
         printf("exp:\t");       exp.PrintDec();
@@ -98,39 +82,10 @@ int testingExp_ij(int max1,int max2, int i,int j) {
         printf("bn1!>bn2:\t");  res4.PrintDec();
         printf("bn1>>bn2:\t");  res5.PrintDec();
         printf("bn1MMbn2:\t");  res6.PrintDec();
-        printf("bn1FWbn2:\t");  res7.PrintDec();
-        printf("bn1FEbn2:\t");  res8.PrintDec();
-        printf("bn1SRbn2:\t");  res10.PrintDec();
         printf("bn1##bn2:\t");  res12.PrintDec();
-        printf("precompFixWind:\n");
-        for(vector <BN> :: iterator iter = precompFixWind.begin(); iter != precompFixWind.end(); iter++)
-            iter->PrintDec();
         puts("");
         return 1;
     }
-    return 0;
-    if ( j % 5 == 0) {
-        vector <BN> vg(vsize);
-        vector <BN> ve(vsize);
-        for(int i = 0; i < vsize; i++) {
-            vg[i] = BN(rand() % max1 + 1, -1);
-            ve[i] = BN(rand() % max2 + 1, -1);
-        }
-        vector <BN> G = expSimutaneousMulPrecomputation(vg,ve,mod);
-        BN res1 = expSimutaneousMul(G,ve,mod);
-        BN res2 = (BN) 1;
-        for(int i = 0; i < vsize; i++) {
-            res2 = res2 * vg[i].PowMod(ve[i], mod) % mod;
-        }
-        if(res1 != res2) {
-
-            printf("res1:\t");  res1.PrintDec();
-            printf("res2:\t");  res2.PrintDec();
-            return 1;
-        }
-
-    }
-
     return 0;
 }
 
@@ -653,118 +608,6 @@ void slidetest(int base,int test) {
     printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
 }
 
-void simtest(int base,int test) {
-    ull t;
-
-    vector <BN> vg(test);
-    vector <BN> ve(test);
-    BN mod(base, -1);
-
-    for(int i = 0; i < test; i++) {
-        vg[i] = BN(base, -1);
-        ve[i] = BN(base, -1);
-    }
-
-    t = clock();
-    BN res2 = (BN) 1;
-    for(int i = 0; i < test; i++) {
-        res2 = res2 * vg[i].PowMod(ve[i], mod) % mod;
-    }
-    float t1 = clock() - t;
-
-    t = clock();
-    vector <BN> G = expSimutaneousMulPrecomputation(vg,ve,mod);
-    expSimutaneousMul(G,ve,mod);
-    float t2 = clock() - t;
-
-    float diviser = 1000.0 * test;
-    t1 /= diviser;
-    t2 /= diviser;
-
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2);
-}
-
-void fixtest(int base,int test) {
-    ull t;
-
-    BN g(base, -1);
-    vector <BN> exp;
-    BN mod(base, -1);
-
-    for(int i=0;i<test;i++) {
-        BN e = BN(base, -1);
-        while(e.bitcount() != (int)(base*bz8))
-            e = BN(base, -1);
-        exp.push_back( e );
-    }
-
-    t = clock();
-    BN res = 1;
-    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-        res = res * g.expLeftToRight(*e, mod);
-    float t1 = clock() - t;
-
-    t = clock();
-    vector <BN> precompFixWind = expFixedBaseWindowPrecomputation(g, base - 1,mod);
-    float  t_2_3 = clock() - t;
-
-    t = clock();
-    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-        expFixedBaseWindow(precompFixWind, *e, mod);
-    float t2 = clock() - t + t_2_3;
-
-    t = clock();
-    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-        expFixedBaseEuclidean(precompFixWind, *e, mod);
-    float t3 = clock() - t + t_2_3;
-
-    float diviser = 1000.0 * test;
-    t1 /= diviser;
-    t2 /= diviser;
-    t3 /= diviser;
-
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8), test, t1, t2, t3);
-}
-
-
-void exptest(int base,int test) {
-    ull t;
-
-    vector <BN> g;
-    vector <BN> exp;
-    vector <BN> mod;
-
-    for(int i=0;i<test;i++) {
-        exp.push_back(BN(base, -1));
-        BN m(base, -1);
-        BN G(base, -1);
-        while(gcdBinary(G, m) != (BN)1) {
-            m = BN(base, -1);
-            G = BN(base, -1);
-        }
-        g.push_back( G );
-        mod.push_back( m );
-    }
-
-    t = clock();
-    for(vector <BN> :: iterator i = g.begin(), j = exp.begin(), k = mod.begin(); i != g.end(); i++, j++, k++)
-        i->PowMod(*j, *k);
-    float t1 = clock() - t;
-
-    t = clock();
-    for(vector <BN> :: iterator i = g.begin(), j = exp.begin(), k = mod.begin(); i != g.end(); i++, j++, k++)
-        expkaryStringReplacement(*i, karyStringReplacementRepresentation(*j, 5),*k, 5);
-    float t2 = clock() - t;
-
-    float diviser = 1000.0 * test;
-    t1 /= diviser;
-    t2 /= diviser;
-
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test,t1, t2);
-}
-
-
-
 void restest(int base,int test) {
     ull t;
 
@@ -855,55 +698,6 @@ void resulttest() {
     slidetest(32, 25);
     slidetest(64, 5);
     slidetest(128, 5);
-
-    cout<<"Test \"Simultaneuos multiple exponentiation\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (ms)\tSimultaneous...(ms)"<<endl;
-
-    simtest(16,10);
-    simtest(32,10);
-    simtest(64,10);
-    simtest(128,10);
-
-    simtest(16,5);
-    simtest(32,5);
-    simtest(64,5);
-    simtest(128,5);
-
-    simtest(16,2);
-    simtest(32,2);
-    simtest(64,2);
-    simtest(128,2);
-
-    cout<<"Test \"Method with Fixed-base\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (ms)\tWindow (ms)\tEuclidean (ms)"<<endl;
-
-    fixtest(16, 50);
-    fixtest(32, 50);
-    fixtest(64, 50);
-
-
-    fixtest(16, 10);
-    fixtest(32, 10);
-    fixtest(64, 10);
-    fixtest(128, 10);
-
-    fixtest(16, 5);
-    fixtest(32, 5);
-    fixtest(64, 5);
-    fixtest(128, 5);
-
-    fixtest(16, 2);
-    fixtest(32, 2);
-    fixtest(64, 2);
-    fixtest(128, 2);
-
-    cout<<"Test \"Method with exponent-recording\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (ms)\tSR(ms)"<<endl;
-
-    exptest(16, 50);
-    exptest(32, 25);
-    exptest(64, 5);
-    exptest(128, 5);
 
     cout<<"Test \"Super-Method\":"<<endl;
     cout<<"Base\tBit\tTests\tUniversal (ms)\tSlide mod(ms)\t SD mod"<<endl;
