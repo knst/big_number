@@ -84,12 +84,12 @@ public:
     // This function return: this % base^t
     BN   modbt(size_t mod) const;
 
-    BN   mulbase(const bt&)const;
-    BN   mulbaseappr(const bt&);
-    BN   divbase(const bt&)const;
-    BN   divbaseappr(const bt&);
-    BN   modbase(const bt&)const;
-    BN   modbaseappr(const bt&);
+    const BN mulbase(const bt&)const;
+    BN& mulbaseappr(const bt&);
+    const BN divbase(const bt&)const;
+    BN& divbaseappr(const bt&);
+    const BN modbase(const bt&)const;
+    BN& modbaseappr(const bt&);
 
     // This function subtraction "bn" from "this".
     // Constrains: this >= bn
@@ -100,19 +100,19 @@ public:
     BN   sub(const BN&)const;
 
     BN & operator = (const BN&);
-    BN   operator + (const BN&)const;
+    const BN operator + (const BN&)const;
     BN & operator ++();
-    BN   operator - (const BN&)const;        // result = abs(*this - bn)
+    const BN operator - (const BN&)const;        // result = abs(*this - bn)
     BN & operator --();
-    BN   operator * (const BN&)const;
-    BN   fast_mul (const BN&)const;        //быстрый столбик
-    BN   karatsuba (const BN&)const;
-    BN   karatsuba_old (const BN&)const;
+    const BN operator * (const BN&)const;
+    const BN fast_mul (const BN&)const;        //быстрый столбик
+    const BN karatsuba (const BN&)const;
+    const BN karatsuba_old (const BN&)const;
     void divmod(const BN& bn, BN& div, BN& mod) const;
-    BN   operator / (const BN&)const;
-    BN   operator % (const BN&)const;
-    BN   operator >>(int shift)const;
-    BN   operator <<(int shift) const;
+    const BN operator / (const BN&)const;
+    const BN operator % (const BN&)const;
+    const BN operator >>(int shift)const;
+    const BN operator <<(int shift) const;
     bool operator < (const BN&)const;
     bool operator <=(const BN&)const;
     bool operator > (const BN&)const;

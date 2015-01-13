@@ -162,7 +162,7 @@ BN & BN::operator = (const BN&bn)
     return *this;
 }
 
-BN BN::operator + (const BN&bn)const {
+const BN BN::operator + (const BN&bn)const {
     int result_len = max(rbc, bn.rbc);
     BN result(result_len + 1, 2);
 
@@ -238,7 +238,7 @@ BN & BN::operator ++()
         return *this;
 }
 
-BN BN::operator - (const BN& bn)const
+const BN BN::operator - (const BN& bn)const
 {
         if(*this >= bn)
                 return this -> sub(bn);
@@ -305,7 +305,7 @@ BN BN::modbt(size_t t) const
     return res;
 }
 
-BN BN::mulbase(const bt &multiplier)const
+const BN BN::mulbase(const bt &multiplier)const
 {
         BN result(rbc+1,2);
         bt2 curr=0;
@@ -316,7 +316,7 @@ BN BN::mulbase(const bt &multiplier)const
         return result;
 }
 
-BN BN::mulbaseappr(const bt &multiplier)
+BN& BN::mulbaseappr(const bt &multiplier)
 {
     bt2 curr = 0;
     if (rbc + 1 > ba.size()) {
@@ -334,7 +334,7 @@ BN BN::mulbaseappr(const bt &multiplier)
     return *this;
 }
 
-BN BN::operator * (const BN&bn)const {
+const BN BN::operator * (const BN&bn)const {
     if(bn.rbc==1)
         return mulbase(bn.ba[0]);
     BN result(rbc+bn.rbc+1,0);
@@ -349,7 +349,7 @@ BN BN::operator * (const BN&bn)const {
     return result;
 }
 
-BN BN::fast_mul (const BN & bn) const {
+const BN BN::fast_mul (const BN & bn) const {
     int n = rbc;
     int m = bn.rbc;
 
@@ -484,7 +484,7 @@ BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
     return res.add_appr((C-A-B), n);
 }
 
-BN BN::karatsuba(const BN& bn)const {
+const BN BN::karatsuba(const BN& bn)const {
     int x = rbc;
     int y = bn.rbc;
     int len = max(x,y);
@@ -496,7 +496,7 @@ BN BN::karatsuba(const BN& bn)const {
     return U.karatsubaRecursive(V, 0, len);
 }
 
-BN BN::karatsuba_old(const BN& bn)const {
+const BN BN::karatsuba_old(const BN& bn)const {
     int x = rbc;
     int y = bn.rbc;
 
@@ -519,7 +519,8 @@ BN BN::karatsuba_old(const BN& bn)const {
     BN C = (u0 + u1).karatsuba_old(v0+v1);
     return A.mulbt(2*n) + (C-A-B).mulbt(n) + B;
 }
-BN BN::divbase(const bt &diviser)const
+
+const BN BN::divbase(const bt &diviser)const
 {
         if(diviser==0)
                 throw "Div by 0";
@@ -536,7 +537,7 @@ BN BN::divbase(const bt &diviser)const
         return result;
 }
 
-BN BN::divbaseappr(const bt &diviser)
+BN& BN::divbaseappr(const bt &diviser)
 {
         if(diviser==0)
                 throw "Div by 0";
@@ -552,7 +553,7 @@ BN BN::divbaseappr(const bt &diviser)
         return *this;
 }
 
-BN BN::modbase(const bt &diviser)const
+const BN BN::modbase(const bt &diviser)const
 {
         if(diviser==0)
                 throw "Div by 0";
@@ -569,7 +570,7 @@ BN BN::modbase(const bt &diviser)const
         return result;
 }
 
-BN BN::modbaseappr(const bt &diviser)
+BN& BN::modbaseappr(const bt &diviser)
 {
         if(diviser==0)
                 throw "Div by 0";
@@ -745,7 +746,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     mod = delimoe.divbase(d);
 }
 
-BN BN::operator / (const BN&bn)const
+const BN BN::operator / (const BN&bn)const
 {
     BN div;
     BN mod;
@@ -753,7 +754,7 @@ BN BN::operator / (const BN&bn)const
     return div;
 }
 
-BN BN::operator % (const BN& bn)const
+const BN BN::operator % (const BN& bn)const
 {
     BN div;
     BN mod;
@@ -761,7 +762,7 @@ BN BN::operator % (const BN& bn)const
     return mod;
 }
 
-BN BN::operator >> (int shift) const {
+const BN BN::operator >> (int shift) const {
     if(shift == 0)
         return *this;
     if(shift < 0)
@@ -786,7 +787,7 @@ BN BN::operator >> (int shift) const {
     return result;
 }
 
-BN BN::operator << (int shift) const {
+const BN BN::operator << (int shift) const {
     if(shift == 0)
         return *this;
 
