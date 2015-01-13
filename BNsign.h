@@ -21,9 +21,11 @@ public:
 
 public:
     BNsign();
+    BNsign(const BNsign& bn);
+    BNsign(BNsign&& bn);
     BNsign(const BN& bn, bool negative = false);
-    BNsign(const BNsign &bn);
-    BNsign & operator = (const BNsign&);
+    BNsign& operator = (const BNsign&);
+    BNsign& operator = (BNsign&&);
     const BNsign operator + (const BNsign&) const;
     const BNsign operator - (const BNsign&) const;
     const BNsign operator * (const BNsign&) const;

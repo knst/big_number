@@ -18,24 +18,40 @@ BNsign::BNsign()
 {
 }
 
-BNsign::BNsign(const BN& bn, const bool bnsign)
-: value(bn)
-, sign(bnsign)
-{
-}
-
 BNsign::BNsign(const BNsign& bn)
 : value(bn.value)
 , sign(bn.sign)
 {
 }
 
+BNsign::BNsign(BNsign&& bn)
+: value(move(bn.value))
+, sign(bn.sign)
+{
+}
+
+BNsign::BNsign(const BN& bn, const bool bnsign)
+: value(bn)
+, sign(bnsign)
+{
+}
+
 BNsign& BNsign::operator = (const BNsign& bn)
 {
-    if(this==&bn)
+    if(this == &bn)
       return *this;
 
     value = bn.value;
+    sign = bn.sign;
+
+    return *this;
+}
+
+BNsign& BNsign::operator = (BNsign&& bn)
+{
+    if (this == &bn)
+        return *this;
+    value = move(bn.value);
     sign = bn.sign;
 
     return *this;

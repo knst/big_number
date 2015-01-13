@@ -154,12 +154,23 @@ BN::BN(const string &str,const int &status)
         Norm();
 }
 
-BN & BN::operator = (const BN&bn)
+BN & BN::operator = (const BN& bn)
 {
     if (this == &bn)
         return *this;
     ba = bn.ba;
     rbc = bn.rbc;
+
+    return *this;
+}
+
+BN & BN::operator = (BN&& bn)
+{
+    if (this == &bn)
+        return *this;
+    ba = move(bn.ba);
+    rbc = bn.rbc;
+
     return *this;
 }
 
@@ -241,10 +252,10 @@ BN & BN::operator ++()
 
 const BN BN::operator - (const BN& bn)const
 {
-        if(*this >= bn)
-                return this -> sub(bn);
-        else
-                return bn.sub(*this);
+    if(*this >= bn)
+        return this -> sub(bn);
+    else
+        return bn.sub(*this);
 }
 
 BN & BN::operator --()
