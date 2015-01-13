@@ -509,7 +509,7 @@ BN BN::add_appr (const BN&bn, int mul_bt) {
 
 BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
     int n = len / 2;
-    if (len / 2 < caracuba_const) {
+    if (len / 2 < karacuba_const) {
         BN U(*this, start, len);
         BN V(bn, start, len);
         return U.fast_mul(V);
@@ -546,7 +546,7 @@ BN BN::karatsuba(const BN& bn)const {
     int x = rbc;
     int y = bn.rbc;
     int len = max(x,y);
-    if(min(x,y) < caracuba_const)
+    if(min(x,y) < karacuba_const)
         return this ->fast_mul(bn);
 
     const BN & U = *this;
@@ -560,7 +560,7 @@ BN BN::karatsuba_old(const BN& bn)const {
 
     int M = max(x,y);
     int n = (M+1)/2;
-    if(min(x,y) < caracuba_const)
+    if(min(x,y) < karacuba_const)
         return (*this).fast_mul (bn);
 
     const BN & U = *this;

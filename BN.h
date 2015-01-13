@@ -36,7 +36,7 @@ constexpr bt bz = sizeof(bt);
 constexpr bt bz2 = sizeof(bt2);
 constexpr bt bz8 = sizeof(bt) * 8;
 
-constexpr size_t caracuba_const = 50;
+constexpr size_t karacuba_const = 50;
 
 class BN {
 private:
