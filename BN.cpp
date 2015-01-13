@@ -71,8 +71,14 @@ BN::BN(uint64_t x)
 
 BN::BN(const BN& bn)
 {
-    rbc = bn.rbc;
     ba = bn.ba;
+    rbc = bn.rbc;
+}
+
+BN::BN(BN&& bn)
+: ba(move(bn.ba))
+, rbc(bn.rbc)
+{
 }
 
 BN::BN(const BN& bn, int start, int count) {

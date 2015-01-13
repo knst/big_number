@@ -68,6 +68,7 @@ public:
 
     BN(uint64_t x);
     BN(const BN&);
+    BN(BN&& bn);
     BN(const BN&, int start, int count=-1);
     BN(const string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
