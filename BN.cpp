@@ -71,15 +71,11 @@ BN::BN(uint64_t x)
 
 BN::BN(const BN& bn)
 {
-    if(this == &bn)
-        throw "constructor copy: Tak ne Byvaet!!! Constructor copii ISTCHO ne sosdannogo classa!!";
     rbc = bn.rbc;
     ba = bn.ba;
 }
 
 BN::BN(const BN& bn, int start, int count) {
-    if(this == &bn)
-        throw "constructor copy with param: Tak ne Byvaet!!! Constructor copii ISTCHO ne sosdannogo classa!!";
     if(count == -1)
         count = bn.rbc;
     if(count <= 0)
@@ -377,9 +373,9 @@ BN BN::mulbaseappr(const bt &multiplier)
 }
 
 BN BN::operator * (const BN&bn)const {
-    BN result(rbc+bn.rbc+1,0);
     if(bn.rbc==1)
         return mulbase(bn.ba[0]);
+    BN result(rbc+bn.rbc+1,0);
     for(int i=0;i<bn.rbc;i++) {
         bt2 curr=0;
         bt2 x=bn.ba[i];
