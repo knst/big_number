@@ -68,9 +68,16 @@ public:
     BN(const BN&);
     BN(const BN&, int start, int count=-1);
     BN(const string &, const int & base = 0);        // base - 0: Hex, 1: Dec
-    BN   mulbt(const int&)const;                // x * base^t
-    BN   divbt(const int&)const;                // x / base^t
-    BN   modbt(const int&)const;                // x % base^t
+
+    // This function return: this * base^t
+    BN   mulbt(size_t t) const;
+
+    // This function return: this / base^t
+    BN   divbt(size_t t) const;
+
+    // This function return: this % base^t
+    BN   modbt(size_t mod) const;
+
     BN   mulbase(const bt&)const;
     BN   mulbaseappr(const bt&);
     BN   divbase(const bt&)const;

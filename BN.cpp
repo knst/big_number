@@ -295,11 +295,8 @@ BN & BN::operator --()
         return *this;
 }
 
-BN BN::mulbt(const int& t)const
+BN BN::mulbt(size_t t) const
 {
-    if(t < 0)
-        return divbt(-t);
-
     if(t == 0)
         return *this;
 
@@ -310,11 +307,8 @@ BN BN::mulbt(const int& t)const
     return res;
 }
 
-BN BN::divbt(const int& t)const
+BN BN::divbt(size_t t) const
 {
-    if(t < 0)
-        return mulbt(-t);
-
     if(t == 0)
         return *this;
 
@@ -322,25 +316,23 @@ BN BN::divbt(const int& t)const
         return (BN) 0;
 
     BN res(rbc - t, 2);
-    for (size_t i = 0; i < rbc - t; ++i)
-        res.ba[i] = ba[i+t];
+    res.ba.assign(ba.begin() + t, ba.end());
     res.rbc = rbc - t;
     return res;
 }
 
-BN BN::modbt(const int& t)const
+BN BN::modbt(size_t t) const
 {
-        if(t<0)
-                throw "Error in modbt: t<0";
-        if(t==0)
-                return BN(1,0);
-        if(t>=rbc)
-                return *this;
-        BN res(t,2);
-        for(int i=0;i<t;i++)
-                res.ba[i]=ba[i];
-        res.Norm();
-        return res;
+    if(t == 0)
+        return BN(1,0);
+
+    if(t >= rbc)
+            return *this;
+
+    BN res(t, 2);
+    res.ba.assign(ba.begin(), ba.begin() + t);
+    res.Norm();
+    return res;
 }
 
 BN BN::mulbase(const bt &multiplier)const
