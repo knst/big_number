@@ -128,10 +128,10 @@ public:
     BN Sqrt()const;
     BN Qrt()const;
     int countzeroright()const;
-    bool bitI(unsigned int i)const;
+    bool bitI(size_t i)const;
     operator uint64_t()const;
-    bool is0()const;
-    bool isEven()const;
+    bool is0() const;
+    bool isEven() const;
     void Print(bool newstr=true)const;
     void PrintHex(bool newstr=true)const;
     void PrintDec(bool newstr=true)const;

@@ -673,23 +673,27 @@ bool BN::lessorequal(const BN&bn,const int &shift)const        //считает�
         return true;
 }
 
-bt BN::qCompute(bt q,int shift,const BN&bn)const
+bt BN::qCompute(bt q, int shift, const BN& bn) const
 {
-        if(q==0)                //уменьшать q больше некуда - ретурним его
-                return q;
-        //temp=bn*q
-        BN temp=bn.mulbase(q);
-        if(temp.lessorequal(*this,shift))        //if <= then return q
-                return q;
+    if (q == 0)
+        return q;
 
-        q--;                        //иначе уменьшаем q
-        if(q==0)                //если q уменьшать некуда, то ретурним его
-                return 0;
+    // temp = bn * q
+    BN temp(bn.mulbase(q));
 
-        if((temp-bn).lessorequal(*this,shift))        //if <= then return q
-                return q;
-        else
-                return q-1;
+    //if q is not wrong, then return q
+    if(temp.lessorequal(*this,shift))
+        return q;
+
+    q--;
+    if(q == 0)
+        return 0;
+
+    // if q is not wrong, then return q, else return (q - 1)
+    if ((temp - bn).lessorequal(*this,shift))
+        return q;
+    else
+        return q - 1;
 }
 
 BN BN::operator / (const BN&bn)const
@@ -1528,29 +1532,22 @@ int BN::countzeroright()const
         return count*bz8+d;
 }
 
-bool BN::bitI(unsigned int index)const {
-    if(index < 0)
-        throw "unknow index";
+bool BN::bitI(size_t index)const {
     if(index >= bz8 * rbc)
         return false;
 
-    bt mask = (bt) 1;
+    bt mask = 1;
     mask <<= (index % bz8);
-    if(ba[index/bz8] & mask)
+
+    if (ba[index / bz8] & mask)
         return true;
     return false;
 }
 
-BN::operator uint64_t ()const {
-    uint64_t result=0;
-    //for(int i = rbc-1;i>=0;i--)
-    for(
-            int i = (unsigned)rbc-1 > sizeof(uint64_t)/bz ? sizeof(uint64_t)/bz-1:rbc-1;
-            i>=0;
-            i--) {
-        result<<=bz8;
-        result+=ba[i];
-    }
+BN::operator uint64_t () const {
+    uint64_t result = 0;
+    for(size_t i = min(rbc, sizeof(uint64_t)/bz); i; i--)
+        result = (result << bz8) | ba[i-1];
     return result;
 }
 
@@ -1582,16 +1579,16 @@ void BN::PrintDec(bool newstr)const
         delete []s;
 }
 
-bool BN::is0()const
+bool BN::is0() const
 {
-        if(rbc>1 || ba[0])
-                return false;
-        return true;
+    if (rbc > 1 || ba[0])
+        return false;
+    return true;
 }
 
-bool BN::isEven()const
+bool BN::isEven() const
 {
-    if(ba[0] & (bt)1)
+    if(ba[0] & 1)
         return false;
     return true;
 }
