@@ -13,87 +13,91 @@
 //
 //using namespace std;
 
-BNsign::~BNsign()
-{
-    return;
-}
-
 BNsign::BNsign()
+: sign(false)
 {
-   sign=false;
-   return;
 }
 
-BNsign::BNsign(const BN &bn,const bool bnsign)
+BNsign::BNsign(const BN& bn, const bool bnsign)
+: value(bn)
+, sign(bnsign)
 {
-        value=bn;
-   sign=bnsign;
-   return;
 }
 
-BNsign::BNsign(const BNsign &bn)
+BNsign::BNsign(const BNsign& bn)
+: value(bn.value)
+, sign(bn.sign)
 {
-   value=bn.value;
-   sign=bn.sign;
-   return;
 }
 
-BNsign & BNsign:: operator = (const BNsign& bn)
+BNsign& BNsign::operator = (const BNsign& bn)
 {
-   if(this==&bn)
+    if(this==&bn)
       return *this;
 
-   value = bn.value;
-   sign = bn.sign;
-   return *this;
+    value = bn.value;
+    sign = bn.sign;
+
+    return *this;
 }
 
-BNsign BNsign::operator + (const BNsign& bn)const
+const BNsign BNsign::operator + (const BNsign& bn) const
 {
-   BNsign res;
-   if(sign == bn.sign)
-      res.value = this->value + bn.value;
-   else
-      res.value = this->value - bn.value;
-   bool first_is_greater = (this->value >= bn.value);
-   res.sign = ((bn.sign && !first_is_greater) || (sign && first_is_greater));
-   return res;
+    bool firstIsGreater = (this->value >= bn.value);
+
+    BNsign res;
+    if(sign == bn.sign)
+        res.value = this->value + bn.value;
+    else {
+        if (firstIsGreater)
+            res.value = this->value - bn.value;
+        else
+            res.value = bn.value - this->value;
+    }
+
+    res.sign = ((bn.sign && !firstIsGreater) || (sign && firstIsGreater));
+    return res;
 }
 
-BNsign BNsign::operator - (const BNsign& bn)const
+const BNsign BNsign::operator - (const BNsign& bn) const
 {
-   BNsign res;
-   if(sign == bn.sign)
-      res.value = this->value - bn.value;
-   else
-      res.value = this->value + bn.value;
-   bool first_is_greater = (this->value >= bn.value);
-   res.sign = ((!bn.sign && !first_is_greater) || (sign && first_is_greater));
-   return res;
+    bool firstIsGreater = (this->value >= bn.value);
+
+    BNsign res;
+    if (sign == bn.sign) {
+        if (firstIsGreater)
+            res.value = this->value - bn.value;
+        else
+            res.value = bn.value - this->value;
+    } else
+       res.value = this->value + bn.value;
+
+    res.sign = !(bn.sign || firstIsGreater) || (sign && firstIsGreater);
+    return res;
 }
 
-BNsign BNsign::operator * (const BNsign& bn)const
+const BNsign BNsign::operator * (const BNsign& bn) const
 {
-   BNsign res;
-   res.value = this->value * bn.value;
-   res.sign = (this->sign ^ bn.sign);
-   return res;
+    BNsign res;
+    res.value = this->value * bn.value;
+    res.sign = this->sign ^ bn.sign;
+    return res;
 }
 
-//BNsign BNsign::operator / (const BNsign&)const;
-//bool BNsign::operator == (const BNsign&)const;
-//bool BNsign::operator != (const BNsign&)const;
-/*bool BNsign::operator >= (const BNsign& bn)const
+//const BNsign BNsign::operator / (const BNsign&) const;
+//bool BNsign::operator == (const BNsign&) const;
+//bool BNsign::operator != (const BNsign&) const;
+/*bool BNsign::operator >= (const BNsign& bn) const
 {
-   bool first_is_greater = (this->value >= bn.value);
+   bool firstIsGreater = (this->value >= bn.value);
    return
-      (sign && first_is_greater) ||
-         (!bn.sign && !first_is_greater);
+      (sign && firstIsGreater) ||
+         (!bn.sign && !firstIsGreater);
 }*/
 
 
 //debug
-void BNsign::PrintSign()const
+void BNsign::PrintSign() const
 {
     if(sign)
         putchar('-');

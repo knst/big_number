@@ -6,31 +6,34 @@
  */
 
 #ifndef _BNSIGN_H
-#define    _BNSIGN_H
+#define _BNSIGN_H
 
 #include "BN.h"
+
 class BNsign
 {
-    public:
-        BN value;
-        bool sign;
-        ~BNsign();
-        BNsign();
-        BNsign(const BN &bn,const bool bnsign=false); //false==positive
-        BNsign(const BNsign &bn);
-        BNsign & operator = (const BNsign&);
-        BNsign   operator + (const BNsign&)const;
-        BNsign   operator - (const BNsign&)const;
-        BNsign   operator * (const BNsign&)const;
-        //BNsign operator / (const BNsign&)const;
-        //bool operator == (const BNsign&)const;
-        //bool operator != (const BNsign&)const;
-        //bool operator >= (const BNsign&)const;
+public:
+    BN value;
 
-        //debug:
-        void PrintSign()const;
+    // false: positive
+    // true: negative
+    bool sign;
 
+public:
+    BNsign();
+    BNsign(const BN& bn, bool negative = false);
+    BNsign(const BNsign &bn);
+    BNsign & operator = (const BNsign&);
+    const BNsign operator + (const BNsign&) const;
+    const BNsign operator - (const BNsign&) const;
+    const BNsign operator * (const BNsign&) const;
+    //const BNsign operator / (const BNsign&) const;
+    //bool operator == (const BNsign&) const;
+    //bool operator != (const BNsign&) const;
+    //bool operator >= (const BNsign&) const;
+
+    void PrintSign() const;
 };
 
-#endif    /* _BNSIGN_H */
+#endif /* _BNSIGN_H */
 
