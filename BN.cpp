@@ -739,7 +739,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
             x = (x >> bz8) + q * delitel.ba[j];
             temp[j] = x;
         }
-        temp[n] = x >> 8;
+        temp[n] = x >> bz8;
 
         // delimoe = delimoe - temp * b^(i-n)
         {
