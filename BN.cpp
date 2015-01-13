@@ -17,8 +17,7 @@
 
 void BN::GetMemory(int value)
 {
-    ba.resize(bc);
-    for(int i=rbc;i<bc;i++)
+    for(int i=rbc;i<ba.size();i++)
         ba[i]=0;
     switch(value) {
         case 0:
@@ -44,31 +43,31 @@ void BN::GetMemory(int value)
 
 int BN::Norm()
 {
-        for(rbc=bc-1;rbc>0&&ba[rbc]==0;rbc--);
+    for(rbc = ba.size() - 1; rbc > 0 && ba[rbc] == 0; rbc--);
         rbc++;
-        return rbc;
+    return rbc;
 }
 
 BN::BN()
 {
     rbc = 1;
-    bc = 2;
+    ba.resize(2);
     GetMemory(2);
 }
 
 BN::BN(uint64_t basecount,const int &value)
 {
-        if(basecount<=0)
-                throw "Base count <= 0";
-        rbc=basecount;
-        bc=rbc+1;
-        GetMemory(value);
+    if(basecount <= 0)
+        throw "Base count <= 0";
+    rbc = basecount;
+    ba.resize(rbc + 1);
+    GetMemory(value);
 }
 
 BN::BN(uint64_t x)
 {
     rbc = (sizeof(uint64_t) + bz - 1) / bz;
-    bc = rbc+1;
+    ba.resize(rbc + 1);
     GetMemory(2);
     for(int i = 0; i < rbc; i++, x >>= bz8)
         ba[i] = static_cast<bt>(x);
@@ -77,13 +76,13 @@ BN::BN(uint64_t x)
 
 BN::BN(const BN& bn)
 {
-        if(this==&bn)
-                throw "constructor copy: Tak ne Byvaet!!! Constructor copii ISTCHO ne sosdannogo classa!!";
-        rbc=bn.rbc;
-        bc=rbc+1;
-        GetMemory(2);
-        for(int i=0;i<rbc;i++)
-                ba[i]=bn.ba[i];
+    if(this == &bn)
+        throw "constructor copy: Tak ne Byvaet!!! Constructor copii ISTCHO ne sosdannogo classa!!";
+    rbc = bn.rbc;
+    ba.resize(rbc + 1);
+    GetMemory(2);
+    for (size_t i = 0; i < rbc; ++i)
+        ba[i] = bn.ba[i];
 }
 
 BN::BN(const BN& bn, int start, int count) {
@@ -98,13 +97,13 @@ BN::BN(const BN& bn, int start, int count) {
 
 
     rbc = count;
-    bc = rbc + 1;
+    ba.resize(rbc + 1);
     GetMemory(2);
     for(int i = 0; i < count && i + start < bn.rbc; i++)
         ba[i] = bn.ba[i + start];
 
     int bbstart = max<size_t>(0, bn.rbc - start);
-    for(int i = bbstart; i < bc; i++)
+    for(int i = bbstart; i < ba.size(); i++)
         ba[i] = 0;
     Norm();
 }
@@ -123,7 +122,7 @@ BN::BN(const string &str,const int &status)
                         bn=bn*bn10+bnc;
                 }
                 rbc=bn.rbc;
-                bc=rbc+1;
+                ba.resize(rbc + 1);
                 GetMemory(2);
                 for(int i=0;i<rbc;i++)
                         ba[i]=bn.ba[i];
@@ -133,7 +132,7 @@ BN::BN(const string &str,const int &status)
 
         int length = str.size();
         rbc=(length+bz*2-1)/(bz*2);
-        bc=rbc+1;
+        ba.resize(rbc + 1);
         GetMemory(0);
         bt z;
         for(int i=0;i<length;i++)
@@ -165,23 +164,20 @@ BN::BN(const string &str,const int &status)
 
 BN & BN::operator = (const BN&bn)
 {
-        if(this==&bn)
-                return *this;
-        if(bc<bn.rbc)
-        {
-                rbc=bn.rbc;
-                bc=rbc+1;
-                GetMemory(2);
-        }
-        else
-        {
-                for(int i=bn.rbc;i<rbc;i++)
-                        ba[i]=0;
-                rbc=bn.rbc;
-        }
-        for(int i=0;i<rbc;i++)
-                ba[i]=bn.ba[i];
+    if(this == &bn)
         return *this;
+    if(ba.size() < bn.rbc) {
+        rbc = bn.rbc;
+        ba.resize(rbc + 1);
+        GetMemory(2);
+    } else {
+        for(int i = bn.rbc; i < rbc; i++)
+            ba[i] = 0;
+        rbc = bn.rbc;
+    }
+    for (size_t i = 0; i < rbc; ++i)
+        ba[i] = bn.ba[i];
+    return *this;
 }
 
 BN BN::operator + (const BN&bn)const {
@@ -219,7 +215,7 @@ BN & BN::operator ++()
         bool overflag=0;
         bt2 res;
         int pos=1;
-        if(rbc==bc&&bsize-(bt2)ba[rbc-1]==1)
+        if(rbc == ba.size() && bsize-(bt2)ba[rbc-1]==1)
         {
                 BN result(rbc+1,2);
                 if((bt)(ba[0]+1)<ba[0])
@@ -381,7 +377,7 @@ BN BN::mulbase(const bt &multiplier)const
 BN BN::mulbaseappr(const bt &multiplier)
 {
     bt2 curr = 0;
-    if (rbc + 1 > bc) {
+    if (rbc + 1 > ba.size()) {
         vector<bt> ba_new(rbc + 2);
         for (int i =0; i < rbc; ++i, curr >>= bz8)
             ba_new[i] = curr += ba[i] * multiplier;
@@ -480,7 +476,7 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
 
 BN BN::add_appr (const BN&bn, int mul_bt) {
     int result_len = max(rbc, bn.rbc + mul_bt);
-    if(result_len < bc) {
+    if(result_len < ba.size()) {
         bt2 res = 0;
         int pos = 0;
         int m = min(rbc-mul_bt, bn.rbc);
@@ -532,8 +528,7 @@ BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
     BN res(1,0);
 
     res.rbc = A.rbc + 2*n;
-    res.bc = A.bc + 2*n;
-    res.ba.resize(res.bc);
+    res.ba.resize(A.ba.size() + 2*n);
 
     for(int i = 0; i < B.rbc; i++)
         res.ba[i] = B.ba[i];                        //res = A.mulbt(2*n) + B;
@@ -541,7 +536,7 @@ BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
         res.ba[i] = 0;
     for(int i = 2*n; i < A.rbc + 2*n; i++)
         res.ba[i] = A.ba[i - 2*n];
-    for(int i = res.rbc; i < res.bc; i++)
+    for(int i = res.rbc; i < res.ba.size(); i++)
         res.ba[i] = 0;
 
     return res.add_appr((C-A-B), n);
