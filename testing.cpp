@@ -187,7 +187,7 @@ int testing_ij(int max1,int max2, int i,int j)
                 }
                 if((uint64_t)(bn1*bn2/bn1/bn2)!=1)
                         return 2;
-                if(bn1/bn2*bn2-bn1!=bn1%bn2+bn_0)
+                if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + bn_0)
                         return 3;
                 if((uint64_t)(bn1*bn2)!=(uint64_t)bn1*(uint64_t)bn2)
                         return 4;
@@ -341,7 +341,7 @@ void testing() {
                 cout<<"OK\n";
         cout<<"Test 3:\t";
         cout.flush();
-        if(bn1/bn2*bn2-bn1!=bn1%bn2+bn0)
+        if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + bn0)
                 cout<<"FAIL\n";
         else
                 cout<<"OK\n";

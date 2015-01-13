@@ -513,7 +513,7 @@ BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
     for(int i = res.rbc; i < res.ba.size(); i++)
         res.ba[i] = 0;
 
-    return res.add_appr((C-A-B), n);
+    return res + C.mulbt(n) - (A + B).mulbt(n);
 }
 
 const BN BN::karatsuba(const BN& bn)const {

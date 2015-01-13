@@ -22,35 +22,36 @@ BN gcdEuclidean(BN a,BN b)
 
 BN gcdInverseEuclidean(BN a, BN mod)
 {
-    BN start_mod=mod;
-        a=a%mod;
-        BN bn_1 = 1;
-        BN bn_0(1,0);
+    BN start_mod = mod;
+    a = a % mod;
+    BN bn_1 = 1;
+    BN bn_0 = 0;
 
-        if(a.is0())
+    if(a.is0())
         return bn_0;
+
     BNsign x0;
-    BNsign x1=bn_0;
-    BNsign x2=bn_1;
-    while(!(mod%a).is0())
+    BNsign x1 = bn_0;
+    BNsign x2 = bn_1;
+    while(!(mod % a).is0())
     {
-        BN q=mod/a;
-        x0=x1;
-        x1=x2;
+        BN q=mod / a;
+        x0 = x1;
+        x1 = x2;
 
         x2 = x0 - x1 * (BNsign)q;
-        BN new_mod=a;
-        a=mod%a;
-        mod=new_mod;
+        BN new_mod = a;
+        a = mod % a;
+        mod = new_mod;
     }
-    if(a!=bn_1)
+    if(a != bn_1)
         return bn_0;
     if(x2.value.is0())
-        x2.sign=false;
+        x2.sign = false;
     if(!x2.sign)
         return x2.value;
     else
-        return start_mod-x2.value;
+        return start_mod - x2.value;
 }
 
 BN gcdBinary(BN a,BN b)
