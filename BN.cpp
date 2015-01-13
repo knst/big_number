@@ -1053,7 +1053,7 @@ BN BN::mulMontgomery(const BN& bn, const BN& mod, bt m1) const {
     return A;
 }
 
-BN BN::reduction_montgomery(const BN& mod, bt m1, BN T) const {
+BN BN::reduction_montgomery(const BN& mod, bt m1, const BN& T) const {
     // TODO: not use, not testing
     if(gcdBinary(mod, (BN)bsize) != (BN) 1)
         throw "montgomery: gcd != 1\n";
@@ -1073,11 +1073,11 @@ BN BN::reduction_montgomery(const BN& mod, bt m1, BN T) const {
 }
 
 
-BN BN::reduction_barrett_precomputation()const {
+BN BN::reduction_barrett_precomputation() const {
     return ( (BN)1 ).mulbt(2*rbc) / *this;
 }
 
-BN BN::reduction_barrett(const BN& mod, const BN& mu)const {
+BN BN::reduction_barrett(const BN& mod, const BN& mu) const {
 
     int k = mod.rbc;                      // m = m[k-1]...m[1]m[0], rbc = k
     if(k*2 < this->rbc) {
@@ -1102,7 +1102,7 @@ BN BN::reduction_barrett(const BN& mod, const BN& mu)const {
 
 
 
-BN BN::reduction_special(const BN &mod)const {
+BN BN::reduction_special(const BN &mod) const {
     int t = mod.rbc;
 
     // Bt = b^t;
@@ -1129,7 +1129,7 @@ BN BN::reduction_special(const BN &mod)const {
     return r_sum;
 }
 
-BN BN::Pow(uint64_t power)const
+BN BN::Pow(uint64_t power) const
 {
         BN Res(1);
         if(power==(int64_t)0)
@@ -1145,7 +1145,7 @@ BN BN::Pow(uint64_t power)const
         return Res;
 }
 
-BN BN::PowMod(uint64_t power, BN mod)const
+BN BN::PowMod(uint64_t power, const BN& mod) const
 {
         BN Res(1);
         if(power==(int64_t)0)
@@ -1161,7 +1161,7 @@ BN BN::PowMod(uint64_t power, BN mod)const
         return Res%mod;
 }
 
-BN BN::PowMod(BN power, BN mod)const {
+BN BN::PowMod(const BN& power, const BN& mod)const {
 
     if(power.is0())
         return (BN) 1;
@@ -1186,7 +1186,7 @@ BN BN::PowMod(BN power, BN mod)const {
     return Res % mod;
 }
 
-BN BN::PowModBarrett(BN power, BN mod)const {
+BN BN::PowModBarrett(const BN& power, const BN& mod) const {
 
     if(power.is0())
         return (BN) 1;
@@ -1213,7 +1213,7 @@ BN BN::PowModBarrett(BN power, BN mod)const {
 }
 
 
-BN BN::expRightToLeft(BN exponent, BN mod)const {
+BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
 
     if(exponent.is0())
         return (BN) 1;
@@ -1242,7 +1242,7 @@ BN BN::expRightToLeft(BN exponent, BN mod)const {
     return A % mod;
 }
 
-BN BN::expLeftToRight(BN exponent, BN mod) const {
+BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
     if(exponent.is0())
         return (BN) 1;
 
@@ -1274,7 +1274,7 @@ BN BN::expLeftToRight(BN exponent, BN mod) const {
 
 }
 
-vector <BN> BN::expLeftToRightK_aryPrecomputation(BN mod) const {
+vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
     BN g = *this % mod;
     vector <BN> garr(bsize);
     garr[0] = BN(1);
@@ -1284,7 +1284,7 @@ vector <BN> BN::expLeftToRightK_aryPrecomputation(BN mod) const {
     return garr;
 }
 
-BN BN::expLeftToRightK_ary(BN exponent, BN mod, vector <BN> g) const {
+BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& g) const {
     if(exponent.is0())
         return (BN) 1;
 
@@ -1297,7 +1297,7 @@ BN BN::expLeftToRightK_ary(BN exponent, BN mod, vector <BN> g) const {
     return A;
 }
 
-vector <BN> BN::expLeftToRightK_aryVarPrecomputation(BN mod, int K) const {
+vector <BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const {
     int Kmax = (1 << K);
     BN g = *this % mod;
     vector <BN> garr(Kmax);

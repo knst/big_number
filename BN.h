@@ -49,6 +49,7 @@ private:
 
 public:
     BN reduction_barrett_precomputation()const;
+
 private:
     bt qCompute(bt,int,const BN&)const;
     bool lessorequal(const BN&,const int&)const;//считается, что bn справа дополнен shift нулями
@@ -99,18 +100,18 @@ public:
     int bitcount()const;
 
 
-    BN reduction_montgomery (const BN& mod, bt m1, BN T ) const;
-    BN reduction_barrett    (const BN&,const BN&        ) const;
-    BN reduction_special    (const BN&                  ) const;
+    BN reduction_montgomery(const BN& mod, bt m1, const BN& T) const;
+    BN reduction_barrett(const BN& mod,const BN& mu) const;
+    BN reduction_special(const BN& mod) const;
     BN Pow(uint64_t)const;
-    BN PowMod(uint64_t,BN)const;
-    BN PowMod(BN,BN)const;
-    BN PowModBarrett(BN, BN)const;
-    BN expRightToLeft(BN, BN)const;
-    BN expLeftToRight(BN, BN)const;
-    vector <BN> expLeftToRightK_aryPrecomputation(BN)const;
-    BN expLeftToRightK_ary(BN, BN, vector <BN>)const;
-    vector <BN> expLeftToRightK_aryVarPrecomputation(BN, int K)const;
+    BN PowMod(uint64_t power, const BN& mod) const;
+    BN PowMod(const BN& power, const BN& mod) const;
+    BN PowModBarrett(const BN& power, const BN& mod) const;
+    BN expRightToLeft(const BN& power, const BN& mod) const;
+    BN expLeftToRight(const BN& power, const BN& mod) const;
+    vector <BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
+    BN expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& g) const;
+    vector <BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;
     BN expLeftToRightK_aryVar(BN, BN, vector <BN>, int K)const;
     vector <BN> expLeftToRightK_aryModifPrecomputation(BN)const;
     BN expLeftToRightK_aryMod(BN, BN, vector <BN> )const;
