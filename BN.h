@@ -19,7 +19,7 @@ using bt2 = uint16_t;
 using bt2s = int16_t;
 using bt4 = uint32_t;
 constexpr bt2 bsize = 256;
-constexpr bt2 bmax = 256;
+constexpr bt2 bmax = 255;
 
 #else // DOUBLE_BASE
 
@@ -77,7 +77,11 @@ public:
     BN   divbaseappr(const bt&);
     BN   modbase(const bt&)const;
     BN   modbaseappr(const bt&);
-    BN   sub(const BN&)const;                // result = *this - bn. Только если *this >=bn !!!
+
+    // This function return (this - bn).
+    // Constrains: this >= bn
+    BN   sub(const BN&)const;
+
     BN & operator = (const BN&);
     BN   operator + (const BN&)const;
     BN & operator ++();
