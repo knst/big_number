@@ -245,42 +245,7 @@ BN BN::operator - (const BN& bn)const
         else
                 return bn.sub(*this);
 }
-// вместо sub()
-/*BN BN::operator - (const BN&bn)const
-{
-        BN result(max(rbc,bn.rbc),2);
-        const BN *vector_1;
-        const BN *vector_2;
-        if(*this>=bn)
-                vector_1=this,vector_2=&bn;
-        else
-                vector_1=&bn,vector_2=this;
-        bool flag=0;
-        bt2s res;
-        int pos=0;
-        for(;pos<vector_2->rbc;pos++)
-        {
-                res=(bt2s)vector_1->ba[pos]-(bt2s)vector_2->ba[pos]-(bt2s)flag;
-                result.ba[pos]=res;
-                if(res<0)
-                        flag=true;
-                else
-                        flag=false;
-        }
-        for(;flag&&pos<vector_1->rbc;pos++)
-        {
-                result.ba[pos]=vector_1->ba[pos]-flag;
-                if(result.ba[pos]>vector_1->ba[pos])
-                        flag=true;
-                else
-                        flag=false;
-        }
-        for(;pos < vector_1 -> rbc; pos++)
-                result.ba[pos]=vector_1 -> ba[pos];
-        result.Norm();
-        return result;
-}
-*/
+
 BN & BN::operator --()
 {
         bool flag=0;
