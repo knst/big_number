@@ -74,9 +74,7 @@ BN::BN(const BN& bn)
     if(this == &bn)
         throw "constructor copy: Tak ne Byvaet!!! Constructor copii ISTCHO ne sosdannogo classa!!";
     rbc = bn.rbc;
-    ba.resize(rbc + 1);
-    for (size_t i = 0; i < rbc; ++i)
-        ba[i] = bn.ba[i];
+    ba = bn.ba;
 }
 
 BN::BN(const BN& bn, int start, int count) {
@@ -156,18 +154,10 @@ BN::BN(const string &str,const int &status)
 
 BN & BN::operator = (const BN&bn)
 {
-    if(this == &bn)
+    if (this == &bn)
         return *this;
-    if(ba.size() < bn.rbc) {
-        rbc = bn.rbc;
-        ba.resize(rbc + 1);
-    } else {
-        for(int i = bn.rbc; i < rbc; i++)
-            ba[i] = 0;
-        rbc = bn.rbc;
-    }
-    for (size_t i = 0; i < rbc; ++i)
-        ba[i] = bn.ba[i];
+    ba = bn.ba;
+    rbc = bn.rbc;
     return *this;
 }
 
