@@ -40,13 +40,12 @@ constexpr size_t caracuba_const = 50;
 
 class BN {
 private:
-    bt *ba;
+    vector<bt> ba;
     // allocated memory (base count)
     size_t bc;
     // used memory (base count)
     size_t rbc;
     void GetMemory(int value = 2);
-    void FreeMemory();
     int Norm();                             //пересчитать rbc
 
 public:
@@ -135,7 +134,6 @@ public:
     void Print(bool newstr=true)const;
     void PrintHex(bool newstr=true)const;
     void PrintDec(bool newstr=true)const;
-    ~BN();
 };
 
 #endif /* _BN_H */

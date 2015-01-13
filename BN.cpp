@@ -17,7 +17,7 @@
 
 void BN::GetMemory(int value)
 {
-    ba=new bt [bc];
+    ba.resize(bc);
     for(int i=rbc;i<bc;i++)
         ba[i]=0;
     switch(value) {
@@ -40,11 +40,6 @@ void BN::GetMemory(int value)
         default:
             throw "Unknow type (BN::BN)";
     }
-}
-
-void BN::FreeMemory()
-{
-        delete []ba;
 }
 
 int BN::Norm()
@@ -174,7 +169,6 @@ BN & BN::operator = (const BN&bn)
                 return *this;
         if(bc<bn.rbc)
         {
-                FreeMemory();
                 rbc=bn.rbc;
                 bc=rbc+1;
                 GetMemory(2);
@@ -386,25 +380,20 @@ BN BN::mulbase(const bt &multiplier)const
 
 BN BN::mulbaseappr(const bt &multiplier)
 {
-        if(rbc+1>bc)
-        {
-                bt* ba_new=new bt [rbc+2];
-                bt2 curr=0;
-                for(int i=0;i<rbc;i++,curr>>=bz8)
-                        ba_new[i]=curr+=ba[i]*multiplier;
-                ba_new[rbc]=curr;
-                delete []ba;
-                ba=ba_new;
-        }
-        else
-        {
-                bt2 curr=0;
-                for(int i=0;i<rbc;i++,curr>>=bz8)
-                        ba[i]=curr+=ba[i]*multiplier;
-                ba[rbc]=curr;
-        }
-        Norm();
-        return *this;
+    bt2 curr = 0;
+    if (rbc + 1 > bc) {
+        vector<bt> ba_new(rbc + 2);
+        for (int i =0; i < rbc; ++i, curr >>= bz8)
+            ba_new[i] = curr += ba[i] * multiplier;
+        ba = ba_new;
+    } else {
+        for (int i =0; i < rbc; ++i, curr >>= bz8)
+            ba[i] = curr += ba[i] * multiplier;
+    }
+    ba[rbc] = curr;
+
+    Norm();
+    return *this;
 }
 
 BN BN::operator * (const BN&bn)const {
@@ -541,10 +530,11 @@ BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
 
 //    res = A.mulbt(2*n);
     BN res(1,0);
-    delete [] res.ba;
+
     res.rbc = A.rbc + 2*n;
     res.bc = A.bc + 2*n;
-    res.ba = new bt [res.bc];
+    res.ba.resize(res.bc);
+
     for(int i = 0; i < B.rbc; i++)
         res.ba[i] = B.ba[i];                        //res = A.mulbt(2*n) + B;
     for(int i = B.rbc; i < 2*n; i++)
@@ -1170,7 +1160,7 @@ BN BN::PowMod(const BN& power, const BN& mod)const {
 
     int len = power.bitcount();
     bt mask = 1;
-    bt *curr = power.ba;
+    const bt *curr = &*power.ba.begin();
     for(int i = 0; i < len; i++) {
         if(!mask) {
             mask = 1;
@@ -1196,7 +1186,7 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
 
     int len = power.bitcount();
     bt mask = 1;
-    bt *curr = power.ba;
+    const bt *curr = &*power.ba.begin();
     for(int i = 0; i < len; i++) {
         if(!mask) {
             mask = 1;
@@ -1222,7 +1212,7 @@ BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
 
     int exponent_len = exponent.bitcount();
     bt exponent_mask = (bt)  1;
-    bt *exponent_current_base = exponent.ba;
+    const bt *exponent_current_base = &*exponent.ba.begin();
 
     for(int i=0;i<exponent_len;i++) {
         if(!exponent_mask) {
@@ -1252,7 +1242,7 @@ BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
     bt exponent_mask = (bt) 1;
     int start_shift_exponent_mask = (exponent_len - 1 ) % bz8;
     exponent_mask <<= start_shift_exponent_mask;
-    bt * exponent_current_base = exponent.ba + (exponent.rbc - 1);
+    const bt * exponent_current_base = &*exponent.ba.begin() + (exponent.rbc - 1);
     for(int i = 0; i < exponent_len; i++) {
         if(!exponent_mask) {
             exponent_mask = (bt) 1 << (bz8 - 1);
@@ -1586,10 +1576,6 @@ BN::operator uint64_t ()const {
         result+=ba[i];
     }
     return result;
-}
-
-BN::~BN() {
-    FreeMemory();
 }
 
 void BN::PrintHex(bool newstr)const
