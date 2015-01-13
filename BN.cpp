@@ -43,36 +43,35 @@ int BN::Norm()
 }
 
 BN::BN()
+: rbc(1)
+, ba(rbc + 1)
 {
-    rbc = 1;
-    ba.resize(2);
 }
 
 BN::BN(uint64_t basecount, int type)
+: rbc(1)
+, ba(basecount + 1)
 {
-    ba.resize(basecount + 1);
-    if (type == 0 || type == 2) {
-        rbc = 1;
-    } else if (type == 1 || type == -1) {
+    if (type == 1 || type == -1) {
         rbc = basecount;
         InitMemory(type);
-    } else
+    } else if (type != 2 && type != 0)
         throw std::invalid_argument("BN constructor: invalid type " + to_string(type));
 }
 
 BN::BN(uint64_t x)
+: rbc((sizeof(uint64_t) + bz - 1) / bz)
+, ba(rbc + 1)
 {
-    rbc = (sizeof(uint64_t) + bz - 1) / bz;
-    ba.resize(rbc + 1);
     for(int i = 0; i < rbc; i++, x >>= bz8)
         ba[i] = static_cast<bt>(x);
     Norm();
 }
 
 BN::BN(const BN& bn)
+: rbc(bn.rbc)
+, ba(bn.ba)
 {
-    ba = bn.ba;
-    rbc = bn.rbc;
 }
 
 BN::BN(BN&& bn)

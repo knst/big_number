@@ -40,9 +40,12 @@ constexpr size_t karacuba_const = 50;
 
 class BN {
 private:
-    vector<bt> ba;
     // used memory (base count)
     size_t rbc;
+    // data
+    vector<bt> ba;
+
+private:
     void InitMemory(int type = 2);
     int Norm();                             //пересчитать rbc
 
