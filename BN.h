@@ -104,6 +104,7 @@ public:
     BN   fast_mul (const BN&)const;        //быстрый столбик
     BN   karatsuba (const BN&)const;
     BN   karatsuba_old (const BN&)const;
+    void divmod(const BN& bn, BN& div, BN& mod) const;
     BN   operator / (const BN&)const;
     BN   operator % (const BN&)const;
     BN   operator >>(int shift)const;
