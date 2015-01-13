@@ -15,29 +15,23 @@
 #include "BN.h"
 #include "additional.h"
 
-void BN::GetMemory(int value)
+void BN::InitMemory(int type)
 {
-    for(int i=rbc;i<ba.size();i++)
-        ba[i]=0;
-    switch(value) {
-        case 0:
-            for(int i=0;i<rbc;i++)
-                ba[i]=0;
-            rbc=1;
-            break;
-        case 1:
-            for(int i=0;i<rbc;i++)
-                ba[i]=~((bt)0);
-            break;
-        case -1:
-            for(int i=0;i<rbc;i++)
-                ba[i]=rand()%bsize;
-            Norm();
-            break;
-        case 2:
-            break;
-        default:
-            throw "Unknow type (BN::BN)";
+    switch(type) {
+    case 1: {
+        bt zero = 0;
+        for(size_t i = 0; i < rbc; ++i)
+            ba[i] = ~zero;
+        break;
+    }
+    case -1:
+        for(size_t i = 0; i < rbc; ++i)
+            ba[i] = rand() % bsize;
+        Norm();
+        break;
+
+    default:
+        throw "Unknow type (BN::BN)";
     }
 }
 
@@ -52,23 +46,24 @@ BN::BN()
 {
     rbc = 1;
     ba.resize(2);
-    GetMemory(2);
 }
 
-BN::BN(uint64_t basecount,const int &value)
+BN::BN(uint64_t basecount, int type)
 {
-    if(basecount <= 0)
-        throw "Base count <= 0";
-    rbc = basecount;
-    ba.resize(rbc + 1);
-    GetMemory(value);
+    ba.resize(basecount + 1);
+    if (type == 0 || type == 2) {
+        rbc = 1;
+    } else if (type == 1 || type == -1) {
+        rbc = basecount;
+        InitMemory(type);
+    } else
+        throw std::invalid_argument("BN constructor: invalid type " + to_string(type));
 }
 
 BN::BN(uint64_t x)
 {
     rbc = (sizeof(uint64_t) + bz - 1) / bz;
     ba.resize(rbc + 1);
-    GetMemory(2);
     for(int i = 0; i < rbc; i++, x >>= bz8)
         ba[i] = static_cast<bt>(x);
     Norm();
@@ -80,7 +75,6 @@ BN::BN(const BN& bn)
         throw "constructor copy: Tak ne Byvaet!!! Constructor copii ISTCHO ne sosdannogo classa!!";
     rbc = bn.rbc;
     ba.resize(rbc + 1);
-    GetMemory(2);
     for (size_t i = 0; i < rbc; ++i)
         ba[i] = bn.ba[i];
 }
@@ -98,7 +92,6 @@ BN::BN(const BN& bn, int start, int count) {
 
     rbc = count;
     ba.resize(rbc + 1);
-    GetMemory(2);
     for(int i = 0; i < count && i + start < bn.rbc; i++)
         ba[i] = bn.ba[i + start];
 
@@ -123,7 +116,6 @@ BN::BN(const string &str,const int &status)
                 }
                 rbc=bn.rbc;
                 ba.resize(rbc + 1);
-                GetMemory(2);
                 for(int i=0;i<rbc;i++)
                         ba[i]=bn.ba[i];
 
@@ -133,7 +125,7 @@ BN::BN(const string &str,const int &status)
         int length = str.size();
         rbc=(length+bz*2-1)/(bz*2);
         ba.resize(rbc + 1);
-        GetMemory(0);
+        InitMemory(0);
         bt z;
         for(int i=0;i<length;i++)
         {
@@ -169,7 +161,6 @@ BN & BN::operator = (const BN&bn)
     if(ba.size() < bn.rbc) {
         rbc = bn.rbc;
         ba.resize(rbc + 1);
-        GetMemory(2);
     } else {
         for(int i = bn.rbc; i < rbc; i++)
             ba[i] = 0;

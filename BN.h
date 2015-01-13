@@ -43,7 +43,7 @@ private:
     vector<bt> ba;
     // used memory (base count)
     size_t rbc;
-    void GetMemory(int value = 2);
+    void InitMemory(int type = 2);
     int Norm();                             //пересчитать rbc
 
 public:
@@ -60,11 +60,14 @@ private:
     BN karatsubaRecursive(const BN & bn, int start, int len) const;
 public:
     BN();
-    BN(uint64_t basecount,const int &value);         //[value] 0:fill 0; 1:fill 1; -1:rand().
+
+    //value. 0:fill 0, 1:fill 1, -1:rand()
+    BN(uint64_t basecount, int type);
+
     BN(uint64_t x);
     BN(const BN&);
     BN(const BN&, int start, int count=-1);
-    BN(const string &,const int & base = 0);        // base - 0: Hex, 1: Dec
+    BN(const string &, const int & base = 0);        // base - 0: Hex, 1: Dec
     BN   mulbt(const int&)const;                // x * base^t
     BN   divbt(const int&)const;                // x / base^t
     BN   modbt(const int&)const;                // x % base^t
