@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
+#include <limits>
 #include <stdexcept>
 #include <iostream>
 #include <time.h>
@@ -335,21 +336,41 @@ BN& BN::mulbaseappr(const bt &multiplier)
 }
 
 const BN BN::operator * (const BN&bn)const {
-    if(bn.rbc==1)
+    // maximal size for cache-optimazed multiplication is:
+    // n < bt4_max * / (bt - 1) * bt_max^3
+
+    constexpr bt4 maximalLen = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
+
+    // If fast mul is possible, do It.
+    if (bn.rbc < maximalLen && rbc < maximalLen)
+        return fast_mul(bn);
+
+    // Else classical O(n*n) multiplication.
+    if(bn.rbc == 1)
         return mulbase(bn.ba[0]);
-    BN result(rbc+bn.rbc+1,0);
-    for(int i=0;i<bn.rbc;i++) {
-        bt2 curr=0;
-        bt2 x=bn.ba[i];
-        for(int j=0;j<rbc;j++,curr>>=bz8)
-            result.ba[i+j]=curr+=(bt2)ba[j]*x+result.ba[i+j];
-        result.ba[i+rbc]=curr;
+
+    if (rbc == 1)
+        return bn.mulbase(ba[0]);
+
+    // Tested: b * a is faster than a * b
+    const BN& b = rbc > bn.rbc ? *this : bn;
+    const BN& a = rbc > bn.rbc ? bn : *this;
+
+    BN result(a.rbc + b.rbc + 1, 0);
+    for (size_t i = 0; i < b.rbc; ++i) {
+        bt2 curr = 0;
+        bt2 x = b.ba[i];
+        for (size_t j = 0; j < a.rbc; ++j) {
+            curr = (curr >> bz8) + result.ba[i + j] + x * a.ba[j];
+            result.ba[i + j] = curr;
+        }
+        result.ba[i + a.rbc] = curr >> bz8;
     }
     result.Norm();
     return result;
 }
 
-const BN BN::fast_mul (const BN & bn) const {
+const BN BN::fast_mul (const BN& bn) const {
     int n = rbc;
     int m = bn.rbc;
 
