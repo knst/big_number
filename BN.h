@@ -50,7 +50,7 @@ public:
     BN reduction_barrett_precomputation()const;
 
 private:
-    bt qCompute(bt,int,const BN&)const;
+    bt qCompute(bt q, size_t shift, const BN&) const;
 
     //считается, что bn справа дополнен shift нулями
     bool lessorequal(const BN& bn, size_t shift)const;
@@ -87,6 +87,10 @@ public:
     BN   modbase(const bt&)const;
     BN   modbaseappr(const bt&);
 
+    // This function subtraction "bn" from "this".
+    // Constrains: this >= bn
+    // TODO: work slow
+    void subappr(const BN&);
     // This function return (this - bn).
     // Constrains: this >= bn
     BN   sub(const BN&)const;
