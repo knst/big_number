@@ -19,7 +19,7 @@ using bt2 = uint16_t;
 using bt2s = int16_t;
 using bt4 = uint32_t;
 constexpr bt2 bsize = 256;
-constexpr bt2 bmax = 255;
+constexpr bt bmax = 255;
 
 #else // DOUBLE_BASE
 
@@ -28,7 +28,7 @@ using bt2 = uint32_t;
 using bt2s = int32_t;
 using bt4 = uint64_t;
 constexpr bt2 bsize = 65536;
-constexpr bt2 bmax = 65535;
+constexpr bt bmax = 65535;
 
 #endif
 
