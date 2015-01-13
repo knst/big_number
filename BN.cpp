@@ -643,20 +643,22 @@ BN BN::sub(const BN& bn)const
     return result;
 }
 
-bool BN::lessorequal(const BN&bn,const int &shift)const        //считается, что bn справа дополнен shift нулями
+//считается, что bn справа дополнен shift нулями
+bool BN::lessorequal(const BN& bn, size_t shift) const
 {
-        if(rbc>bn.rbc-shift)
-                return false;
-        if(rbc<bn.rbc-shift)
-                return true;
-        for(int i=rbc-1;i>=0;i--)
-        {
-                if(ba[i]>bn.ba[i+shift])
-                        return false;
-                if(ba[i]<bn.ba[i+shift])
-                        return true;
-        }
+    if (rbc > bn.rbc - shift)
+        return false;
+    if (rbc < bn.rbc - shift)
         return true;
+    size_t index = rbc - 1;
+    do {
+        if (ba[index] < bn.ba[index + shift])
+            return true;
+        if (ba[index] > bn.ba[index + shift])
+            return false;
+        --index;
+    } while (index < rbc);
+    return true;
 }
 
 bt BN::qCompute(bt q, int shift, const BN& bn) const

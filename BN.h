@@ -51,7 +51,9 @@ public:
 
 private:
     bt qCompute(bt,int,const BN&)const;
-    bool lessorequal(const BN&,const int&)const;//считается, что bn справа дополнен shift нулями
+
+    //считается, что bn справа дополнен shift нулями
+    bool lessorequal(const BN& bn, size_t shift)const;
     BN subequalshift(BN&,int)const;                //считается, что bn справа дополнен shift нулями
     BN mulMontgomery(const BN& bn, const BN& mod, bt m1) const;         //MP
     BN transformationMontgomery(const BN & mod, bt m1) const;           //MR
