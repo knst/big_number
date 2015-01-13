@@ -301,32 +301,35 @@ BN & BN::operator --()
 
 BN BN::mulbt(const int& t)const
 {
-        if(t<0)
-                return divbt(-t);
-        if(t==0)
-                return *this;
-        BN res(rbc + t,2);
-        for(int i=0;i<rbc;i++)
-                res.ba[i+t]=ba[i];
-        for(int i=0;i<t;i++)
-                res.ba[i]=0;
-        res.Norm();
-        return res;
+    if(t < 0)
+        return divbt(-t);
+
+    if(t == 0)
+        return *this;
+
+    BN res(rbc + t, 2);
+    for(size_t i = 0; i < rbc; ++i)
+        res.ba[i + t] = ba[i];
+    res.rbc = rbc + t;
+    return res;
 }
 
 BN BN::divbt(const int& t)const
 {
-        if(t<0)
-                return mulbt(-t);
-        if(t==0)
-                return *this;
-        if(t>=rbc)
-                return (BN) 0;
-        BN res(rbc-t,2);
-        for(int i=0;i<rbc-t;i++)
-                res.ba[i]=ba[i+t];
-        res.Norm();
-        return res;
+    if(t < 0)
+        return mulbt(-t);
+
+    if(t == 0)
+        return *this;
+
+    if(t >= rbc)
+        return (BN) 0;
+
+    BN res(rbc - t, 2);
+    for (size_t i = 0; i < rbc - t; ++i)
+        res.ba[i] = ba[i+t];
+    res.rbc = rbc - t;
+    return res;
 }
 
 BN BN::modbt(const int& t)const
@@ -788,79 +791,53 @@ BN BN::operator % (const BN& bn)const
         return delimoe.divbase(d);
 }
 
-BN BN::operator >> (const int&shift)const {
+BN BN::operator >> (int shift) const {
     if(shift == 0)
         return *this;
     if(shift < 0)
         return (*this) >> (-shift);
 
+    size_t baseshift = shift / bz8;
+    size_t realshift = shift - baseshift * bz8;
 
-        int baseshift=shift/(bz8);
-        int realshift=shift-baseshift*bz8;
-        if(baseshift>=rbc)
-        {
-                BN bn0(1,0);
-                return BN(1,0);
-        }
+    if (realshift == 0)
+        return divbt(baseshift);
 
-        BN result(rbc-baseshift,2);
-        for(int i=0;i<rbc-baseshift;i++)
-                result.ba[i]=ba[i+baseshift];
+    if (baseshift >= rbc)
+        return BN(1, 0);
 
-        bt x=0;
-        bt oldx=0;
-        for(int i=rbc-baseshift;i>=0;i--)
-        {
-                x=result.ba[i] << (bz8-realshift);
-                result.ba[i]=(result.ba[i]>>realshift)|oldx;
-                oldx=x;
-        }
-
-        //двигать сразу и базы, и биты. Работает медленнее.
-
-        /*BN result(rbc-baseshift,2);
-        for(int i=0;i<rbc-baseshift;i++)
-                result.ba[i]=ba[i+baseshift];
-
-        bt x=0;
-        bt oldx=0;
-        for(int i=rbc-baseshift;i>=0;i--)
-        {
-                x=result.ba[i] << (bz8-realshift);
-                result.ba[i]=(result.ba[i]>>realshift)|oldx;
-                oldx=x;
-        }*/
-        result.Norm();
-        return result;
+    BN result(rbc - baseshift, 2);
+    for (size_t i = 0; i < rbc - baseshift; ++i) {
+        result.ba[i] =
+            (ba[i + baseshift] >> realshift) |
+            (ba[i + baseshift + 1] << (bz8 - realshift));
+    }
+    result.Norm();
+    return result;
 }
 
-BN BN::operator << (const int&shift)const {
+BN BN::operator << (int shift) const {
     if(shift == 0)
         return *this;
-    if(shift < 0)
-        return (*this) >> (-shift);
 
-    int baseshift=shift/(bz8);
-        int realshift=shift-baseshift*bz8;
-        if(realshift == 0)
-                return mulbt(baseshift);
-        BN result(rbc+baseshift+1,2);
-        for(int i=0;i<baseshift;i++)
-                result.ba[i]=0;
-        for(int i=0;i<rbc;i++)
-                result.ba[i+baseshift]=ba[i];
+    if (shift < 0)
+        return *this >> (-shift);
 
-        bt x=0;
-        bt oldx=0;
-        for(int i=0;i<rbc+baseshift;i++)
-        {
-                x=result.ba[i] >> (bz8-realshift);
-                result.ba[i]=(result.ba[i]<<realshift)|oldx;
-                oldx=x;
-        }
-        result.ba[rbc+baseshift]=oldx;
-        result.Norm();
-        return result;
+    size_t baseshift = shift / bz8;
+    size_t realshift = shift - baseshift * bz8;
+
+    if (realshift == 0)
+        return mulbt(baseshift);
+
+    BN result(rbc + baseshift + 1, 2);
+    result.ba[baseshift] = ba[0] << realshift;
+    for(int i = 1; i <= rbc; i++) {
+        result.ba[i + baseshift] =
+            (ba[i - 1] >> (bz8 - realshift)) |
+            (ba[i] << realshift);
+    }
+    result.Norm();
+    return result;
 }
 
 bool BN::operator < (const BN&bn)const

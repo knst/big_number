@@ -93,8 +93,8 @@ public:
     BN   karatsuba_old (const BN&)const;
     BN   operator / (const BN&)const;
     BN   operator % (const BN&)const;
-    BN   operator >>(const int&)const;
-    BN   operator <<(const int&)const;
+    BN   operator >>(int shift)const;
+    BN   operator <<(int shift) const;
     bool operator < (const BN&)const;
     bool operator <=(const BN&)const;
     bool operator > (const BN&)const;
