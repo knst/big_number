@@ -13,30 +13,30 @@
 
 using namespace std;
 
-#define bt        unsigned char
-#define bt2        unsigned short
-#define bt2s        short
-#define bt4        unsigned long
-#define bsize        256
-#define bmax        255
+#ifndef DOUBLE_BASE
+using bt = uint8_t;
+using bt2 = uint16_t;
+using bt2s = int16_t;
+using bt4 = uint32_t;
+constexpr bt2 bsize = 256;
+constexpr bt2 bmax = 256;
 
-//#define bt        unsigned short
-//#define bt2        unsigned int
-//#define bt2s        int
-//#define bt4        unsigned long long
-//#define bsize        (bt2)65536
-//#define bmax        (bt2)65535
+#else // DOUBLE_BASE
 
-/*#define bt        unsigned long
-#define bt2        unsigned long long
-#define bsize        (bt2)(4294967296)
-#define bmax        (bt2)(4294967295)*/
+using bt = uint16_t;
+using bt2 = uint32_t;
+using bt2s = int32_t;
+using bt4 = uint64_t;
+constexpr bt2 bsize = 65536;
+constexpr bt2 bmax = 65535;
 
-#define bz        (sizeof(bt))
-#define bz2        (sizeof(bt2))
-#define bz8        (sizeof(bt)*8)
+#endif
 
-#define caracuba_const  50
+constexpr bt bz = sizeof(bt);
+constexpr bt bz2 = sizeof(bt2);
+constexpr bt bz8 = sizeof(bt) * 8;
+
+constexpr size_t caracuba_const = 50;
 
 class BN {
 private:
