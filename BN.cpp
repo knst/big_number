@@ -718,8 +718,10 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
 
     bt d=bsize/(bt2)(bn.ba[bn.rbc-1]+1);
 
-    BN delimoe = this -> mulbase(d);
+    BN delimoe = this->mulbase(d);
     BN delitel = bn.mulbase(d);
+
+    delimoe.ba.resize(delimoe.ba.size() + 1);
 
     size_t n = delitel.rbc;
     size_t m = delimoe.rbc - delitel.rbc;
@@ -729,11 +731,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     vector<bt> temp(n + 1, 0);
     for(size_t i=n+m;i>=n;i--)
     {
-        bt q;
-        if(i==delimoe.rbc)
-            q=min((bt2)delimoe.ba[i-1]/delitel.ba[n-1],bsize-1);
-        else
-            q=min((bt2)(delimoe.ba[i]*bsize+delimoe.ba[i-1])/delitel.ba[n-1],bsize-1);
+        bt q = min<bt2>((delimoe.ba[i] * bsize + delimoe.ba[i-1]) / delitel.ba[n-1], bmax);
 
         if (q == 0)
             continue;
