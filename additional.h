@@ -12,16 +12,15 @@
 #include "BNsign.h"
 #include <vector>
 
-
 BN gcdEuclidean(BN x,BN y);
 BN gcdBinary(BN x,BN y);
 BN gcdLehmer(BN x,BN y);
 BN gcdInverseEuclidean(BN a,BN mod);
 BN gcdInverseEuclideanBinary(BN x,BN mod);
 BN gcdExtendedEuclideanBinary(BN xx, BN yy);
-vector <BN> multi_inverse(const vector <BN> &x, const BN &mod);
-BN Garner(vector <BN> m, vector <BN> v);
-BN CTO(vector <BN> m, vector <BN> v);
+std::vector <BN> multi_inverse(const std::vector <BN> &x, const BN &mod);
+BN Garner(std::vector <BN> m, std::vector <BN> v);
+BN CTO(std::vector <BN> m, std::vector <BN> v);
 
 #endif /* _ADDITIONAL_H */
 

@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 #ifndef DOUBLE_BASE
 using bt = uint8_t;
 using bt2 = uint16_t;
@@ -43,7 +41,7 @@ private:
     // used memory (base count)
     size_t rbc;
     // data
-    vector<bt> ba;
+    std::vector<bt> ba;
 
 private:
     void InitMemory(int type = 2);
@@ -73,7 +71,7 @@ public:
     BN(const BN&);
     BN(BN&& bn);
     BN(const BN&, int start, int count=-1);
-    BN(const string &, const int & base = 0);        // base - 0: Hex, 1: Dec
+    BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
     // This function return: this * base^t
     BN   mulbt(size_t t) const;
@@ -134,19 +132,19 @@ public:
     BN PowModBarrett(const BN& power, const BN& mod) const;
     BN expRightToLeft(const BN& power, const BN& mod) const;
     BN expLeftToRight(const BN& power, const BN& mod) const;
-    vector <BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
-    BN expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& g) const;
-    vector <BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;
-    BN expLeftToRightK_aryVar(BN, BN, vector <BN>, int K)const;
-    vector <BN> expLeftToRightK_aryModifPrecomputation(BN)const;
-    BN expLeftToRightK_aryMod(BN, BN, vector <BN> )const;
-    vector <BN> expSlidingWindowPrecomputation(BN, int)const;
-    BN expSlidingWindow(BN,BN, vector <BN>, int k)const;
+    std::vector <BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
+    BN expLeftToRightK_ary(const BN& exponent, const BN& mod, const std::vector<BN>& g) const;
+    std::vector <BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;
+    BN expLeftToRightK_aryVar(BN, BN, std::vector <BN>, int K)const;
+    std::vector <BN> expLeftToRightK_aryModifPrecomputation(BN)const;
+    BN expLeftToRightK_aryMod(BN, BN, std::vector <BN> )const;
+    std::vector <BN> expSlidingWindowPrecomputation(BN, int)const;
+    BN expSlidingWindow(BN,BN, std::vector <BN>, int k)const;
     BN expMontgomery(BN exponent, BN mod) const;
 
     //for best result:
-    vector <BN> expBest_SlidePrecomp(BN mod) const;
-    BN expBest_Slide(BN exponent, BN mod, vector <BN> g) const;
+    std::vector <BN> expBest_SlidePrecomp(BN mod) const;
+    BN expBest_Slide(BN exponent, BN mod, std::vector <BN> g) const;
 
     BN Sqrt()const;
     BN Qrt()const;

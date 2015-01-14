@@ -8,10 +8,10 @@
 #include "BNsign.h"
 
 #include "BN.h"
-//#include <iostream>
+
 #include <cstdio>
-//
-//using namespace std;
+
+using namespace std;
 
 BNsign::BNsign()
 : sign(false)

@@ -1,16 +1,15 @@
 #include "testing.h"
 
-
-#include <stdlib.h>
-#include <iostream>
-#include <vector>
-#include <cstdio>
-
-#include "testing.h"
 #include "BN.h"
 #include "additional.h"
 
+#include <stdlib.h>
+#include <iostream>
 #include <inttypes.h>
+#include <cstdio>
+#include <vector>
+
+using namespace std;
 
 int testingMul_ij(int max1,int max2, int i,int j) {
     BN bn1(rand()%max1+1,-1);

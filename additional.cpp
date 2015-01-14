@@ -1,11 +1,15 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
 #include "additional.h"
+
 #include "BN.h"
 #include "BNsign.h"
 
+#include <algorithm>
 #include <cstdio>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
 bt2s abs(bt2s x) {
     return x<0?-x:x;
 }

@@ -16,6 +16,8 @@
 #include "BN.h"
 #include "additional.h"
 
+using namespace std;
+
 void BN::InitMemory(int type)
 {
     switch(type) {
