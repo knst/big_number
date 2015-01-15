@@ -51,8 +51,6 @@ public:
     BN reduction_barrett_precomputation()const;
 
 private:
-    bt qCompute(bt q, size_t shift, const BN&) const;
-
     //считается, что bn справа дополнен shift нулями
     bool lessorequal(const BN& bn, size_t shift)const;
     BN subequalshift(BN&,int)const;                //считается, что bn справа дополнен shift нулями

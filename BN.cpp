@@ -682,72 +682,77 @@ bool BN::lessorequal(const BN& bn, size_t shift) const
     return true;
 }
 
-bt BN::qCompute(bt q, size_t shift, const BN& bn) const
-{
-    // temp = bn * q
-    BN temp(bn.mulbase(q));
-
-    //if q is not wrong, then return q
-    if(temp.lessorequal(*this,shift))
-        return q;
-
-    q--;
-    if(q == 0)
-        return 0;
-
-    // if q is not wrong, then return q, else return (q - 1)
-    if ((temp - bn).lessorequal(*this,shift))
-        return q;
-    else
-        return q - 1;
-}
-
 void BN::divmod(const BN& bn, BN& div, BN& mod) const
 {
     if(bn.is0())
         throw "Div by 0";
-    if(bn.rbc==1) {
+
+    if(bn.rbc == 1) {
         div = this -> divbase(bn.ba[0]);
         mod = this -> modbase(bn.ba[0]);
         return;
     }
 
-    if(*this<bn) {
+    if(*this < bn) {
         div = 0;
         mod = *this;
         return;
     }
 
-    bt d=bsize/(bt2)(bn.ba[bn.rbc-1]+1);
+    bt d = bsize  / (bn.ba[bn.rbc-1] + 1);
 
-    BN delimoe = this->mulbase(d);
-    BN delitel = bn.mulbase(d);
+    BN delimoe(d == 1 ? *this : this->mulbase(d));
+    BN delitel(d == 1 ? bn : bn.mulbase(d));
 
-    delimoe.ba.resize(delimoe.ba.size() + 1);
+    delimoe.ba.resize(delimoe.ba.size() + 2);
 
     size_t n = delitel.rbc;
-    size_t m = delimoe.rbc - delitel.rbc;
+    size_t m = delimoe.rbc - delitel.rbc + 1;
 
     div = BN(m+1,0);
 
-    vector<bt> temp(n + 1, 0);
-    for(size_t i=n+m;i>=n;i--)
-    {
-        bt q = min<bt2>((delimoe.ba[i] * bsize + delimoe.ba[i-1]) / delitel.ba[n-1], bmax);
+    BN temp1(n + 2, 0);
+    vector<bt> &temp = temp1.ba;
+    for (size_t j = m; j <= m; --j) {
+        bt2 q = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) / delitel.ba[n-1];
+        bt2 r = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) % delitel.ba[n-1];
 
-        if (q == 0)
-            continue;
-        q = delimoe.qCompute(q, i - n, delitel);
-        if (q == 0)
+        bool doAdjust = true;
+        if (q == bsize || q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2]) {
+            --q;
+            r += delitel.ba[n-1];
+            if (q == bsize || (r < bsize && q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2])) {
+                --q;
+                doAdjust = false;
+            }
+        }
+
+        if (!q)
             continue;
 
         // Calculation temp = delitel * q
         bt2 x = 0;
-        for(size_t j = 0; j < n; ++j) {
-            x = (x >> bz8) + q * delitel.ba[j];
-            temp[j] = x;
+        for(size_t i = 0; i < n; ++i) {
+            x = (x >> bz8) + q * delitel.ba[i];
+            temp[i] = x;
         }
         temp[n] = x >> bz8;
+
+        if (doAdjust) {
+            // temp1 * b^j <= delimoe ?
+
+            temp1.Norm();
+            if(!temp1.lessorequal(delimoe, j)) {
+                --q;
+                // Calculation temp = delitel * q
+                bt2 x = 0;
+                for(size_t i = 0; i < n; ++i) {
+                    x = (x >> bz8) + q * delitel.ba[i];
+                    temp[i] = x;
+                }
+                temp[n] = x >> bz8;
+            }
+        }
 
         // delimoe = delimoe - temp * b^(i-n)
         {
@@ -755,21 +760,19 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
             size_t pos = 0;
 
             for (; pos <= n; ++pos) {
-                bt2s res = static_cast<bt2s>(delimoe.ba[i - n + pos]) - temp[pos] - flag;
-                delimoe.ba[i - n + pos] = static_cast<bt>(res);
+                bt2s res = static_cast<bt2s>(delimoe.ba[j + pos]) - temp[pos] - flag;
+                delimoe.ba[j + pos] = static_cast<bt>(res);
                 flag = (res < 0);
             }
 
             if (flag) {
-                while (!delimoe.ba[i - n + pos]--)
+                while (!delimoe.ba[j + pos]--)
                     ++pos;
             }
             delimoe.Norm();
         }
 
-        div.ba[i-n]=q;
-
-        temp.assign(temp.size(), 0);
+        div.ba[j] = q;
     }
     div.Norm();
     mod = delimoe.divbase(d);
