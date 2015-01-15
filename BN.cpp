@@ -341,17 +341,18 @@ const BN BN::operator * (const BN&bn)const {
 }
 
 const BN BN::fast_mul (const BN& bn) const {
-    int n = rbc;
-    int m = bn.rbc;
+    size_t n = rbc;
+    size_t m = bn.rbc;
 
     BN result(n+m+1,2);
 
     bt4 t = 0;
-    for(int s = 0; s < m+n; s++) {
+    for(size_t s = 0; s < m + n; s++) {
 
-        int end_index = min(n, s);
-        for(int i = max(s-m+1, 0); i <= end_index; i++) {
-                t += (bt2) ba[i] * bn.ba[s-i];
+        size_t end_index = min(n, s);
+        size_t start_index = s > m ? s - m + 1 : 0;
+        for(size_t i = start_index; i <= end_index; i++) {
+            t += static_cast<bt2>(ba[i]) * bn.ba[s-i];
         }
 
         result.ba[s] = t;
@@ -360,7 +361,7 @@ const BN BN::fast_mul (const BN& bn) const {
 
     result.ba[m+n] = t;
     result.Norm();
-    return result;
+    return move(result);
 }
 
 BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int count_2) const {
