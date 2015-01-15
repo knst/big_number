@@ -44,7 +44,7 @@ private:
     std::vector<bt> ba;
 
 private:
-    void InitMemory(int type = 2);
+    void InitMemory(int type);
     // Normalization of BN: changing rbc in according to value.
     int Norm();
 

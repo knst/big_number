@@ -58,7 +58,7 @@ BN::BN(uint64_t basecount, int type)
     if (type == 1 || type == -1) {
         rbc = basecount;
         InitMemory(type);
-    } else if (type != 2 && type != 0)
+    } else if (type != 0)
         throw std::invalid_argument("BN constructor: invalid type " + to_string(type));
 }
 
@@ -167,7 +167,7 @@ BN & BN::operator = (BN&& bn)
 
 const BN BN::operator + (const BN&bn)const {
     size_t result_len = max(rbc, bn.rbc);
-    BN result(result_len + 1, 2);
+    BN result(result_len + 1, 0);
 
     bt2 res = 0;
     size_t pos = 0;
@@ -237,7 +237,7 @@ BN BN::mulbt(size_t t) const
     if(t == 0)
         return *this;
 
-    BN res(rbc + t, 2);
+    BN res(rbc + t, 0);
     for(size_t i = 0; i < rbc; ++i)
         res.ba[i + t] = ba[i];
     res.rbc = rbc + t;
@@ -252,7 +252,7 @@ BN BN::divbt(size_t t) const
     if(t >= rbc)
         return (BN) 0;
 
-    BN res(rbc - t, 2);
+    BN res(rbc - t, 0);
     res.ba.assign(ba.begin() + t, ba.end());
     res.rbc = rbc - t;
     return res;
@@ -266,7 +266,7 @@ BN BN::modbt(size_t t) const
     if(t >= rbc)
             return *this;
 
-    BN res(t, 2);
+    BN res(t, 0);
     res.ba.assign(ba.begin(), ba.begin() + t);
     res.Norm();
     return res;
@@ -274,7 +274,7 @@ BN BN::modbt(size_t t) const
 
 const BN BN::mulbase(const bt &multiplier)const
 {
-    BN result(rbc+1,2);
+    BN result(rbc+1, 0);
     bt2 curr = 0;
     for(size_t i = 0; i < rbc; i++, curr>>=bz8)
         result.ba[i] = curr += static_cast<bt2>(ba[i]) * multiplier;
@@ -344,7 +344,7 @@ const BN BN::fast_mul (const BN& bn) const {
     size_t n = rbc;
     size_t m = bn.rbc;
 
-    BN result(n+m+1,2);
+    BN result(n + m + 1, 0);
 
     bt4 t = 0;
     for(size_t s = 0; s < m + n; s++) {
@@ -375,7 +375,7 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
         count_2 = bn2.rbc - start_2;
 
     size_t result_len = max(count_1, count_2);
-    BN result(result_len + 1, 2);
+    BN result(result_len + 1, 0);
 
     size_t max_1 = min<size_t>(count_1, bn1.rbc - start_1);
     size_t max_2 = min<size_t>(count_2, bn2.rbc - start_2);
@@ -495,7 +495,7 @@ const BN BN::karatsuba_old(const BN& bn)const {
     size_t M = max(x,y);
     size_t n = (M + 1) / 2;
     if(min(x,y) < karacuba_const)
-        return this->fast_mul(bn);
+        return move(this->fast_mul(bn));
 
     const BN& U = *this;
     const BN& V = bn;
@@ -509,14 +509,15 @@ const BN BN::karatsuba_old(const BN& bn)const {
     BN A = u1.karatsuba_old(v1);
     BN B = u0.karatsuba_old(v0);
     BN C = (u0 + u1).karatsuba_old(v0+v1);
-    return A.mulbt(2*n) + (C-A-B).mulbt(n) + B;
+
+    return move(A.mulbt(2*n) + (C-A-B).mulbt(n) + B);
 }
 
 const BN BN::divbase(const bt& diviser) const
 {
     if(diviser == 0)
         throw "Div by 0";
-    BN result(rbc, 2);
+    BN result(rbc, 0);
     bt2 curr=0;
     for (size_t i = rbc - 1; i < rbc; --i) {
         curr <<= bz8;
@@ -547,7 +548,7 @@ const BN BN::modbase(const bt &diviser)const
 {
     if(diviser == 0)
         throw "Div by 0";
-    BN result(1, 2);
+    BN result(1, 0);
     bt2 curr=0;
     for (size_t i = rbc - 1; i < rbc; --i) {
         curr <<= bz8;
@@ -597,7 +598,7 @@ void BN::subappr(const BN& bn)
 
 BN BN::sub(const BN& bn)const
 {
-    BN result(rbc, 2);
+    BN result(rbc, 0);
 
     bool flag = 0;
     size_t pos = 0;
@@ -751,7 +752,7 @@ const BN BN::operator >> (int shift) const {
     if (baseshift >= rbc)
         return BN(1, 0);
 
-    BN result(rbc - baseshift, 2);
+    BN result(rbc - baseshift, 0);
     for (size_t i = 0; i < rbc - baseshift; ++i) {
         result.ba[i] =
             (ba[i + baseshift] >> realshift) |
@@ -774,7 +775,7 @@ const BN BN::operator << (int shift) const {
     if (realshift == 0)
         return mulbt(baseshift);
 
-    BN result(rbc + baseshift + 1, 2);
+    BN result(rbc + baseshift + 1, 0);
     result.ba[baseshift] = ba[0] << realshift;
     for(size_t i = 1; i <= rbc; i++) {
         result.ba[i + baseshift] =
@@ -867,7 +868,7 @@ size_t BN::bitcount() const
 
 BN BN::transformationMontgomery(const BN & mod, bt m1) const {
     int k = mod.rbc;
-    BN y(rbc + k, 2);                     // выделяем память с запасом
+    BN y(rbc + k, 0);                     // выделяем память с запасом
     y = *this;
     for(int i = 0; i < k; i++) {
         bt u = y.ba[i] * m1;
