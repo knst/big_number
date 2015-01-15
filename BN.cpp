@@ -66,7 +66,7 @@ BN::BN(uint64_t x)
 : rbc((sizeof(uint64_t) + bz - 1) / bz)
 , ba(rbc + 1)
 {
-    for(int i = 0; i < rbc; i++, x >>= bz8)
+    for(size_t i = 0; i < rbc; i++, x >>= bz8)
         ba[i] = static_cast<bt>(x);
     Norm();
 }
@@ -78,51 +78,40 @@ BN::BN(const BN& bn)
 }
 
 BN::BN(BN&& bn)
-: ba(move(bn.ba))
-, rbc(bn.rbc)
+: rbc(bn.rbc)
+, ba(move(bn.ba))
 {
 }
 
-BN::BN(const BN& bn, int start, int count) {
-    if(count == -1)
-        count = bn.rbc;
-    if(count <= 0)
-        throw "constructor copy with param: count byte is not positive";
-    if(start < 0)
-        throw "constructor copy with param: start < 0";
-
+BN::BN(const BN& bn, size_t start, size_t count) {
+    if(!count)
+        count = bn.rbc - start;
 
     rbc = count;
     ba.resize(rbc + 1);
-    for(int i = 0; i < count && i + start < bn.rbc; i++)
+    for(size_t i = 0; i < count && i + start < bn.rbc; i++)
         ba[i] = bn.ba[i + start];
 
-    int bbstart = max<size_t>(0, bn.rbc - start);
-    for(int i = bbstart; i < ba.size(); i++)
+    size_t bbstart = max<size_t>(0, bn.rbc - start);
+    for(size_t i = bbstart; i < ba.size(); i++)
         ba[i] = 0;
     Norm();
 }
 
 BN::BN(const string &str,const int &status)
 {
-        if(status==1)
-        {
-                BN bn(1,0);
-                BN bn10(10);
-                for(unsigned int i=0;i<str.size();i++)
-                {
-                        if(str[i]<'0'||str[i]>'9')
-                                continue;
-                        BN bnc(str[i]-'0');
-                        bn=bn*bn10+bnc;
-                }
-                rbc=bn.rbc;
-                ba.resize(rbc + 1);
-                for(int i=0;i<rbc;i++)
-                        ba[i]=bn.ba[i];
-
-                return;
+    if(status == 1)
+    {
+        BN bn(1,0);
+        for (auto i : str) {
+            if (i < '0' || i > '9')
+                continue;
+            bn = bn.mulbase(10) + BN(i - '0');
         }
+        rbc = bn.rbc;
+        ba = move(bn.ba);
+        return;
+    }
 
         int length = str.size();
         rbc=(length+bz*2-1)/(bz*2);
@@ -177,26 +166,26 @@ BN & BN::operator = (BN&& bn)
 }
 
 const BN BN::operator + (const BN&bn)const {
-    int result_len = max(rbc, bn.rbc);
+    size_t result_len = max(rbc, bn.rbc);
     BN result(result_len + 1, 2);
 
     bt2 res = 0;
-    int pos = 0;
-    int m = min(rbc, bn.rbc);
+    size_t pos = 0;
+    size_t m = min(rbc, bn.rbc);
     for(; pos < m; pos++) {
-        res += (bt2) ba[pos] + (bt2) bn.ba[pos];
+        res += static_cast<bt2>(ba[pos]) + bn.ba[pos];
         result.ba[pos] = res;
         res >>= bz8;
     }
 
     for(; pos < rbc; pos++) {
-        res += (bt2) ba[pos];
+        res += ba[pos];
         result.ba[pos] = res;
         res >>= bz8;
     }
 
     for(; pos < bn.rbc; pos++) {
-        res += (bt2) bn.ba[pos];
+        res += bn.ba[pos];
         result.ba[pos] = res;
         res >>= bz8;
     }
@@ -208,48 +197,19 @@ const BN BN::operator + (const BN&bn)const {
 
 BN & BN::operator ++()
 {
-        bool overflag=0;
-        bt2 res;
-        int pos=1;
-        if(rbc == ba.size() && bsize-(bt2)ba[rbc-1]==1)
-        {
-                BN result(rbc+1,2);
-                if((bt)(ba[0]+1)<ba[0])
-                        overflag=1;
-                ba[0]++;
-                while(overflag&&pos<rbc)
-                {
-                        res=(bt2)ba[pos]+(bt2)overflag;
-                        if(res>=bsize)
-                        {overflag=true;        result.ba[pos]=res;}
-                        else
-                        {overflag=false;result.ba[pos]=res;pos++;break;}
-                        pos++;
-                }
-                while(pos<rbc)
-                {
-                        result.ba[pos]=ba[pos];
-                        pos++;
-                }
-                result.ba[pos]=overflag;
-                result.rbc=rbc+1;
-                return *this=result;
-        }
-        if((bt)(ba[0]+1)<ba[0])
-                overflag=1;
-        ba[0]++;
-        while(overflag&&pos<rbc)
-        {
-                res=(bt2)ba[pos]+(bt2)overflag;
-                if(res>=bsize)
-                {overflag=true;        ba[pos]=res;}
-                else
-                {overflag=false;ba[pos]=res;pos++;break;}
-                pos++;
-        }
-        ba[pos]+=overflag;
-        Norm();
-        return *this;
+    size_t index = 0;
+    do {
+        ++ba[index];
+        ++index;
+    } while (index < rbc && ba[index - 1] == 0);
+    if (index == rbc) {
+        if (ba.size() == rbc + 1)
+            ba.push_back(1);
+        else
+            ba[rbc] = 1;
+        ++rbc;
+    }
+    return *this;
 }
 
 const BN BN::operator - (const BN& bn)const
@@ -259,21 +219,17 @@ const BN BN::operator - (const BN& bn)const
 
 BN & BN::operator --()
 {
-        bool flag=0;
-        int pos=1;
-        if(rbc==1&&ba[0]==0)
-                throw "It is minimal value... Decrementing not accept :)";
-        if(ba[0]==0)
-                flag=1;
-        ba[0]--;
-        while(flag)
-        {
-                flag=(ba[pos]==0);
-                ba[pos]--;
-                pos++;
-        }
-        Norm();
-        return *this;
+    size_t index = 0;
+    do {
+        --ba[index];
+        ++index;
+    } while (index < rbc && ba[index - 1] == bmax);
+
+    // Normalization:
+    if (index == rbc)
+        while (rbc && ba[rbc-1] == 0)
+            --rbc;
+    return *this;
 }
 
 BN BN::mulbt(size_t t) const
@@ -318,13 +274,16 @@ BN BN::modbt(size_t t) const
 
 const BN BN::mulbase(const bt &multiplier)const
 {
-        BN result(rbc+1,2);
-        bt2 curr=0;
-        for(int i=0;i<rbc;i++,curr>>=bz8)
-                result.ba[i]=curr+=ba[i]*multiplier;
-        result.ba[rbc]=curr;
-        result.Norm();
-        return result;
+    BN result(rbc+1,2);
+    bt2 curr = 0;
+    for(size_t i = 0; i < rbc; i++, curr>>=bz8)
+        result.ba[i] = curr += static_cast<bt2>(ba[i]) * multiplier;
+    if (curr) {
+        result.ba[rbc] = curr;
+        result.rbc = rbc + 1;
+    } else
+        result.rbc = rbc;
+    return result;
 }
 
 BN& BN::mulbaseappr(const bt &multiplier)
@@ -332,16 +291,17 @@ BN& BN::mulbaseappr(const bt &multiplier)
     bt2 curr = 0;
     if (rbc + 1 > ba.size()) {
         vector<bt> ba_new(rbc + 2);
-        for (int i =0; i < rbc; ++i, curr >>= bz8)
+        for (size_t i =0; i < rbc; ++i, curr >>= bz8)
             ba_new[i] = curr += ba[i] * multiplier;
         ba = ba_new;
     } else {
-        for (int i =0; i < rbc; ++i, curr >>= bz8)
+        for (size_t i =0; i < rbc; ++i, curr >>= bz8)
             ba[i] = curr += ba[i] * multiplier;
     }
-    ba[rbc] = curr;
-
-    Norm();
+    if (curr) {
+        ba[rbc] = curr;
+        ++rbc;
+    }
     return *this;
 }
 
@@ -413,7 +373,7 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
     if(count_2 == -1)
         count_2 = bn2.rbc - start_2;
 
-    int result_len = max(count_1, count_2);
+    size_t result_len = max(count_1, count_2);
     BN result(result_len + 1, 2);
 
     size_t max_1 = min<size_t>(count_1, bn1.rbc - start_1);
@@ -421,7 +381,7 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
     size_t m_min = min<size_t>(max_1, max_2);
 
     bt2 res = 0;
-    int pos = 0;
+    size_t pos = 0;
     for(; pos < m_min; pos++) {
         res = res + (bt2) bn1.ba[start_1 + pos] + (bt2) bn2.ba[start_2 + pos];
         result.ba[pos] = res;
@@ -447,26 +407,26 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
     return result;
 }
 
-BN BN::add_appr (const BN&bn, int mul_bt) {
-    int result_len = max(rbc, bn.rbc + mul_bt);
+BN BN::add_appr (const BN&bn, size_t mul_bt) {
+    size_t result_len = max(rbc, bn.rbc + mul_bt);
     if(result_len < ba.size()) {
         bt2 res = 0;
-        int pos = 0;
-        int m = min(rbc-mul_bt, bn.rbc);
+        size_t pos = 0;
+        size_t m = min(rbc-mul_bt, bn.rbc);
         for(; pos < m; pos++) {
-            res += (bt2) ba[pos + mul_bt] + (bt2) bn.ba[pos];
+            res += static_cast<bt2>(ba[pos + mul_bt]) + bn.ba[pos];
             ba[pos + mul_bt] = res;
             res >>= bz8;
         }
 
         for(; pos < bn.rbc; pos++) {
-            res += (bt2) bn.ba[pos];
+            res += bn.ba[pos];
             ba[pos + mul_bt] = res;
             res >>= bz8;
         }
 
         while(res) {
-            res += (bt2) ba[pos + mul_bt];
+            res += ba[pos + mul_bt];
             ba[pos + mul_bt] = res;
             res >>= bz8;
             pos ++;
@@ -480,8 +440,8 @@ BN BN::add_appr (const BN&bn, int mul_bt) {
 }
 
 
-BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
-    int n = len / 2;
+BN BN::karatsubaRecursive(const BN & bn, size_t start, size_t len) const {
+    size_t n = len / 2;
     if (len / 2 < karacuba_const) {
         BN U(*this, start, len);
         BN V(bn, start, len);
@@ -503,24 +463,24 @@ BN BN::karatsubaRecursive(const BN & bn, int start, int len) const {
     res.rbc = A.rbc + 2*n;
     res.ba.resize(A.ba.size() + 2*n);
 
-    for(int i = 0; i < B.rbc; i++)
+    for(size_t i = 0; i < B.rbc; i++)
         res.ba[i] = B.ba[i];                        //res = A.mulbt(2*n) + B;
-    for(int i = B.rbc; i < 2*n; i++)
+    for(size_t i = B.rbc; i < 2*n; i++)
         res.ba[i] = 0;
-    for(int i = 2*n; i < A.rbc + 2*n; i++)
+    for(size_t i = 2*n; i < A.rbc + 2*n; i++)
         res.ba[i] = A.ba[i - 2*n];
-    for(int i = res.rbc; i < res.ba.size(); i++)
+    for(size_t i = res.rbc; i < res.ba.size(); i++)
         res.ba[i] = 0;
 
     return res + C.mulbt(n) - (A + B).mulbt(n);
 }
 
 const BN BN::karatsuba(const BN& bn)const {
-    int x = rbc;
-    int y = bn.rbc;
-    int len = max(x,y);
-    if(min(x,y) < karacuba_const)
-        return this ->fast_mul(bn);
+    size_t x = rbc;
+    size_t y = bn.rbc;
+    size_t len = max(x, y);
+    if(min(x, y) < karacuba_const)
+        return this->fast_mul(bn);
 
     const BN & U = *this;
     const BN & V = bn;
@@ -528,16 +488,16 @@ const BN BN::karatsuba(const BN& bn)const {
 }
 
 const BN BN::karatsuba_old(const BN& bn)const {
-    int x = rbc;
-    int y = bn.rbc;
+    size_t x = rbc;
+    size_t y = bn.rbc;
 
-    int M = max(x,y);
-    int n = (M+1)/2;
+    size_t M = max(x,y);
+    size_t n = (M + 1) / 2;
     if(min(x,y) < karacuba_const)
-        return (*this).fast_mul (bn);
+        return this->fast_mul(bn);
 
-    const BN & U = *this;
-    const BN & V = bn;
+    const BN& U = *this;
+    const BN& V = bn;
 
     BN u0(U, 0, n);
     BN v0(V, 0, n);
@@ -551,73 +511,68 @@ const BN BN::karatsuba_old(const BN& bn)const {
     return A.mulbt(2*n) + (C-A-B).mulbt(n) + B;
 }
 
-const BN BN::divbase(const bt &diviser)const
+const BN BN::divbase(const bt& diviser) const
 {
-        if(diviser==0)
-                throw "Div by 0";
-        BN result(rbc,2);
-        bt2 curr=0;
-        for(int i=rbc-1;i>=0;--i)
-        {
-                curr<<=bz8;
-                curr+=(bt2)ba[i];
-                result.ba[i]=curr/(bt2)diviser;
-                curr%=(bt2)diviser;
-        }
-        result.Norm();
-        return result;
+    if(diviser == 0)
+        throw "Div by 0";
+    BN result(rbc, 2);
+    bt2 curr=0;
+    for (size_t i = rbc - 1; i < rbc; --i) {
+        curr <<= bz8;
+        curr += ba[i];
+        result.ba[i] = curr / diviser;
+        curr %= diviser;
+    }
+    result.Norm();
+    return result;
 }
 
 BN& BN::divbaseappr(const bt &diviser)
 {
-        if(diviser==0)
-                throw "Div by 0";
-        bt2 curr=0;
-        for(int i=rbc-1;i>=0;--i)
-        {
-                curr<<=bz8;
-                curr+=(bt2)ba[i];
-                ba[i]=curr/(bt2)diviser;
-                curr%=(bt2)diviser;
-        }
-        Norm();
-        return *this;
+    if(diviser == 0)
+            throw "Div by 0";
+    bt2 curr = 0;
+    for(size_t i = rbc - 1; i < rbc; --i) {
+        curr <<= bz8;
+        curr += ba[i];
+        ba[i] = curr / diviser;
+        curr %= diviser;
+    }
+    Norm();
+    return *this;
 }
 
 const BN BN::modbase(const bt &diviser)const
 {
-        if(diviser==0)
-                throw "Div by 0";
-        BN result(1,2);
-        bt2 curr=0;
-        for(int i=rbc-1;i>=0;--i)
-        {
-                curr<<=bz8;
-                curr+=(bt2)ba[i];
-                curr%=(bt2)diviser;
-        }
-        result.ba[0]=curr;
-        //result.Norm();        //норм и без него?
-        return result;
+    if(diviser == 0)
+        throw "Div by 0";
+    BN result(1, 2);
+    bt2 curr=0;
+    for (size_t i = rbc - 1; i < rbc; --i) {
+        curr <<= bz8;
+        curr += ba[i];
+        curr %= diviser;
+    }
+    result.ba[0]=curr;
+    result.rbc = 1;
+    return result;
 }
 
 BN& BN::modbaseappr(const bt &diviser)
 {
-        if(diviser==0)
-                throw "Div by 0";
-        bt2 curr=0;
-        for(int i=rbc-1;i>=0;--i)
-        {
-                curr<<=bz8;
-                curr+=(bt2)ba[i];
-                ba[i]=curr/(bt2)diviser;
-                curr%=(bt2)diviser;
-        }
-        ba[0]=curr;
-        for(int i=1;i<rbc;i++)
-                ba[i]=0;
-        rbc=1;
-        return *this;
+    if(diviser == 0)
+        throw "Div by 0";
+    bt2 curr = 0;
+    for(size_t i = rbc - 1; i < rbc; --i) {
+        curr <<= bz8;
+        curr += ba[i];
+        ba[i] = curr / diviser;
+        curr %= diviser;
+    }
+    ba.resize(1);
+    ba[0] = curr;
+    rbc = 1;
+    return *this;
 }
 
 void BN::subappr(const BN& bn)
@@ -652,7 +607,7 @@ BN BN::sub(const BN& bn)const
         flag = (res < 0);
     }
 
-    for (; flag & pos < rbc; ++pos) {
+    for (; flag && pos < rbc; ++pos) {
         result.ba[pos] = ba[pos] - 1;
         flag = (result.ba[pos] > ba[pos]);
     }
@@ -820,7 +775,7 @@ const BN BN::operator << (int shift) const {
 
     BN result(rbc + baseshift + 1, 2);
     result.ba[baseshift] = ba[0] << realshift;
-    for(int i = 1; i <= rbc; i++) {
+    for(size_t i = 1; i <= rbc; i++) {
         result.ba[i + baseshift] =
             (ba[i - 1] >> (bz8 - realshift)) |
             (ba[i] << realshift);
@@ -831,118 +786,82 @@ const BN BN::operator << (int shift) const {
 
 bool BN::operator < (const BN&bn)const
 {
-        if(rbc>bn.rbc)
-                return false;
-        if(rbc<bn.rbc)
-                return true;
-        for(int i=rbc-1;i>=0;i--)
-        {
-                if(ba[i]>bn.ba[i])
-                        return false;
-                if(ba[i]<bn.ba[i])
-                        return true;
-        }
+    if(rbc > bn.rbc)
         return false;
+    if(rbc < bn.rbc)
+        return true;
+    for(size_t i = rbc - 1; i < rbc; i--)
+    {
+        if(ba[i] > bn.ba[i])
+            return false;
+        if(ba[i] < bn.ba[i])
+            return true;
+    }
+    return false;
 }
 
 bool BN::operator <= (const BN&bn)const
 {
-        if(rbc>bn.rbc)
-                return false;
-        if(rbc<bn.rbc)
-                return true;
-        for(int i=rbc-1;i>=0;i--)
-        {
-                if(ba[i]>bn.ba[i])
-                        return false;
-                if(ba[i]<bn.ba[i])
-                        return true;
-        }
-        return true;
+    return !(*this > bn);
 }
 
 bool BN::operator > (const BN&bn)const
 {
-        if(rbc>bn.rbc)
-                return true;
-        if(rbc<bn.rbc)
-                return false;
-        for(int i=rbc-1;i>=0;i--)
-        {
-                if(ba[i]>bn.ba[i])
-                        return true;
-                if(ba[i]<bn.ba[i])
-                        return false;
-        }
+    if(rbc > bn.rbc)
+        return true;
+    if(rbc < bn.rbc)
         return false;
+    for(size_t i = rbc - 1; i < rbc; i--)
+    {
+        if(ba[i] > bn.ba[i])
+            return true;
+        if(ba[i] < bn.ba[i])
+            return false;
+    }
+    return false;
 }
 
 bool BN::operator >= (const BN&bn)const
 {
-        if(rbc>bn.rbc)
-                return true;
-        if(rbc<bn.rbc)
-                return false;
-        for(int i=rbc-1;i>=0;i--)
-        {
-                if(ba[i]>bn.ba[i])
-                        return true;
-                if(ba[i]<bn.ba[i])
-                        return false;
-        }
-        return true;
+    return !(*this < bn);
 }
 
 bool BN::operator ==(const BN&bn)const
 {
-        if (rbc!=bn.rbc)
-                return false;
-        for(int i=0;i<rbc;i++)
-                if(ba[i]!=bn.ba[i])
-                        return false;
-        return true;
+    if (rbc != bn.rbc)
+        return false;
+    for (size_t i = 0; i < rbc; ++i)
+        if (ba[i] != bn.ba[i])
+            return false;
+    return true;
 }
 
 bool BN::operator !=(const BN&bn)const
 {
-        if (rbc!=bn.rbc)
-                return true;
-        for(int i=0;i<rbc;i++)
-                if(ba[i]!=bn.ba[i])
-                        return true;
-        return false;
+    return !(*this == bn);
 }
 
-bt BN::operator [](const int index)const
+bt BN::operator [](size_t index)const
 {
-        if(index>=rbc || index<0)
-        {
-                int buf_len=1000;
-                char *buffer=new char [buf_len];
-                snprintf(buffer,buf_len,"Error in index.\nIndex: %d\nAvailable range of index: 0 - %zu\n",index,rbc-1);
-                throw buffer;
-        }
-        return ba[index];
+    if (index >= rbc)
+        throw logic_error("Error in BN::operator[]. Index is too large");
+    return ba[index];
 }
 
-int BN::basecount()const
+size_t BN::basecount() const
 {
         return rbc;
 }
 
-int BN::bitcount()const
+size_t BN::bitcount() const
 {
-        bt mask=0x1;
-        int x=1;
-        int result=0;
-        while(mask)
-        {
-                if(mask&ba[rbc-1])
-                        result=x;
-                mask<<=1;
-                x++;
-        }
-        return (rbc-1)*bz8+result;
+    size_t x = 0;
+    bt value = ba[rbc-1];
+    while (value) {
+        ++x;
+        value >>= 1;
+    }
+    return (rbc - 1) * bz8 + x;
 }
 
 BN BN::transformationMontgomery(const BN & mod, bt m1) const {
@@ -967,13 +886,13 @@ BN BN::mulMontgomery(const BN& bn, const BN& mod, bt m1) const {
 //        throw "montgomery: *this >= mod || bn >= mod\n";
 
     BN A = 0;
-    int n = mod.basecount();
-    for(int i = 0; i < n && i < this->rbc; i++) {
+    size_t n = mod.basecount();
+    for(size_t i = 0; i < n && i < this->rbc; i++) {
         bt u = (A.ba[0] + this->ba[i] * bn[0]) * m1;
         A = (A + bn.mulbase(this->ba[i]) + mod.mulbase(u)).divbt(1);
 
     }
-    for(int i = this->rbc; i < n; i++) {
+    for(size_t i = this->rbc; i < n; i++) {
         bt u = A.ba[0] * m1;
         A = (A + mod.mulbase(u)).divbt(1);
     }
@@ -1008,8 +927,8 @@ BN BN::reduction_barrett_precomputation() const {
 }
 
 BN BN::reduction_barrett(const BN& mod, const BN& mu) const {
-
-    int k = mod.rbc;                      // m = m[k-1]...m[1]m[0], rbc = k
+    // m = m[k-1]...m[1]m[0], rbc = k
+    size_t k = mod.rbc;
     if(k*2 < this->rbc) {
         return (*this)%mod;
     }
@@ -1033,7 +952,7 @@ BN BN::reduction_barrett(const BN& mod, const BN& mu) const {
 
 
 BN BN::reduction_special(const BN &mod) const {
-    int t = mod.rbc;
+    size_t t = mod.rbc;
 
     // Bt = b^t;
     BN Bt(t+1,0);
@@ -1244,7 +1163,7 @@ BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
 
     BN A = 1;
 
-    int x;
+    int x = K;
     for(int i = exponent.rbc * bz8 - 1; i >= K; i -= K) {
         x = i;
         for(int k = 0; k < K; k++)
@@ -1257,7 +1176,7 @@ BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
         A = A * g[curr] % mod;
     }
 
-    int curr = 0;
+    uint32_t curr = 0;
     for(int i = x - K; i >= 0; i--) {
         A = A.Qrt();
         curr <<= 1;
@@ -1458,12 +1377,10 @@ BN BN::Sqrt()const
 BN BN::Qrt()const
 {
         BN res(2*rbc+1,0);
-        for(int i=0;i<rbc;i++)
-        {
+        for(size_t i = 0; i < rbc; ++i) {
                 bt4 cuv=res.ba[2*i]+((bt2)ba[i])*ba[i];
                 res.ba[2*i]=cuv;
-                for(int j=i+1;j<rbc;j++)
-                {
+                for (size_t j = i + 1; j < rbc; ++j) {
                         cuv=(bt4)res.ba[i+j]+((bt4)((bt2)ba[i]*ba[j])<<1)+(cuv>>bz8);
                         res.ba[i+j]=cuv;
                 }

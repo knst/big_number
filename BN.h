@@ -45,7 +45,8 @@ private:
 
 private:
     void InitMemory(int type = 2);
-    int Norm();                             //пересчитать rbc
+    // Normalization of BN: changing rbc in according to value.
+    int Norm();
 
 public:
     BN reduction_barrett_precomputation()const;
@@ -55,8 +56,9 @@ private:
     BN mulMontgomery(const BN& bn, const BN& mod, bt m1) const;         //MP
     BN transformationMontgomery(const BN & mod, bt m1) const;           //MR
     BN karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int count_2) const;      //для складывания частей числа для Карацубы
-    BN add_appr(const BN & bn, int mul_bt);       // x += y.mulbt(mul_bt2);
-    BN karatsubaRecursive(const BN & bn, int start, int len) const;
+    // x += y.mulbt(mul_bt);
+    BN add_appr(const BN & bn, size_t mul_bt);
+    BN karatsubaRecursive(const BN & bn, size_t start, size_t len) const;
 public:
     BN();
 
@@ -66,7 +68,7 @@ public:
     BN(uint64_t x);
     BN(const BN&);
     BN(BN&& bn);
-    BN(const BN&, int start, int count=-1);
+    BN(const BN&, size_t start, size_t count = 0);
     BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
     // This function return: this * base^t
@@ -114,9 +116,9 @@ public:
     bool operator >=(const BN&)const;
     bool operator ==(const BN&)const;
     bool operator !=(const BN&)const;
-    bt   operator [](const int)const;
-    int basecount()const;
-    int bitcount()const;
+    bt   operator [](size_t index_base)const;
+    size_t basecount()const;
+    size_t bitcount()const;
 
 
     BN reduction_montgomery(const BN& mod, bt m1, const BN& T) const;
