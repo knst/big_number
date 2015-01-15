@@ -719,37 +719,36 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         }
         temp[n] = x >> bz8;
 
+        bool qDecremented = false;
         if (doAdjust) {
             // temp1 * b^j <= delimoe ?
 
-            bool ok = false;
             size_t index = n;
             while (index <= n && temp[index] == delimoe.ba[index + j])
                 --index;
             if (index <= n && temp[index] > delimoe.ba[index + j]) {
                 --q;
-                // Calculation temp = delitel * q
-                bt2 x = 0;
-                for(size_t i = 0; i < n; ++i) {
-                    x = (x >> bz8) + q * delitel.ba[i];
-                    temp[i] = x;
-                }
-                temp[n] = x >> bz8;
+                qDecremented = true;
             }
         }
 
         // delimoe = delimoe - temp * b^(i-n)
         {
-            bool flag = 0;
+            bt2s res = 0;
             size_t pos = 0;
 
-            for (; pos <= n; ++pos) {
-                bt2s res = static_cast<bt2s>(delimoe.ba[j + pos]) - temp[pos] - flag;
-                delimoe.ba[j + pos] = static_cast<bt>(res);
-                flag = (res < 0);
-            }
+            if (qDecremented)
+                for (; pos <= n; ++pos) {
+                    res = (res >> 8) + delimoe.ba[j + pos] + delitel.ba[pos] - temp[pos];
+                    delimoe.ba[j + pos] = static_cast<bt>(res);
+                }
+            else
+                for (; pos <= n; ++pos) {
+                    res = (res >> 8) + delimoe.ba[j + pos] - temp[pos];
+                    delimoe.ba[j + pos] = static_cast<bt>(res);
+                }
 
-            if (flag) {
+            if (res) {
                 while (!delimoe.ba[j + pos]--)
                     ++pos;
             }
