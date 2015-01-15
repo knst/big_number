@@ -664,32 +664,14 @@ BN BN::sub(const BN& bn)const
     return result;
 }
 
-//считается, что bn справа дополнен shift нулями
-bool BN::lessorequal(const BN& bn, size_t shift) const
-{
-    if (rbc > bn.rbc - shift)
-        return false;
-    if (rbc < bn.rbc - shift)
-        return true;
-    size_t index = rbc - 1;
-    do {
-        if (ba[index] < bn.ba[index + shift])
-            return true;
-        if (ba[index] > bn.ba[index + shift])
-            return false;
-        --index;
-    } while (index < rbc);
-    return true;
-}
-
 void BN::divmod(const BN& bn, BN& div, BN& mod) const
 {
     if(bn.is0())
         throw "Div by 0";
 
     if(bn.rbc == 1) {
-        div = this -> divbase(bn.ba[0]);
-        mod = this -> modbase(bn.ba[0]);
+        div = move(this -> divbase(bn.ba[0]));
+        mod = move(this -> modbase(bn.ba[0]));
         return;
     }
 
@@ -709,10 +691,9 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     size_t n = delitel.rbc;
     size_t m = delimoe.rbc - delitel.rbc + 1;
 
-    div = BN(m+1,0);
+    div.ba.resize(m + 2);
 
-    BN temp1(n + 2, 0);
-    vector<bt> &temp = temp1.ba;
+    vector<bt> temp(n + 1);
     for (size_t j = m; j <= m; --j) {
         bt2 q = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) / delitel.ba[n-1];
         bt2 r = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) % delitel.ba[n-1];
@@ -741,8 +722,11 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         if (doAdjust) {
             // temp1 * b^j <= delimoe ?
 
-            temp1.Norm();
-            if(!temp1.lessorequal(delimoe, j)) {
+            bool ok = false;
+            size_t index = n;
+            while (index <= n && temp[index] == delimoe.ba[index + j])
+                --index;
+            if (index <= rbc && temp[index] > delimoe.ba[index + j]) {
                 --q;
                 // Calculation temp = delitel * q
                 bt2 x = 0;
@@ -775,7 +759,10 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         div.ba[j] = q;
     }
     div.Norm();
-    mod = delimoe.divbase(d);
+    if (d != 1)
+        mod = move(delimoe.divbase(d));
+    else
+        mod = move(delimoe);
 }
 
 const BN BN::operator / (const BN&bn)const
@@ -783,7 +770,7 @@ const BN BN::operator / (const BN&bn)const
     BN div;
     BN mod;
     divmod(bn, div, mod);
-    return div;
+    return move(div);
 }
 
 const BN BN::operator % (const BN& bn)const
@@ -791,7 +778,7 @@ const BN BN::operator % (const BN& bn)const
     BN div;
     BN mod;
     divmod(bn, div, mod);
-    return mod;
+    return move(mod);
 }
 
 const BN BN::operator >> (int shift) const {

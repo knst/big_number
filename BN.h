@@ -51,8 +51,6 @@ public:
     BN reduction_barrett_precomputation()const;
 
 private:
-    //считается, что bn справа дополнен shift нулями
-    bool lessorequal(const BN& bn, size_t shift)const;
     BN subequalshift(BN&,int)const;                //считается, что bn справа дополнен shift нулями
     BN mulMontgomery(const BN& bn, const BN& mod, bt m1) const;         //MP
     BN transformationMontgomery(const BN & mod, bt m1) const;           //MR
