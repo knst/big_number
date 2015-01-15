@@ -1340,8 +1340,6 @@ BN BN::expMontgomery(BN exponent, BN mod) const {
         throw "expMontgomery: gcdBinary(mod, b) != 1\n";
     }
     bt mod1 = bsize - inverse(mod[0], bsize);
-    if(mod1 == bsize)
-        mod1 = 0;
 
     BN R = ((BN) 1).mulbt(mod.basecount());
     BN x = *this % mod;

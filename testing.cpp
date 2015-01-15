@@ -11,7 +11,7 @@
 
 using namespace std;
 
-int testingMul_ij(int max1,int max2, int i,int j) {
+int testingMul_ij(int max1,int max2, int,int) {
     BN bn1(rand()%max1+1,-1);
     BN bn2(rand()%max2+1,-1);
     BN mul = bn1*bn2;
@@ -30,7 +30,7 @@ int testingMul_ij(int max1,int max2, int i,int j) {
     return 0;
 }
 
-int testingExp_ij(int max1,int max2, int i,int j) {
+int testingExp_ij(int max1,int max2, int,int) {
     BN g(rand()%max1 + 1, -1);
     BN exp(rand()%max2 + 1, -1);
     BN mod(rand()%max2 + 1, -1);

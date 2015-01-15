@@ -16,7 +16,7 @@
 
 using namespace std;
 
-int main(int argc, char** argv) {
+int main(int argc, char**) {
     uint64_t t = clock();
     try {
         testingExp();
