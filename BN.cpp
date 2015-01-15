@@ -726,7 +726,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
             size_t index = n;
             while (index <= n && temp[index] == delimoe.ba[index + j])
                 --index;
-            if (index <= rbc && temp[index] > delimoe.ba[index + j]) {
+            if (index <= n && temp[index] > delimoe.ba[index + j]) {
                 --q;
                 // Calculation temp = delitel * q
                 bt2 x = 0;
@@ -753,12 +753,12 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
                 while (!delimoe.ba[j + pos]--)
                     ++pos;
             }
-            delimoe.Norm();
         }
 
         div.ba[j] = q;
     }
     div.Norm();
+    delimoe.Norm();
     if (d != 1)
         mod = move(delimoe.divbase(d));
     else
