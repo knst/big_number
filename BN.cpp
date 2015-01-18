@@ -83,6 +83,14 @@ BN::BN(BN&& bn)
 {
 }
 
+BN::BN(const vector<bt>& _ba, size_t _rbc)
+: rbc(_rbc)
+, ba(_ba)
+{
+    if (!_rbc)
+        Norm();
+}
+
 BN::BN(const BN& bn, size_t start, size_t count) {
     if(!count)
         count = bn.rbc - start;
@@ -368,12 +376,6 @@ BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int c
     const BN & bn1 = *this;
     const BN & bn2 = bn;
 
-    if(count_1 == -1)
-        count_1 = bn1.rbc - start_1;
-
-    if(count_2 == -1)
-        count_2 = bn2.rbc - start_2;
-
     size_t result_len = max(count_1, count_2);
     BN result(result_len + 1, 0);
 
@@ -459,19 +461,11 @@ BN BN::karatsubaRecursive(const BN & bn, size_t start, size_t len) const {
             (V.karatsuba_add(V, start, n, start + n, n));   //  (u0 + u1).caracuba(v0 + v1)
 
 //    res = A.mulbt(2*n);
-    BN res(1,0);
+    BN res(B.ba, A.rbc + 2 * n);
+    res.ba.resize(A.ba.size() + 2 * n);
 
-    res.rbc = A.rbc + 2*n;
-    res.ba.resize(A.ba.size() + 2*n);
-
-    for(size_t i = 0; i < B.rbc; i++)
-        res.ba[i] = B.ba[i];                        //res = A.mulbt(2*n) + B;
-    for(size_t i = B.rbc; i < 2*n; i++)
-        res.ba[i] = 0;
-    for(size_t i = 2*n; i < A.rbc + 2*n; i++)
-        res.ba[i] = A.ba[i - 2*n];
-    for(size_t i = res.rbc; i < res.ba.size(); i++)
-        res.ba[i] = 0;
+    for(size_t i = 0; i < A.rbc; ++i)
+        res.ba[i + 2 * n] = A.ba[i];
 
     return res + C.mulbt(n) - (A + B).mulbt(n);
 }
