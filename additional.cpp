@@ -395,15 +395,15 @@ BN gcdLehmer(BN x,BN y)
         y=t;
     }
 
-    while(y.basecount()>1)
+    while(y.digitCount()>1)
     {
-        bt2s xp = x[x.basecount()-1];
-        bt2s yp = y[y.basecount()-1];
+        bt2s xp = x[x.digitCount()-1];
+        bt2s yp = y[y.digitCount()-1];
         bt2s A = 1;
         bt2s B = 0;
         bt2s C = 0;
         bt2s D = 1;
-        if(x.basecount()==y.basecount())
+        if(x.digitCount()==y.digitCount())
             while( (yp+C)!=0 && (yp+D)!=0 )
             {
                 bt2s q = (xp+A)/(yp+C);

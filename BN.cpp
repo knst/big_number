@@ -844,12 +844,12 @@ bt BN::operator [](size_t index)const
     return ba[index];
 }
 
-size_t BN::basecount() const
+size_t BN::digitCount() const
 {
         return rbc;
 }
 
-size_t BN::bitcount() const
+size_t BN::bitCount() const
 {
     size_t x = 0;
     bt value = ba[rbc-1];
@@ -882,7 +882,7 @@ BN BN::mulMontgomery(const BN& bn, const BN& mod, bt m1) const {
 //        throw "montgomery: *this >= mod || bn >= mod\n";
 
     BN A = 0;
-    size_t n = mod.basecount();
+    size_t n = mod.rbc;
     for(size_t i = 0; i < n && i < this->rbc; i++) {
         bt u = (A.ba[0] + this->ba[i] * bn[0]) * m1;
         A = (A + bn.mulbase(this->ba[i]) + mod.mulbase(u)).divbt(1);
@@ -902,7 +902,7 @@ BN BN::reduction_montgomery(const BN& mod, bt m1, const BN& T) const {
     // TODO: not use, not testing
     if(gcdBinary(mod, (BN)bsize) != (BN) 1)
         throw "montgomery: gcd != 1\n";
-    int n = mod.bitcount();
+    int n = mod.bitCount();
     if(T >= mod.mulbt(n))                       //mod * R; R = b^n;
         throw "montgomery: T >= mod * R\n";
     BN A = T;
@@ -1014,7 +1014,7 @@ BN BN::PowMod(const BN& power, const BN& mod)const {
     BN Res(1);
     BN t = (*this) % mod;
 
-    int len = power.bitcount();
+    int len = power.bitCount();
     bt mask = 1;
     const bt *curr = &*power.ba.begin();
     for(int i = 0; i < len; i++) {
@@ -1040,7 +1040,7 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
     BN Res(1);
     BN t = (*this) % mod;
 
-    int len = power.bitcount();
+    int len = power.bitCount();
     bt mask = 1;
     const bt *curr = &*power.ba.begin();
     for(int i = 0; i < len; i++) {
@@ -1066,7 +1066,7 @@ BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
     BN A = 1;
     BN S = (*this) % mod;
 
-    int exponent_len = exponent.bitcount();
+    int exponent_len = exponent.bitCount();
     bt exponent_mask = (bt)  1;
     const bt *exponent_current_base = &*exponent.ba.begin();
 
@@ -1094,7 +1094,7 @@ BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
     BN A = 1;
     BN g = *this % mod;
 
-    int exponent_len = exponent.bitcount();
+    int exponent_len = exponent.bitCount();
     bt exponent_mask = (bt) 1;
     int start_shift_exponent_mask = (exponent_len - 1 ) % bz8;
     exponent_mask <<= start_shift_exponent_mask;
@@ -1236,7 +1236,7 @@ vector <BN> BN::expSlidingWindowPrecomputation(BN mod, int k) const {
 
 BN BN::expSlidingWindow(BN exponent, BN mod, vector <BN> g, int k) const {
     BN A = (BN) 1;
-    int i = exponent.bitcount() - 1;
+    int i = exponent.bitCount() - 1;
     while (i >= 0) {
         if(exponent.bitI(i) == 0) {
             A = A.Qrt() % mod;
@@ -1276,7 +1276,7 @@ vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
 BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
     BN A = (BN) 1;
     BN mu = mod.reduction_barrett_precomputation();
-    int i = exponent.bitcount() - 1;
+    int i = exponent.bitCount() - 1;
     int k = bz8;
     while (i >= 0) {
         if(exponent.bitI(i) == 0) {
@@ -1337,13 +1337,13 @@ BN BN::expMontgomery(BN exponent, BN mod) const {
     }
     bt mod1 = bsize - inverse(mod[0], bsize);
 
-    BN R = ((BN) 1).mulbt(mod.basecount());
+    BN R = ((BN) 1).mulbt(mod.rbc);
     BN x = *this % mod;
     BN x1 = x.mulMontgomery(R.Qrt() % mod, mod, mod1);
 
     BN A = R % mod;
 
-    for(int i = exponent.bitcount(); i >= 0; i--) {
+    for(int i = exponent.bitCount(); i >= 0; i--) {
         A = A.Qrt().transformationMontgomery(mod, mod1);
         if(exponent.bitI(i))
             A = A.mulMontgomery(x1, mod, mod1);

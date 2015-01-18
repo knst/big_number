@@ -118,8 +118,8 @@ public:
     bool operator ==(const BN&)const;
     bool operator !=(const BN&)const;
     bt   operator [](size_t index_base)const;
-    size_t basecount()const;
-    size_t bitcount()const;
+    size_t digitCount()const;
+    size_t bitCount()const;
 
 
     BN reduction_montgomery(const BN& mod, bt m1, const BN& T) const;
