@@ -38,11 +38,10 @@ void BN::InitMemory(int type)
     }
 }
 
-int BN::Norm()
+void BN::Norm()
 {
     for(rbc = ba.size() - 1; rbc > 0 && ba[rbc] == 0; rbc--);
         rbc++;
-    return rbc;
 }
 
 BN::BN()
@@ -121,30 +120,30 @@ BN::BN(const string &str,const int &status)
         return;
     }
 
-        int length = str.size();
+        size_t length = str.size();
         rbc=(length+bz*2-1)/(bz*2);
         ba.resize(rbc + 1);
         InitMemory(0);
         bt z;
-        for(int i=0;i<length;i++)
+        for(size_t i=0;i<length;i++)
         {
                 if(str[i]>='A'&&str[i]<='F')
                 {
-                        int x=(length-i-1)/(bz*2);
+                        size_t x=(length-i-1)/(bz*2);
                         ba[x]<<=4;
                         z=str[i]-'A'+10;
                         ba[x]|=z;
                 }
                 if(str[i]>='a'&&str[i]<='f')
                 {
-                        int x=(length-i-1)/(bz*2);
+                        size_t x=(length-i-1)/(bz*2);
                         ba[x]<<=4;
                         z=str[i]-'a'+10;
                         ba[x]|=z;
                 }
                 if(str[i]>='0'&&str[i]<='9')
                 {
-                        int x=(length-i-1)/(bz*2);
+                        size_t x=(length-i-1)/(bz*2);
                         ba[x]<<=4;
                         z=str[i]-'0';
                         ba[x]|=z;
@@ -1343,7 +1342,8 @@ BN BN::expMontgomery(BN exponent, BN mod) const {
 
     BN A = R % mod;
 
-    for(int i = exponent.bitCount(); i >= 0; i--) {
+    size_t expBitCount = exponent.bitCount();
+    for(size_t i = expBitCount; i <= expBitCount; i--) {
         A = A.Qrt().transformationMontgomery(mod, mod1);
         if(exponent.bitI(i))
             A = A.mulMontgomery(x1, mod, mod1);

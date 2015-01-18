@@ -46,7 +46,7 @@ private:
 private:
     void InitMemory(int type);
     // Normalization of BN: changing rbc in according to value.
-    int Norm();
+    void Norm();
 
 public:
     BN reduction_barrett_precomputation()const;
