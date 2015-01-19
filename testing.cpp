@@ -630,11 +630,6 @@ void restest(int base,int test) {
         g.expBest_Slide(*e, mod, precomp_expBest_Slide);
     float t2 = clock() - t;
 
-//    t = clock();
-//    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-//        expSignDigitRightToLeft(g, *e, mod);
-//    float t3 = clock() - t;
-//
     float diviser = 1000 * test;
     t1 /= diviser;
     t2 /= diviser;
@@ -700,7 +695,7 @@ void resulttest() {
     slidetest(128, 5);
 
     cout<<"Test \"Super-Method\":"<<endl;
-    cout<<"Base\tBit\tTests\tUniversal (ms)\tSlide mod(ms)\t SD mod"<<endl;
+    cout<<"Base\tBit\tTests\tUniversal (ms)\tSlide mod(ms)"<<endl;
 
     restest(16, 50);
     restest(32, 25);
