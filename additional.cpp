@@ -17,9 +17,8 @@ bt2s Abs(bt2s x) {
 BN gcdEuclidean(BN a,BN b)
 {
     while(!b.is0()) {
-        BN temp=a%b;
-        a=b;
-        b=temp;
+        a = a % b;
+        a.swap(b);
     }
     return a;
 }
@@ -37,17 +36,21 @@ BN gcdInverseEuclidean(BN a, BN mod)
     BNsign x0;
     BNsign x1 = bn_0;
     BNsign x2 = bn_1;
-    while(!(mod % a).is0())
-    {
-        BN q=mod / a;
-        x0 = x1;
-        x1 = x2;
+    while (true) {
+        BN Div;
+        BN Mod;
+        mod.divmod(a, Div, Mod);
+        if (Mod.is0())
+            break;
+        x0 = move(x1);
+        x1 = move(x2);
 
-        x2 = x0 - x1 * (BNsign)q;
-        BN new_mod = a;
-        a = mod % a;
-        mod = new_mod;
+        x2 = x0 - x1 * (BNsign)Div;
+
+        mod = move(a);
+        a = move(Mod);
     }
+
     if(a != bn_1)
         return bn_0;
     if(x2.value.is0())
@@ -62,49 +65,36 @@ BN gcdBinary(BN a,BN b)
 {
     if(a.is0())
         return b;
+
     if(b.is0())
         return a;
-    //BN g(1);
 
-    int acount=a.countzeroright();
-    int bcount=b.countzeroright();
+    int acount = a.countzeroright();
+    int bcount = b.countzeroright();
 
-    //g=g<<min(acount,bcount);
-    a=a>>acount;
-    b=b>>bcount;
+    a = a >> acount;
+    b = b >> bcount;
 
-    if(a<b)
-    {
-        BN t=a;
-        a=b;
-        b=t;
-    }
-    while(!a.is0())
-    {
-        /*if(a>=b)
-            a=(a-b)>>(a-b).countzeroright();
-        else
-            b=(b-a)>>(b-a).countzeroright();*/
-        if(a>=b)
-        {
-            BN ab=a.sub(b);
-            a=ab>>ab.countzeroright();
-        }
-        else
-        {
-            BN ba=b.sub(a);
-            b=ba>>ba.countzeroright();
+    // TODO why swap(a, b) is faster than a.swap(b) ?
+    if(a < b)
+        swap(a, b);
+
+    while(!a.is0()) {
+        if(a >= b) {
+            a.subappr(b);
+            a = a >> a.countzeroright();
+        } else {
+            b.subappr(a);
+            b = b >> b.countzeroright();
         }
     }
-    return b<<min(acount,bcount);
+    return b << min(acount,bcount);
 }
 
 BN gcdExtendedEuclideanBinary(BN xx, BN yy)
 {
     BN bn_1(1);
     BN bn_0(1,0);
-    //if(yy.is0()||gcdEuclidean(xx,yy)!=bn_1)
-        //return bn_0;
     BN g=bn_1;
     int xcount=xx.countzeroright();
     int ycount=yy.countzeroright();
@@ -122,27 +112,14 @@ BN gcdExtendedEuclideanBinary(BN xx, BN yy)
     BNsign c=bn_0;
     BNsign d=bn_1;
 
-    do
-    {
-        /*
-        u.PrintDec();
-        v.PrintDec();
-        a.PrintSign();
-        b.PrintSign();
-        c.PrintSign();
-        d.PrintSign();
-        printf("----next----\n");
-        */
+    do {
         while(u.isEven())
         {
             u=u>>1;
-            if(a.value.isEven() && b.value.isEven())
-            {
+            if(a.value.isEven() && b.value.isEven()) {
                 a.value=a.value>>1;
                 b.value=b.value>>1;
-            }
-            else
-            {
+            } else {
                 a=(a+y);
                 a.value=a.value>>1;
                 b=(b-x);
@@ -152,42 +129,27 @@ BN gcdExtendedEuclideanBinary(BN xx, BN yy)
         while(v.isEven())
         {
             v=v>>1;
-            if(c.value.isEven()&&d.value.isEven())
-            {
+            if(c.value.isEven()&&d.value.isEven()) {
                 c.value=c.value>>1;
                 d.value=d.value>>1;
-            }
-            else
-            {
+            } else {
                 c=(c+y);
                 c.value=c.value>>1;
                 d=(d-x);
                 d.value=d.value>>1;
             }
         }
-        if(u>=v)
-        {
+        if(u>=v) {
             u=u-v;
             a=a-c;
             b=b-d;
-        }
-        else
-        {
+        } else {
             v=v-u;
             c=c-a;
             d=d-b;
         }
     }
     while(!u.is0());
-    /*
-    u.PrintDec();
-    v.PrintDec();
-    a.PrintSign();
-    b.PrintSign();
-    c.PrintSign();
-    d.PrintSign();
-    printf("----end----\n");
-    */
     //u.is0() == true;
     BNsign A=c;
     BNsign B=d;
@@ -260,20 +222,15 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
             while(vcount)
             {
                 int cdcount=min(c.value.countzeroright(),d.value.countzeroright());
-                if(cdcount>vcount)
-                {
+                if(cdcount>vcount) {
                     c.value=c.value>>vcount;
                     d.value=d.value>>vcount;
                     vcount=0;
-                }
-                else if(cdcount)
-                {
+                } else if(cdcount) {
                     c.value=c.value>>cdcount;
                     d.value=d.value>>cdcount;
                     vcount-=cdcount;
-                }
-                else
-                {
+                } else {
                     c=(c+y);
                     c.value=c.value>>1;
                     d=(d-x);
@@ -281,14 +238,11 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
                     vcount--;
                 }
             }
-            if(u>=v)
-            {
+            if(u>=v) {
                 u=u-v;
                 a=a-c;
                 b=b-d;
-            }
-            else
-            {
+            } else {
                 v=v-u;
                 c=c-a;
                 d=d-b;
@@ -303,13 +257,10 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
             while(ucount)
             {
                 int acount = a.value.countzeroright();
-                if(acount)
-                {
+                if(acount) {
                     a.value=a.value>>min(acount,ucount);
                     ucount-=min(acount,ucount);
-                }
-                else
-                {
+                } else {
                     a=(a+y);
                     a.value=a.value>>1;
                     ucount--;
@@ -317,28 +268,21 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
             }
             int vcount=v.countzeroright();
             v=v>>vcount;
-            while(vcount)
-            {
+            while(vcount) {
                 int ccount = c.value.countzeroright();
-                if(ccount)
-                {
+                if(ccount) {
                     c.value=c.value>>min(ccount,vcount);
                     vcount-=min(ccount,vcount);
-                }
-                else
-                {
+                } else {
                     c=(c+y);
                     c.value=c.value>>1;
                     vcount--;
                 }
             }
-            if(u>=v)
-            {
+            if(u>=v) {
                 u=u-v;
                 a=a-c;
-            }
-            else
-            {
+            } else {
                 v=v-u;
                 c=c-a;
             }
@@ -389,11 +333,7 @@ vector <BN> multi_inverse(const vector <BN> &x, const BN &mod)
 BN gcdLehmer(BN x,BN y)
 {
     if(x<y)
-    {
-        BN t=x;
-        x=y;
-        y=t;
-    }
+        x.swap(y);
 
     while(y.digitCount()>1)
     {
@@ -415,18 +355,12 @@ BN gcdLehmer(BN x,BN y)
                 t = B - q*D;    B = D;    D = t;
                 t = xp- q*yp;    xp= yp;    yp= t;
             }
-        if(B==0)
-        {
-            //TODO: BN T;T=x%y; - медленнее на 10 % (!)
-            BN T = x%y;
-            x = y;
-            y = T;
-        }
-        else
-        {
+        if(B == 0) {
+            x = x % y;
+            x.swap(y);
+        } else {
             BN T = (B<0 ? x.mulbase(Abs(A)) - y.mulbase(Abs(B)) : y.mulbase(Abs(B)) - x.mulbase(Abs(A)));
             BN U = (D<0 ? x.mulbase(Abs(C)) - y.mulbase(Abs(D)) : y.mulbase(Abs(D)) - x.mulbase(Abs(C)));
-            //TODO: вариант с if-ами медленнее на 8-10 % (!)
             x=T;
             y=U;
         }
@@ -434,12 +368,12 @@ BN gcdLehmer(BN x,BN y)
     return gcdBinary(x,y);
 }
 
-BN Garner(vector <BN> m, vector <BN> v)
+BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
 {
     if(m.size()!=v.size())
         throw "Garner: size's M and V are different!";
     int t = m.size();
-    BN *C = new BN [t];
+    vector<BN> C(t);
     BN u;
     for(int i=1;i<t;i++)
     {
@@ -456,8 +390,6 @@ BN Garner(vector <BN> m, vector <BN> v)
     for(int i=1;i<t;i++)
     {
         BN xmi = x%m[i];
-        if(xmi >= m[i])
-            cout<<"erunda!!!";
         BN vix = (v[i] >= xmi ? v[i] - xmi : m[i] + v[i] - xmi);
         //u = (v[i] - x) * C[i] % m[i];
         u = vix * C[i] % m[i];
@@ -467,7 +399,7 @@ BN Garner(vector <BN> m, vector <BN> v)
     return x;
 }
 
-BN CTO(vector <BN> m, vector <BN> v)
+BN CTO(const std::vector <BN>& m, const std::vector <BN>& v)
 {
     if(m.size()!=v.size())
         throw "CTO: size's M and V are different!";

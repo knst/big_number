@@ -140,6 +140,11 @@ BN::BN(const string &str,const int &status)
     Norm();
 }
 
+void BN::swap(BN& bn) {
+    ba.swap(bn.ba);
+    std::swap(rbc, bn.rbc);
+}
+
 BN & BN::operator = (const BN& bn)
 {
     if (this == &bn)

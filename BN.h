@@ -70,6 +70,8 @@ public:
     BN(const BN&, size_t start, size_t count = 0);
     BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
+    void swap(BN& bn);
+
     // This function return: this * base^t
     BN   mulbt(size_t t) const;
 

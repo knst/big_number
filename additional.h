@@ -18,9 +18,9 @@ BN gcdLehmer(BN x,BN y);
 BN gcdInverseEuclidean(BN a,BN mod);
 BN gcdInverseEuclideanBinary(BN x,BN mod);
 BN gcdExtendedEuclideanBinary(BN xx, BN yy);
-std::vector <BN> multi_inverse(const std::vector <BN> &x, const BN &mod);
-BN Garner(std::vector <BN> m, std::vector <BN> v);
-BN CTO(std::vector <BN> m, std::vector <BN> v);
+std::vector <BN> multi_inverse(const std::vector <BN>& x, const BN &mod);
+BN Garner(const std::vector <BN>& m, const std::vector <BN>& v);
+BN CTO(const std::vector <BN>& m, const std::vector <BN>& v);
 
 #endif /* _ADDITIONAL_H */
 
