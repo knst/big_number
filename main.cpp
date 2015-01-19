@@ -18,6 +18,7 @@ using namespace std;
 
 int main(int argc, char**) {
     uint64_t t = clock();
+
     try {
         testingExp();
         testingMul();
@@ -25,8 +26,8 @@ int main(int argc, char**) {
         testing();
         if (argc > 1)
             resulttest();
-    } catch (char const * str) {
-        cout<<str;
+    } catch (const std::exception& exc) {
+        cerr << exc.what() << endl;
         return -1;
     }
     cout.precision(3);
