@@ -10,7 +10,7 @@
 
 using namespace std;
 
-bt2s abs(bt2s x) {
+bt2s Abs(bt2s x) {
     return x<0?-x:x;
 }
 
@@ -424,8 +424,8 @@ BN gcdLehmer(BN x,BN y)
         }
         else
         {
-            BN T = (B<0 ? x.mulbase(abs(A)) - y.mulbase(abs(B)) : y.mulbase(abs(B)) - x.mulbase(abs(A)));
-            BN U = (D<0 ? x.mulbase(abs(C)) - y.mulbase(abs(D)) : y.mulbase(abs(D)) - x.mulbase(abs(C)));
+            BN T = (B<0 ? x.mulbase(Abs(A)) - y.mulbase(Abs(B)) : y.mulbase(Abs(B)) - x.mulbase(Abs(A)));
+            BN U = (D<0 ? x.mulbase(Abs(C)) - y.mulbase(Abs(D)) : y.mulbase(Abs(D)) - x.mulbase(Abs(C)));
             //TODO: вариант с if-ами медленнее на 8-10 % (!)
             x=T;
             y=U;
