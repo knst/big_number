@@ -54,13 +54,6 @@ int testingExp_ij(int max1,int max2, int,int) {
     BN res3_1 = g.expLeftToRightK_aryVar(exp, mod, precompVar, K);
     BN res4 = g.expLeftToRightK_aryMod(exp,mod,precompModif);
     BN res5 = g.expSlidingWindow(exp, mod, precompSlide, k_slide);
-    BN res6;
-    if(gcdBinary(mod, (BN)bsize) == (BN) 1)
-        res6 = g.expMontgomery(exp,mod);
-    else {
-        //cerr<<"!";
-        res6 = res1;
-    }
 
     BN res12 = g.expBest_Slide(exp, mod, precompSlideU);
 
@@ -70,7 +63,6 @@ int testingExp_ij(int max1,int max2, int,int) {
             res1 != res3_1 ||
             res1 != res4 ||
             res1 != res5 ||
-            res1 != res6 ||
             res1 != res12) {
         printf("g:\t");         g.PrintDec();
         printf("exp:\t");       exp.PrintDec();
@@ -81,7 +73,6 @@ int testingExp_ij(int max1,int max2, int,int) {
         printf("bn1==bn2:\t");  res3_1.PrintDec();
         printf("bn1!>bn2:\t");  res4.PrintDec();
         printf("bn1>>bn2:\t");  res5.PrintDec();
-        printf("bn1MMbn2:\t");  res6.PrintDec();
         printf("bn1##bn2:\t");  res12.PrintDec();
         puts("");
         return 1;
@@ -452,17 +443,11 @@ void modtest(int base,int test) {
         i->PowModBarrett(*j, *k);
     float t2 = clock() - t;
 
-    t = clock();
-    for(vector <BN> :: iterator i = g.begin(), j = exp.begin(), k = mod.begin(); i != g.end(); i++, j++, k++)
-        i->expMontgomery(*j, *k);
-    float t3 = clock() - t;
-
     float diviser = 1000.0 * test;
     t1 /= diviser;
     t2 /= diviser;
-    t3 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
 }
 
 void unitest(int base,int test) {
@@ -653,7 +638,7 @@ void resulttest() {
     multest(4096, 20);
 
     cout<<"Test \"reduction\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (ms)\tBarrett (ms)\tMontgomery (ms)"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tBarrett (ms)"<<endl;
 
     modtest(16, 50);
     modtest(32, 25);

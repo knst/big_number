@@ -842,64 +842,6 @@ size_t BN::bitCount() const
     return (rbc - 1) * bz8 + x;
 }
 
-BN BN::transformationMontgomery(const BN & mod, bt m1) const {
-    int k = mod.rbc;
-    BN y(rbc + k, 0);                     // выделяем память с запасом
-    y = *this;
-    for(int i = 0; i < k; i++) {
-        bt u = y.ba[i] * m1;
-        y.add_appr(mod.mulbase(u), i);
-    }
-    y = y.divbt(k);
-    if(y >= mod)
-        return y - mod;
-    return y;
-}
-
-BN BN::mulMontgomery(const BN& bn, const BN& mod, bt m1) const {
-//    вернуть проверки, если сделать функцию не приватной
-//    if(gcdBinary(mod, (BN)bsize) != (BN) 1)
-//        throw "montgomery: gcd != 1\n";
-//    if(*this >= mod || bn >= mod)
-//        throw "montgomery: *this >= mod || bn >= mod\n";
-
-    BN A = 0;
-    size_t n = mod.rbc;
-    for(size_t i = 0; i < n && i < this->rbc; i++) {
-        bt u = (A.ba[0] + this->ba[i] * bn[0]) * m1;
-        A = (A + bn.mulbase(this->ba[i]) + mod.mulbase(u)).divbt(1);
-
-    }
-    for(size_t i = this->rbc; i < n; i++) {
-        bt u = A.ba[0] * m1;
-        A = (A + mod.mulbase(u)).divbt(1);
-    }
-
-    if(A >= mod)
-        return A - mod;
-    return A;
-}
-
-BN BN::reduction_montgomery(const BN& mod, bt m1, const BN& T) const {
-    // TODO: not use, not testing
-    if(gcdBinary(mod, (BN)bsize) != (BN) 1)
-        throw "montgomery: gcd != 1\n";
-    int n = mod.bitCount();
-    if(T >= mod.mulbt(n))                       //mod * R; R = b^n;
-        throw "montgomery: T >= mod * R\n";
-    BN A = T;
-    BN u(n,0);
-    for(int i = 0; i < n; i++) {
-        u.ba[i] = (A[i] * m1);
-        A = A + mod.mulbase(u[i]).mulbt(i);
-    }
-    A = A.divbt(n);
-    if(A >= mod)
-        A = A - mod;
-    return A;
-}
-
-
 BN BN::reduction_barrett_precomputation() const {
     return ( (BN)1 ).mulbt(2*rbc) / *this;
 }
@@ -1310,30 +1252,6 @@ bt2 inverse(bt2 a, bt2 mod) {
         return x2;
 }
 
-
-BN BN::expMontgomery(BN exponent, BN mod) const {
-    if(gcdBinary(mod, (BN)bsize) != (BN) 1) {
-        cout<<"%";
-        return PowMod(exponent, mod);
-        throw "expMontgomery: gcdBinary(mod, b) != 1\n";
-    }
-    bt mod1 = bsize - inverse(mod[0], bsize);
-
-    BN R = ((BN) 1).mulbt(mod.rbc);
-    BN x = *this % mod;
-    BN x1 = x.mulMontgomery(R.Qrt() % mod, mod, mod1);
-
-    BN A = R % mod;
-
-    size_t expBitCount = exponent.bitCount();
-    for(size_t i = expBitCount; i <= expBitCount; i--) {
-        A = A.Qrt().transformationMontgomery(mod, mod1);
-        if(exponent.bitI(i))
-            A = A.mulMontgomery(x1, mod, mod1);
-    }
-    A = A.transformationMontgomery(mod, mod1);
-    return A;
-}
 
 BN BN::Sqrt()const
 {

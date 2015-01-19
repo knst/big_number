@@ -53,8 +53,6 @@ public:
 
 private:
     BN subequalshift(BN&,int)const;                //считается, что bn справа дополнен shift нулями
-    BN mulMontgomery(const BN& bn, const BN& mod, bt m1) const;         //MP
-    BN transformationMontgomery(const BN & mod, bt m1) const;           //MR
     BN karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int count_2) const;      //для складывания частей числа для Карацубы
     // x += y.mulbt(mul_bt);
     BN add_appr(const BN & bn, size_t mul_bt);
@@ -139,7 +137,6 @@ public:
     BN expLeftToRightK_aryMod(BN, BN, std::vector <BN> )const;
     std::vector <BN> expSlidingWindowPrecomputation(BN, int)const;
     BN expSlidingWindow(BN,BN, std::vector <BN>, int k)const;
-    BN expMontgomery(BN exponent, BN mod) const;
 
     //for best result:
     std::vector <BN> expBest_SlidePrecomp(BN mod) const;
