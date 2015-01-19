@@ -120,36 +120,34 @@ BN::BN(const string &str,const int &status)
         return;
     }
 
-        size_t length = str.size();
-        rbc=(length+bz*2-1)/(bz*2);
-        ba.resize(rbc + 1);
-        InitMemory(0);
-        bt z;
-        for(size_t i=0;i<length;i++)
-        {
-                if(str[i]>='A'&&str[i]<='F')
-                {
-                        size_t x=(length-i-1)/(bz*2);
-                        ba[x]<<=4;
-                        z=str[i]-'A'+10;
-                        ba[x]|=z;
-                }
-                if(str[i]>='a'&&str[i]<='f')
-                {
-                        size_t x=(length-i-1)/(bz*2);
-                        ba[x]<<=4;
-                        z=str[i]-'a'+10;
-                        ba[x]|=z;
-                }
-                if(str[i]>='0'&&str[i]<='9')
-                {
-                        size_t x=(length-i-1)/(bz*2);
-                        ba[x]<<=4;
-                        z=str[i]-'0';
-                        ba[x]|=z;
-                }
+    size_t length = str.size();
+    rbc = (length + bz * 2 - 1) / (bz * 2);
+    ba.resize(rbc);
+
+    size_t index = rbc - 1;
+    size_t shift = rbc * bz * 2 - length;
+    if (shift == 0)
+        shift = bz * 2;
+
+    for (size_t i = 0; i < length; ++i) {
+        bt d;
+        if (str[i] >= 'A' && str[i] <= 'F') {
+            d = str[i] - 'A' + 10;
+        } else if (str[i] >= 'a' && str[i] <= 'f') {
+            d = str[i] - 'a' + 10;
+        } else if (str[i] >= '0' && str[i] <= '9') {
+            d = str[i] - '0';
+        } else {
+            throw invalid_argument(string("BN constructor: invalid char '") + str[i] + "' in HEX string");
         }
-        Norm();
+        ba[index] = (ba[index] << 4) | d;
+        shift--;
+        if (shift == 0) {
+            shift = bz * 2;
+            index--;
+        }
+    }
+    Norm();
 }
 
 BN & BN::operator = (const BN& bn)
