@@ -22,9 +22,8 @@ void BN::InitMemory(int type)
 {
     switch(type) {
     case 1: {
-        bt zero = 0;
-        for(size_t i = 0; i < rbc; ++i)
-            ba[i] = ~zero;
+        ba.resize(rbc);
+        ba.assign(sizeof(bmax), bmax);
         break;
     }
     case -1:
@@ -58,7 +57,7 @@ BN::BN(uint64_t basecount, int type)
         rbc = basecount;
         InitMemory(type);
     } else if (type != 0)
-        throw std::invalid_argument("BN constructor: invalid type " + to_string(type));
+        throw invalid_argument("BN constructor: invalid type " + to_string(type));
 }
 
 BN::BN(uint64_t x)
@@ -90,18 +89,13 @@ BN::BN(const vector<bt>& _ba, size_t _rbc)
         Norm();
 }
 
-BN::BN(const BN& bn, size_t start, size_t count) {
-    if(!count)
-        count = bn.rbc - start;
-
-    rbc = count;
-    ba.resize(rbc + 1);
-    for(size_t i = 0; i < count && i + start < bn.rbc; i++)
+BN::BN(const BN& bn, size_t start, size_t count)
+: rbc(count ? count : bn.rbc - start)
+, ba(rbc + 1)
+{
+    size_t last = min(count, bn.rbc - start);
+    for(size_t i = 0; i < last; i++)
         ba[i] = bn.ba[i + start];
-
-    size_t bbstart = max<size_t>(0, bn.rbc - start);
-    for(size_t i = bbstart; i < ba.size(); i++)
-        ba[i] = 0;
     Norm();
 }
 
@@ -121,25 +115,21 @@ BN::BN(const string &str,const int &status)
     }
 
     size_t length = str.size();
-    rbc = (length + bz * 2 - 1) / (bz * 2);
-    ba.resize(rbc);
+    ba.resize((length + bz * 2 - 1) / (bz * 2));
 
-    size_t index = rbc - 1;
-    size_t shift = rbc * bz * 2 - length;
-    if (shift == 0)
-        shift = bz * 2;
+    size_t index = ba.size() - 1;
+    size_t shift = bz * 2 - (ba.size() * bz * 2 - length);
 
     for (size_t i = 0; i < length; ++i) {
         bt d;
-        if (str[i] >= 'A' && str[i] <= 'F') {
+        if (str[i] >= 'A' && str[i] <= 'F')
             d = str[i] - 'A' + 10;
-        } else if (str[i] >= 'a' && str[i] <= 'f') {
+        else if (str[i] >= 'a' && str[i] <= 'f')
             d = str[i] - 'a' + 10;
-        } else if (str[i] >= '0' && str[i] <= '9') {
+        else if (str[i] >= '0' && str[i] <= '9')
             d = str[i] - '0';
-        } else {
+        else
             throw invalid_argument(string("BN constructor: invalid char '") + str[i] + "' in HEX string");
-        }
         ba[index] = (ba[index] << 4) | d;
         shift--;
         if (shift == 0) {
@@ -171,34 +161,33 @@ BN & BN::operator = (BN&& bn)
 }
 
 const BN BN::operator + (const BN&bn)const {
-    size_t result_len = max(rbc, bn.rbc);
-    BN result(result_len + 1, 0);
+    const BN& a = rbc > bn.rbc ? *this : bn;
+    const BN& b = rbc > bn.rbc ? bn : *this;
 
-    bt2 res = 0;
-    size_t pos = 0;
-    size_t m = min(rbc, bn.rbc);
-    for(; pos < m; pos++) {
-        res += static_cast<bt2>(ba[pos]) + bn.ba[pos];
-        result.ba[pos] = res;
-        res >>= bz8;
+    // TODO: replace to rbc + 1 in future, some error need It
+    vector<bt> result(a.rbc + 2);
+
+    bt over = 0;
+    for(size_t pos = 0; pos < b.rbc; pos++) {
+        result[pos] = a.ba[pos] + b.ba[pos];
+        bt over2 = (result[pos] < b.ba[pos]);
+
+        result[pos] = result[pos] + over;
+        bt over3 = (result[pos] < over);
+        over = over2 + over3;
     }
 
-    for(; pos < rbc; pos++) {
-        res += ba[pos];
-        result.ba[pos] = res;
-        res >>= bz8;
+    for(size_t pos = b.rbc; pos < a.rbc; pos++) {
+        result[pos] = a.ba[pos] + over;
+        over = (result[pos] < over);
     }
 
-    for(; pos < bn.rbc; pos++) {
-        res += bn.ba[pos];
-        result.ba[pos] = res;
-        res >>= bz8;
-    }
-
-    result.ba[pos] = res;
-    result.Norm();
-    return result;
+    result[a.rbc] = over;
+    BN resultBn(move(result));
+    resultBn.Norm();
+    return resultBn;
 }
+
 
 BN & BN::operator ++()
 {
@@ -246,6 +235,7 @@ BN BN::mulbt(size_t t) const
     for(size_t i = 0; i < rbc; ++i)
         res.ba[i + t] = ba[i];
     res.rbc = rbc + t;
+    res.ba.resize(res.rbc);
     return res;
 }
 
@@ -271,9 +261,9 @@ BN BN::modbt(size_t t) const
     if(t >= rbc)
             return *this;
 
-    BN res(t, 0);
-    res.ba.assign(ba.begin(), ba.begin() + t);
+    BN res(move(vector<bt>(ba.begin(), ba.begin() + t)));
     res.Norm();
+    res.ba.resize(res.rbc);
     return res;
 }
 
@@ -288,25 +278,21 @@ const BN BN::mulbase(const bt &multiplier)const
         result.rbc = rbc + 1;
     } else
         result.rbc = rbc;
+    result.ba.resize(result.rbc);
     return result;
 }
 
 BN& BN::mulbaseappr(const bt &multiplier)
 {
     bt2 curr = 0;
-    if (rbc + 1 > ba.size()) {
-        vector<bt> ba_new(rbc + 2);
-        for (size_t i =0; i < rbc; ++i, curr >>= bz8)
-            ba_new[i] = curr += ba[i] * multiplier;
-        ba = ba_new;
-    } else {
-        for (size_t i =0; i < rbc; ++i, curr >>= bz8)
-            ba[i] = curr += ba[i] * multiplier;
-    }
+    ba.resize(rbc + 1);
+    for (size_t i =0; i < rbc; ++i, curr >>= bz8)
+        ba[i] = curr += ba[i] * multiplier;
     if (curr) {
         ba[rbc] = curr;
         ++rbc;
     }
+    ba.resize(rbc);
     return *this;
 }
 
@@ -779,6 +765,7 @@ const BN BN::operator << (int shift) const {
 
 bool BN::operator < (const BN&bn)const
 {
+    // TODO: replace to compare ba and bn.ba
     if(rbc > bn.rbc)
         return false;
     if(rbc < bn.rbc)
@@ -836,14 +823,12 @@ bool BN::operator !=(const BN&bn)const
 
 bt BN::operator [](size_t index)const
 {
-    if (index >= rbc)
-        throw logic_error("Error in BN::operator[]. Index is too large");
     return ba[index];
 }
 
 size_t BN::digitCount() const
 {
-        return rbc;
+    return rbc;
 }
 
 size_t BN::bitCount() const
@@ -973,59 +958,58 @@ BN BN::reduction_special(const BN &mod) const {
 
 BN BN::Pow(uint64_t power) const
 {
-        BN Res(1);
-        if(power==(int64_t)0)
-                return Res;
-        BN t=(*this);
-        while(power)
-        {
-                if(power&(int64_t)1)
-                        Res=Res*t;
-                t=t*t;
-                power>>=(int64_t)1;
-        }
-        return Res;
+    BN res(1);
+    if (power == 0)
+        return res;
+    BN t = *this;
+    do {
+        if (power & 1)
+            res = res * t;
+        power >>= 1;
+        if (power)
+            t = t.Qrt();
+    } while (power);
+    return res;
 }
 
 BN BN::PowMod(uint64_t power, const BN& mod) const
 {
-        BN Res(1);
-        if(power==(int64_t)0)
-                return Res;
-        BN t=(*this)%mod;
-        while(power)
-        {
-                if(power&(int64_t)1)
-                        Res=(Res*t)%mod;
-                t=(t*t)%mod;
-                power>>=(int64_t)1;
-        }
-        return Res%mod;
+    BN res(1);
+    if (power == 0)
+        return res;
+    BN t = *this % mod;
+    do {
+        if (power & 1)
+            res = res * t % mod;
+        power >>= 1;
+        if (power)
+            t = t.Qrt() % mod;
+    } while (power);
+    return res;
 }
 
-BN BN::PowMod(const BN& power, const BN& mod)const {
-
+BN BN::PowMod(const BN& power, const BN& mod) const {
     if(power.is0())
-        return (BN) 1;
+        return BN(1);
 
     BN Res(1);
-    BN t = (*this) % mod;
+    BN t = *this % mod;
 
-    int len = power.bitCount();
+    size_t len = power.bitCount();
     bt mask = 1;
     const bt *curr = &*power.ba.begin();
-    for(int i = 0; i < len; i++) {
+    for(size_t i = 0; i < len; i++) {
         if(!mask) {
             mask = 1;
             ++curr;
         }
         if((*curr) & mask)
             Res = Res * t % mod;
-
-        t=t.Qrt() % mod;
+        if (i + 1 != len)
+            t = t.Qrt() % mod;
         mask <<= 1;
     }
-    return Res % mod;
+    return Res;
 }
 
 BN BN::PowModBarrett(const BN& power, const BN& mod) const {
@@ -1048,10 +1032,11 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
         if( (*curr) & mask)
             Res = (Res*t).reduction_barrett(mod, mu);
 
-        t = t.Qrt().reduction_barrett(mod, mu);
+        if (i + 1 != len)
+            t = t.Qrt().reduction_barrett(mod, mu);
         mask <<= 1;
     }
-    return Res.reduction_barrett(mod, mu);
+    return Res;
 }
 
 
@@ -1077,11 +1062,11 @@ BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
             A = A * S % mod;
         }
 
-
-        S = S.Qrt() % mod;
+        if (i + 1 != exponent_len)
+            S = S.Qrt() % mod;
         exponent_mask <<= 1;
     }
-    return A % mod;
+    return A;
 }
 
 BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
@@ -1120,7 +1105,7 @@ vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
     BN g = *this % mod;
     vector <BN> garr(bsize);
     garr[0] = BN(1);
-    for(int i = 1; i < bsize; i++) {
+    for(bt2 i = 1; i < bsize; i++) {
         garr[i] = garr[i-1] * g % mod;
     }
     return garr;
@@ -1188,7 +1173,7 @@ vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
     garr[0] = (BN) 1;
     garr[1] = g;
     garr[2] = g.Qrt() % mod;
-    for(int i = 1; i < bsize/2; i++)
+    for(bt2 i = 1; i < bsize/2; i++)
         garr[2*i+1] = garr[2*i-1] * garr[2] % mod;
     return garr;
 }
@@ -1262,7 +1247,7 @@ vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
     garr[0] = (BN) 1;
     garr[1] = g;
     garr[2] = g.Qrt().reduction_barrett(mod,mu);
-    for(int i = 1; i < bsize/2; i++)
+    for(bt2 i = 1; i < bsize/2; i++)
         garr[2*i+1] = (garr[2*i-1] * garr[2]).reduction_barrett(mod,mu);
     return garr;
 
