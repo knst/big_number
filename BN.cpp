@@ -340,12 +340,12 @@ const BN BN::fast_mul (const BN& bn) const {
     size_t n = rbc;
     size_t m = bn.rbc;
 
-    BN result(n + m + 1, 0);
+    BN result(n + m, 0);
 
     bt4 t = 0;
-    for(size_t s = 0; s < m + n; s++) {
+    for(size_t s = 0; s < m + n - 1; s++) {
 
-        size_t end_index = min(n, s);
+        size_t end_index = min(n - 1, s);
         size_t start_index = s > m ? s - m + 1 : 0;
         for(size_t i = start_index; i <= end_index; i++) {
             t += static_cast<bt2>(ba[i]) * bn.ba[s-i];
@@ -355,7 +355,7 @@ const BN BN::fast_mul (const BN& bn) const {
         t = t >> bz8;
     }
 
-    result.ba[m+n] = t;
+    result.ba[m + n - 1] = t;
     result.Norm();
     return move(result);
 }
