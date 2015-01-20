@@ -53,10 +53,10 @@ public:
 
 private:
     BN subequalshift(BN&,int)const;                //считается, что bn справа дополнен shift нулями
-    BN karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int count_2) const;      //для складывания частей числа для Карацубы
+    BN karatsuba_add(size_t start, size_t count) const;      //для складывания частей числа для Карацубы
     // x += y.mulbt(mul_bt);
     BN add_appr(const BN & bn, size_t mul_bt);
-    BN karatsubaRecursive(const BN & bn, size_t start, size_t len) const;
+    BN karatsubaRecursive(BN& bn, size_t start, size_t len);
 public:
     BN();
 

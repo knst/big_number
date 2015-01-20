@@ -360,41 +360,18 @@ const BN BN::fast_mul (const BN& bn) const {
     return move(result);
 }
 
-BN BN::karatsuba_add(const BN & bn, int start_1, int count_1, int start_2, int count_2) const {
-    const BN & bn1 = *this;
-    const BN & bn2 = bn;
-
-    size_t result_len = max(count_1, count_2);
-    BN result(result_len + 1, 0);
-
-    size_t max_1 = min<size_t>(count_1, bn1.rbc - start_1);
-    size_t max_2 = min<size_t>(count_2, bn2.rbc - start_2);
-    size_t m_min = min<size_t>(max_1, max_2);
+BN BN::karatsuba_add(size_t start, size_t count) const {
+    BN result(count + 1, 0);
 
     bt2 res = 0;
-    size_t pos = 0;
-    for(; pos < m_min; pos++) {
-        res = res + (bt2) bn1.ba[start_1 + pos] + (bt2) bn2.ba[start_2 + pos];
-        result.ba[pos] = res;
-        res >>= bz8;
-    }
-    for(; pos < max_1; pos++) {
-        res = res + (bt2) bn1.ba[start_1 + pos];
+    for(size_t pos = 0; pos < count; pos++) {
+        res = res + (bt2) ba[start + pos] + (bt2) ba[start + count + pos];
         result.ba[pos] = res;
         res >>= bz8;
     }
 
-    for(; pos < max_2;pos++) {
-        res = res + (bt2) bn2.ba[start_2 + pos];
-        result.ba[pos] = res;
-        res >>= bz8;
-    }
-
-    result.ba[pos] = res;
-    for(pos++; pos <= result_len; pos++)
-        result.ba[pos] = 0;
-
-    result.Norm();
+    result.ba[count] = res;
+    result.rbc = count + 1;
     return result;
 }
 
@@ -431,24 +408,26 @@ BN BN::add_appr (const BN&bn, size_t mul_bt) {
 }
 
 
-BN BN::karatsubaRecursive(const BN & bn, size_t start, size_t len) const {
+BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
     size_t n = len / 2;
-    if (len / 2 < karacuba_const) {
+    if (n < karacuba_const) {
         BN U(*this, start, len);
         BN V(bn, start, len);
         return U.fast_mul(V);
     }
 
-    const BN & U = *this;
-    const BN & V = bn;
+    BN& U = *this;
+    BN& V = bn;
+    U.ba.resize(n + n + 1);
+    V.ba.resize(n + n + 1);
+    BN A(U.karatsubaRecursive(V, start + n, n));   // A = u1.caracuba(v1);
+    BN B(U.karatsubaRecursive(V, start, n));       // B = u0.caracuba(v0);
+    BN u01(U.karatsuba_add(start, n));
+    BN v01(V.karatsuba_add(start, n));
+    //  C = (u0 + u1).caracuba(v0 + v1)
+    BN C(u01.karatsubaRecursive(v01, 0, n+1));
 
-    BN A = U.karatsubaRecursive(V, start + n, n);   // A = u1.caracuba(v1);
-    BN B = U.karatsubaRecursive(V, start, n);       // B = u0.caracuba(v0);
-    BN C = U.karatsuba_add(U, start, n, start + n, n).
-            karatsuba
-            (V.karatsuba_add(V, start, n, start + n, n));   //  (u0 + u1).caracuba(v0 + v1)
-
-//    res = A.mulbt(2*n);
+//    res = B + A.mulbt(2*n);
     BN res(B.ba, A.rbc + 2 * n);
     res.ba.resize(A.ba.size() + 2 * n);
 
@@ -465,8 +444,8 @@ const BN BN::karatsuba(const BN& bn)const {
     if(min(x, y) < karacuba_const)
         return this->fast_mul(bn);
 
-    const BN & U = *this;
-    const BN & V = bn;
+    BN U(*this);
+    BN V(bn);
     return U.karatsubaRecursive(V, 0, len);
 }
 
