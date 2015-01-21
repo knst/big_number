@@ -605,6 +605,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     BN delitel(d == 1 ? bn : bn.mulbase(d));
 
     delimoe.ba.resize(delimoe.ba.size() + 2);
+    delitel.ba.resize(delitel.ba.size() + 1);
 
     size_t n = delitel.rbc;
     size_t m = delimoe.rbc - delitel.rbc + 1;
@@ -1274,19 +1275,21 @@ BN BN::Qrt()const
 
 int BN::countzeroright()const
 {
-        if(ba[0] & (bt)1)
-                return 0;
-        int count=0;
-        while(!ba[count])
-                count++;
-        bt mask=1;
-        int d=0;
-        while(!(mask&ba[count]))
-        {
-                mask<<=1;
-                d++;
-        }
-        return count*bz8+d;
+    if(ba[0] & 1)
+            return 0;
+    size_t count = 0;
+    while(count < rbc && !ba[count])
+            count++;
+    if (count == rbc)
+        return bz8 * (count - 1);
+
+    bt last = ba[count];
+    size_t d = 0;
+    while(!(last & 1)) {
+        ++d;
+        last >>= 1;
+    }
+    return count * bz8 + d;
 }
 
 bool BN::bitI(size_t index)const {
