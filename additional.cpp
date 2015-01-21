@@ -166,6 +166,9 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
     BN bn_0(1,0);
     if(mod.is0())
         return bn_0;
+    if (xx == bn_1)
+        return bn_1;
+
 //    if(mod.is0()||gcdEuclidean(xx,mod)!=bn_1)
 //        return bn_0;
 
