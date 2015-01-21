@@ -346,7 +346,7 @@ const BN BN::fast_mul (const BN& bn) const {
     for(size_t s = 0; s < m + n - 1; s++) {
 
         size_t end_index = min(n - 1, s);
-        size_t start_index = s > m ? s - m + 1 : 0;
+        size_t start_index = s >= m ? s - m + 1 : 0;
         for(size_t i = start_index; i <= end_index; i++) {
             t += static_cast<bt2>(ba[i]) * bn.ba[s-i];
         }
@@ -411,20 +411,37 @@ BN BN::add_appr (const BN&bn, size_t mul_bt) {
 BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
     size_t n = len / 2;
     if (n < karacuba_const) {
-        BN U(*this, start, len);
-        BN V(bn, start, len);
-        return U.fast_mul(V);
+        BN result(len + len + 2, 0);
+        size_t n = len;
+        size_t m = len;
+        bt4 t = 0;
+        for(size_t s = 0; s < m + n - 1; s++) {
+
+            size_t end_index = min(n - 1, s);
+            size_t start_index = s >= m ? s - m + 1 : 0;
+            for(size_t i = start_index; i <= end_index; i++) {
+                t += static_cast<bt2>(ba[i + start]) * bn.ba[s - i + start];
+            }
+            result.ba[s] = t;
+            t = t >> bz8;
+        }
+
+        result.ba[m + n - 1] = t;
+        result.Norm();
+        return result;
     }
 
     BN& U = *this;
     BN& V = bn;
-    U.ba.resize(n + n + 1);
-    V.ba.resize(n + n + 1);
-    BN A(U.karatsubaRecursive(V, start + n, n));   // A = u1.caracuba(v1);
-    BN B(U.karatsubaRecursive(V, start, n));       // B = u0.caracuba(v0);
+
+    // A = u1.caracuba(v1);
+    BN A(U.karatsubaRecursive(V, start + n, n + len % 2));
+    // B = u0.caracuba(v0);
+    BN B(U.karatsubaRecursive(V, start, n));
+
+    //  C = (u0 + u1).caracuba(v0 + v1)
     BN u01(U.karatsuba_add(start, n));
     BN v01(V.karatsuba_add(start, n));
-    //  C = (u0 + u1).caracuba(v0 + v1)
     BN C(u01.karatsubaRecursive(v01, 0, n+1));
 
 //    res = B + A.mulbt(2*n);
@@ -446,6 +463,8 @@ const BN BN::karatsuba(const BN& bn)const {
 
     BN U(*this);
     BN V(bn);
+    U.ba.resize(len + 1);
+    V.ba.resize(len + 1);
     return U.karatsubaRecursive(V, 0, len);
 }
 
