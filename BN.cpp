@@ -412,13 +412,10 @@ BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
     size_t n = len / 2;
     if (n < karacuba_const) {
         BN result(len + len + 2, 0);
-        size_t n = len;
-        size_t m = len;
         bt4 t = 0;
-        for(size_t s = 0; s < m + n - 1; s++) {
-
-            size_t end_index = min(n - 1, s);
-            size_t start_index = s >= m ? s - m + 1 : 0;
+        for(size_t s = 0; s < len + len - 1; s++) {
+            size_t end_index = min(len - 1, s);
+            size_t start_index = s >= len ? s - len + 1 : 0;
             for(size_t i = start_index; i <= end_index; i++) {
                 t += static_cast<bt2>(ba[i + start]) * bn.ba[s - i + start];
             }
@@ -426,7 +423,7 @@ BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
             t = t >> bz8;
         }
 
-        result.ba[m + n - 1] = t;
+        result.ba[len + len - 1] = t;
         result.Norm();
         return result;
     }
@@ -446,7 +443,7 @@ BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
 
 //    res = B + A.mulbt(2*n);
     BN res(B.ba, A.rbc + 2 * n);
-    res.ba.resize(A.ba.size() + 2 * n);
+    res.ba.resize(A.rbc + 2 + 2 * n);
 
     for(size_t i = 0; i < A.rbc; ++i)
         res.ba[i + 2 * n] = A.ba[i];
