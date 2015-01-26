@@ -345,9 +345,9 @@ const BN BN::fast_mul (const BN& bn) const {
 
         size_t end_index = min(n - 1, s);
         size_t start_index = s >= m ? s - m + 1 : 0;
-        for(size_t i = start_index; i <= end_index; i++) {
-            t += static_cast<bt2>(ba[i]) * bn.ba[s-i];
-        }
+        for(size_t i = start_index, j = s - start_index; i <= end_index; i++, --j)
+            t += static_cast<bt2>(ba[i]) * bn.ba[j];
+
 
         result.ba[s] = t;
         t = t >> bz8;
