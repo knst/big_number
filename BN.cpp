@@ -18,6 +18,10 @@
 
 using namespace std;
 
+// maximal size for cache-optimazed multiplication is:
+// n < bt4_max * / (bt - 1) * bt_max^3
+constexpr bt4 MaximalSizeForFastMul = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
+
 void BN::InitMemory(int type)
 {
     switch(type) {
@@ -302,13 +306,7 @@ BN& BN::mulbaseappr(const bt &multiplier)
 }
 
 const BN BN::operator * (const BN&bn)const {
-    // maximal size for cache-optimazed multiplication is:
-    // n < bt4_max * / (bt - 1) * bt_max^3
-
-    constexpr bt4 maximalLen = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
-
-    // If fast mul is possible, do It.
-    if (bn.rbc < maximalLen && rbc < maximalLen)
+    if (bn.rbc < MaximalSizeForFastMul && rbc < MaximalSizeForFastMul)
         return fast_mul(bn);
 
     // Else classical O(n*n) multiplication.
@@ -1270,23 +1268,55 @@ BN BN::Sqrt()const
     return x0;
 }
 
-BN BN::Qrt()const
+BN BN::fastQrt() const
 {
-        BN res(2*rbc+1,0);
-        for(size_t i = 0; i < rbc; ++i) {
-                bt4 cuv=res.ba[2*i]+((bt2)ba[i])*ba[i];
-                res.ba[2*i]=cuv;
-                for (size_t j = i + 1; j < rbc; ++j) {
-                        cuv=(bt4)res.ba[i+j]+((bt4)((bt2)ba[i]*ba[j])<<1)+(cuv>>bz8);
-                        res.ba[i+j]=cuv;
-                }
-                //(*((bt2*)(res.ba+i+rbc)))+=cuv>>bz8;
-                cuv=(res.ba[i+rbc+1]<<bz8)+res.ba[i+rbc]+(cuv>>bz8);
-                res.ba[i+rbc]=cuv;
-                res.ba[i+rbc+1]=(cuv>>bz8);
+    size_t n = rbc;
+
+    BN result(n + n, 0);
+
+    bt4 t = 0;
+    for(size_t s = 0; s < n + n - 1; s++) {
+
+        size_t start_index = s >= n ? s - n + 1 : 0;
+        size_t end_index = min(n - 1, s);
+        while (start_index < end_index) {
+            t += static_cast<bt4>(2 * static_cast<bt2>(ba[start_index]) * ba[end_index]);
+            ++start_index;
+            --end_index;
         }
-        res.Norm();
-        return res;
+        if (start_index == end_index)
+            t += static_cast<bt2>(ba[start_index]) * ba[end_index];
+
+        result.ba[s] = t;
+        t = t >> bz8;
+    }
+
+    result.ba[n + n - 1] = t;
+    result.Norm();
+    return move(result);
+}
+
+BN BN::Qrt() const
+{
+    if (rbc < MaximalSizeForFastMul)
+        return fastQrt();
+
+    BN res(2 * rbc + 1, 0);
+    for (size_t i = 0; i < rbc; ++i) {
+        bt4 cuv = res.ba[2 * i] + static_cast<bt2>(ba[i]) * ba[i];
+        res.ba[2 * i] = cuv;
+        for (size_t j = i + 1; j < rbc; ++j) {
+            cuv = static_cast<bt2>(res.ba[i + j]) +
+                (static_cast<bt4>((static_cast<bt2>(ba[i]) * ba[j])) << 1) +
+                (cuv >> bz8);
+            res.ba[i + j] = cuv;
+        }
+        cuv = res.ba[i + rbc] + (cuv >> bz8);
+        res.ba[i + rbc] = cuv;
+        res.ba[i + rbc + 1] += (cuv >> bz8);
+    }
+    res.Norm();
+    return res;
 }
 
 int BN::countzeroright()const

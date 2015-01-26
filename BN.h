@@ -146,6 +146,7 @@ public:
 
     BN Sqrt()const;
     BN Qrt()const;
+    BN fastQrt()const;
     int countzeroright()const;
     bool bitI(size_t i)const;
     operator uint64_t()const;
