@@ -215,9 +215,29 @@ BN & BN::operator ++()
     return *this;
 }
 
-const BN BN::operator - (const BN& bn)const
+const BN BN::operator - (const BN& bn) const
 {
-    return this->sub(bn);
+    BN result(rbc, 0);
+
+    bool flag = 0;
+    size_t pos = 0;
+
+    for (; pos < bn.rbc && pos < rbc; ++pos) {
+        bt2s res = static_cast<bt2s>(ba[pos]) - bn.ba[pos] - flag;
+        result.ba[pos] = static_cast<bt>(res);
+        flag = (res < 0);
+    }
+
+    for (; flag && pos < rbc; ++pos) {
+        result.ba[pos] = ba[pos] - 1;
+        flag = (result.ba[pos] > ba[pos]);
+    }
+
+    for(;pos < rbc; pos++)
+        result.ba[pos] = ba[pos];
+
+    result.Norm();
+    return move(result);
 }
 
 BN & BN::operator --()
@@ -569,31 +589,6 @@ void BN::subappr(const BN& bn)
     }
 
     Norm();
-}
-
-BN BN::sub(const BN& bn)const
-{
-    BN result(rbc, 0);
-
-    bool flag = 0;
-    size_t pos = 0;
-
-    for (; pos < bn.rbc && pos < rbc; ++pos) {
-        bt2s res = static_cast<bt2s>(ba[pos]) - bn.ba[pos] - flag;
-        result.ba[pos] = static_cast<bt>(res);
-        flag = (res < 0);
-    }
-
-    for (; flag && pos < rbc; ++pos) {
-        result.ba[pos] = ba[pos] - 1;
-        flag = (result.ba[pos] > ba[pos]);
-    }
-
-    for(;pos < rbc; pos++)
-        result.ba[pos] = ba[pos];
-
-    result.Norm();
-    return result;
 }
 
 void BN::divmod(const BN& bn, BN& div, BN& mod) const

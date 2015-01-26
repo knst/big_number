@@ -92,15 +92,17 @@ public:
     // Constrains: this >= bn
     // TODO: work slow
     void subappr(const BN&);
-    // This function return (this - bn).
-    // Constrains: this >= bn
-    BN   sub(const BN&)const;
 
     BN & operator = (const BN&);
     BN & operator = (BN&&);
     const BN operator + (const BN&)const;
     BN & operator ++();
-    const BN operator - (const BN&)const;        // result = abs(*this - bn)
+
+    // This function return (this - bn).
+    // Constrains: this >= bn
+    //
+    const BN operator - (const BN&)const;
+
     BN & operator --();
     const BN operator * (const BN&)const;
     const BN fast_mul (const BN&)const;        //быстрый столбик
