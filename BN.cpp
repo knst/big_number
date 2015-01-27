@@ -22,6 +22,8 @@ using namespace std;
 // n < bt4_max * / (bt - 1) * bt_max^3
 constexpr bt4 MaximalSizeForFastMul = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
 
+constexpr size_t karacuba_const = 50;
+
 void BN::InitMemory(int type)
 {
     switch(type) {
@@ -274,7 +276,7 @@ BN BN::divbt(size_t t) const
         return *this;
 
     if(t >= rbc)
-        return (BN) 0;
+        return BN::bn0();
 
     BN res(rbc - t, 0);
     res.ba.assign(ba.begin() + t, ba.end());
@@ -285,10 +287,10 @@ BN BN::divbt(size_t t) const
 BN BN::modbt(size_t t) const
 {
     if(t == 0)
-        return BN(1,0);
+        return BN::bn0();
 
     if(t >= rbc)
-            return *this;
+        return *this;
 
     BN res(move(vector<bt>(ba.begin(), ba.begin() + t)));
     res.Norm();
@@ -393,40 +395,7 @@ BN BN::karatsuba_add(size_t start, size_t count) const {
     return result;
 }
 
-BN BN::add_appr (const BN&bn, size_t mul_bt) {
-    size_t result_len = max(rbc, bn.rbc + mul_bt);
-    if(result_len < ba.size()) {
-        bt2 res = 0;
-        size_t pos = 0;
-        size_t m = min(rbc-mul_bt, bn.rbc);
-        for(; pos < m; pos++) {
-            res += static_cast<bt2>(ba[pos + mul_bt]) + bn.ba[pos];
-            ba[pos + mul_bt] = res;
-            res >>= bz8;
-        }
-
-        for(; pos < bn.rbc; pos++) {
-            res += bn.ba[pos];
-            ba[pos + mul_bt] = res;
-            res >>= bz8;
-        }
-
-        while(res) {
-            res += ba[pos + mul_bt];
-            ba[pos + mul_bt] = res;
-            res >>= bz8;
-            pos ++;
-        }
-
-        Norm();
-        return *this;
-    }
-    *this = (*this) + bn.mulbt(mul_bt);
-    return *this;
-}
-
-
-BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
+BN BN::karatsubaRecursive(const BN& bn, size_t start, size_t len) const {
     size_t n = len / 2;
     if (n < karacuba_const) {
         BN result(len + len + 2, 0);
@@ -446,8 +415,8 @@ BN BN::karatsubaRecursive(BN & bn, size_t start, size_t len) {
         return result;
     }
 
-    BN& U = *this;
-    BN& V = bn;
+    const BN& U = *this;
+    const BN& V = bn;
 
     // A = u1.caracuba(v1);
     BN A(U.karatsubaRecursive(V, start + n, n + len % 2));
@@ -543,15 +512,16 @@ const BN BN::modbase(const bt &diviser)const
 {
     if(diviser == 0)
         throw "Div by 0";
-    BN result(1, 0);
     bt2 curr=0;
     for (size_t i = rbc - 1; i < rbc; --i) {
         curr <<= bz8;
         curr += ba[i];
         curr %= diviser;
     }
+
+    BN result = BN::bn0();
     result.ba[0]=curr;
-    result.rbc = 1;
+
     return result;
 }
 
@@ -603,7 +573,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     }
 
     if(*this < bn) {
-        div = 0;
+        div = BN::bn0();
         mod = *this;
         return;
     }
@@ -721,7 +691,7 @@ const BN BN::operator >> (int shift) const {
         return divbt(baseshift);
 
     if (baseshift >= rbc)
-        return BN(1, 0);
+        return BN::bn0();
 
     BN result(rbc - baseshift, 0);
     for (size_t i = 0; i < rbc - baseshift; ++i) {
@@ -837,7 +807,7 @@ size_t BN::bitCount() const
 }
 
 BN BN::reduction_barrett_precomputation() const {
-    return ( (BN)1 ).mulbt(2*rbc) / *this;
+    return BN::bn1().mulbt(2*rbc) / *this;
 }
 
 BN BN::reduction_barrett(const BN& mod, const BN& mu) const {
@@ -857,7 +827,7 @@ BN BN::reduction_barrett(const BN& mod, const BN& mu) const {
     if(r1 >= r2)
             r = r1 - r2;
         else
-            r = ((BN) 1).mulbt(k+1) + r1 - r2;
+            r = BN::bn1().mulbt(k+1) + r1 - r2;
     while(r >= mod)
         r = r - mod;
     return r;
@@ -894,9 +864,10 @@ BN BN::reduction_special(const BN &mod) const {
 
 BN BN::Pow(uint64_t power) const
 {
-    BN res(1);
     if (power == 0)
-        return res;
+        return BN::bn1();
+
+    BN res(BN::bn1());
     BN t = *this;
     do {
         if (power & 1)
@@ -910,9 +881,10 @@ BN BN::Pow(uint64_t power) const
 
 BN BN::PowMod(uint64_t power, const BN& mod) const
 {
-    BN res(1);
     if (power == 0)
-        return res;
+        return BN::bn1();
+
+    BN res(BN::bn1());
     BN t = *this % mod;
     do {
         if (power & 1)
@@ -926,9 +898,9 @@ BN BN::PowMod(uint64_t power, const BN& mod) const
 
 BN BN::PowMod(const BN& power, const BN& mod) const {
     if(power.is0())
-        return BN(1);
+        return BN::bn1();
 
-    BN Res(1);
+    BN res(BN::bn1());
     BN t = *this % mod;
 
     size_t len = power.bitCount();
@@ -940,21 +912,21 @@ BN BN::PowMod(const BN& power, const BN& mod) const {
             ++curr;
         }
         if((*curr) & mask)
-            Res = Res * t % mod;
+            res = res * t % mod;
         if (i + 1 != len)
             t = t.Qrt() % mod;
         mask <<= 1;
     }
-    return Res;
+    return res;
 }
 
 BN BN::PowModBarrett(const BN& power, const BN& mod) const {
-
     if(power.is0())
-        return (BN) 1;
+        return BN::bn1();
+
 
     BN mu = mod.reduction_barrett_precomputation();
-    BN Res(1);
+    BN res(BN::bn1());
     BN t = (*this) % mod;
 
     int len = power.bitCount();
@@ -966,22 +938,22 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
             ++curr;
         }
         if( (*curr) & mask)
-            Res = (Res*t).reduction_barrett(mod, mu);
+            res = (res*t).reduction_barrett(mod, mu);
 
         if (i + 1 != len)
             t = t.Qrt().reduction_barrett(mod, mu);
         mask <<= 1;
     }
-    return Res;
+    return res;
 }
 
 
 BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
 
     if(exponent.is0())
-        return (BN) 1;
+        return BN::bn1();
 
-    BN A = 1;
+    BN A(BN::bn1());
     BN S = (*this) % mod;
 
     int exponent_len = exponent.bitCount();
@@ -1007,13 +979,13 @@ BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
 
 BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
     if(exponent.is0())
-        return (BN) 1;
+        return BN::bn1();
 
-    BN A = 1;
+    BN A(BN::bn1());
     BN g = *this % mod;
 
     int exponent_len = exponent.bitCount();
-    bt exponent_mask = (bt) 1;
+    bt exponent_mask = 1;
     int start_shift_exponent_mask = (exponent_len - 1 ) % bz8;
     exponent_mask <<= start_shift_exponent_mask;
     const bt * exponent_current_base = &*exponent.ba.begin() + (exponent.rbc - 1);
@@ -1026,8 +998,7 @@ BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
 
         if( (*exponent_current_base) & exponent_mask) {
             A = A.Qrt() % mod * g % mod;
-        }
-        else {
+        } else {
             A = A.Qrt() % mod;
         }
 
@@ -1040,7 +1011,7 @@ BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
 vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
     BN g = *this % mod;
     vector <BN> garr(bsize);
-    garr[0] = BN(1);
+    garr[0] = BN::bn1();
     for(bt2 i = 1; i < bsize; i++) {
         garr[i] = garr[i-1] * g % mod;
     }
@@ -1049,9 +1020,9 @@ vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
 
 BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& g) const {
     if(exponent.is0())
-        return (BN) 1;
+        return BN::bn1();
 
-    BN A = 1;
+    BN A(BN::bn1());
     for(int i = exponent.rbc - 1; i >= 0; i--) {
         for(int k = 0; k < (int)bz8; k++)
             A = A.Qrt() % mod;
@@ -1064,7 +1035,7 @@ vector <BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const
     int Kmax = (1 << K);
     BN g = *this % mod;
     vector <BN> garr(Kmax);
-    garr[0] = BN(1);
+    garr[0] = BN::bn1();
     for(int i = 1; i < Kmax; i++) {
         garr[i] = garr[i-1] * g % mod;
     }
@@ -1073,9 +1044,9 @@ vector <BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const
 
 BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
     if(exponent.is0())
-        return (BN) 1;
+        return BN::bn1();
 
-    BN A = 1;
+    BN A(BN::bn1());
 
     int x = K;
     for(int i = exponent.rbc * bz8 - 1; i >= K; i -= K) {
@@ -1104,9 +1075,9 @@ BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
 vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
     BN g = *this % mod;
 
-    vector <BN> garr(bsize);
+    vector<BN> garr(bsize);
 
-    garr[0] = (BN) 1;
+    garr[0] = BN::bn1();
     garr[1] = g;
     garr[2] = g.Qrt() % mod;
     for(bt2 i = 1; i < bsize/2; i++)
@@ -1116,9 +1087,9 @@ vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
 
 BN BN::expLeftToRightK_aryMod(BN exponent, BN mod, vector <BN> g) const {
     if(exponent.is0())
-        return (BN) 1;
+        return BN::bn1();
 
-    BN A = (BN) 1;
+    BN A(BN::bn1());
     for(int i = exponent.rbc - 1; i >= 0; i--) {
         bt ei = exponent.ba[i];
 
@@ -1144,7 +1115,7 @@ vector <BN> BN::expSlidingWindowPrecomputation(BN mod, int k) const {
     int k_pow = 2 << (k-1);
     vector <BN> garr (k_pow);
     BN g = *this % mod;
-    garr[0] = (BN) 1;
+    garr[0] = BN::bn1();
     garr[1] = g;
     garr[2] = g.Qrt() % mod;
     for(int i = 1; i < k_pow/2; i++)
@@ -1153,7 +1124,7 @@ vector <BN> BN::expSlidingWindowPrecomputation(BN mod, int k) const {
 }
 
 BN BN::expSlidingWindow(BN exponent, BN mod, vector <BN> g, int k) const {
-    BN A = (BN) 1;
+    BN A(BN::bn1());
     int i = exponent.bitCount() - 1;
     while (i >= 0) {
         if(exponent.bitI(i) == 0) {
@@ -1180,7 +1151,7 @@ vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
     vector <BN> garr (bsize);
     BN mu = mod.reduction_barrett_precomputation();
     BN g = this -> reduction_barrett(mod, mu);
-    garr[0] = (BN) 1;
+    garr[0] = BN::bn1();
     garr[1] = g;
     garr[2] = g.Qrt().reduction_barrett(mod,mu);
     for(bt2 i = 1; i < bsize/2; i++)
@@ -1192,7 +1163,7 @@ vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
 
 
 BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
-    BN A = (BN) 1;
+    BN A(BN::bn1());
     BN mu = mod.reduction_barrett_precomputation();
     int i = exponent.bitCount() - 1;
     int k = bz8;
@@ -1250,7 +1221,7 @@ bt2 inverse(bt2 a, bt2 mod) {
 BN BN::Sqrt()const
 {
     if(is0())
-        return BN(1,0);
+        return BN::bn1();
     BN x((this->rbc+1)/2,0);
     x.ba[(this->rbc+1)/2]=1;
     x.rbc=(this->rbc+1)/2+1;
@@ -1394,3 +1365,13 @@ bool BN::isEven() const
     return true;
 }
 
+const BN BN::bn0() {
+    static BN bn(1, 0);
+    return bn;
+}
+
+const BN BN::bn1() {
+    static BN bn(1, 0);
+    bn.ba[0] = 1;
+    return bn;
+}

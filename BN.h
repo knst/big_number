@@ -31,39 +31,20 @@ constexpr bt bmax = 65535;
 #endif
 
 constexpr bt bz = sizeof(bt);
-constexpr bt bz2 = sizeof(bt2);
 constexpr bt bz8 = sizeof(bt) * 8;
 
-constexpr size_t karacuba_const = 50;
-
 class BN {
-private:
-    // used memory (base count)
-    size_t rbc;
-    // data
-    std::vector<bt> ba;
-
-private:
-    void InitMemory(int type);
-    // Normalization of BN: changing rbc in according to value.
-    void Norm();
-
 public:
-    BN reduction_barrett_precomputation()const;
+    static const BN bn0();
+    static const BN bn1();
 
-private:
-    BN subequalshift(BN&,int)const;                //считается, что bn справа дополнен shift нулями
-    BN karatsuba_add(size_t start, size_t count) const;      //для складывания частей числа для Карацубы
-    // x += y.mulbt(mul_bt);
-    BN add_appr(const BN & bn, size_t mul_bt);
-    BN karatsubaRecursive(BN& bn, size_t start, size_t len);
 public:
     BN();
 
     //value. 0:fill 0, 1:fill 1, -1:rand()
     BN(uint64_t basecount, int type);
 
-    BN(uint64_t x);
+    explicit BN(uint64_t x);
     BN(const BN&);
     BN(BN&& bn);
     BN(const std::vector<bt>&, size_t rbc = 0);
@@ -72,13 +53,13 @@ public:
 
     void swap(BN& bn);
 
-    // This function return: this * base^t
+    // This function return this * base^t
     BN   mulbt(size_t t) const;
 
-    // This function return: this / base^t
+    // This function return this / base^t
     BN   divbt(size_t t) const;
 
-    // This function return: this % base^t
+    // This function return this % base^t
     BN   modbt(size_t mod) const;
 
     const BN mulbase(const bt&)const;
@@ -124,7 +105,6 @@ public:
     size_t bitCount()const;
 
 
-    BN reduction_montgomery(const BN& mod, bt m1, const BN& T) const;
     BN reduction_barrett(const BN& mod,const BN& mu) const;
     BN reduction_special(const BN& mod) const;
     BN Pow(uint64_t)const;
@@ -154,9 +134,26 @@ public:
     operator uint64_t()const;
     bool is0() const;
     bool isEven() const;
-    void Print(bool newstr=true)const;
     void PrintHex(bool newstr=true)const;
     void PrintDec(bool newstr=true)const;
+
+private:
+    void InitMemory(int type);
+    // Normalization of BN: changing rbc in according to value.
+    void Norm();
+
+    BN reduction_barrett_precomputation()const;
+
+    BN karatsuba_add(size_t start, size_t count) const;      //для складывания частей числа для Карацубы
+    // x += y.mulbt(mul_bt);
+    BN karatsubaRecursive(const BN& bn, size_t start, size_t len) const;
+
+private:
+    // used memory (base count)
+    size_t rbc;
+    // data
+    std::vector<bt> ba;
+
 };
 
 #endif /* _BN_H */

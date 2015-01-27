@@ -27,15 +27,13 @@ BN gcdInverseEuclidean(BN a, BN mod)
 {
     BN start_mod = mod;
     a = a % mod;
-    BN bn_1 = 1;
-    BN bn_0 = 0;
 
     if(a.is0())
-        return bn_0;
+        return BN::bn0();
 
     BNsign x0;
-    BNsign x1 = bn_0;
-    BNsign x2 = bn_1;
+    BNsign x1(BN::bn0());
+    BNsign x2(BN::bn1());
     while (true) {
         BN Div;
         BN Mod;
@@ -51,8 +49,8 @@ BN gcdInverseEuclidean(BN a, BN mod)
         a = move(Mod);
     }
 
-    if(a != bn_1)
-        return bn_0;
+    if(a != BN::bn1())
+        return BN::bn0();
     if(x2.value.is0())
         x2.sign = false;
     if(!x2.sign)
@@ -93,9 +91,7 @@ BN gcdBinary(BN a,BN b)
 
 BN gcdExtendedEuclideanBinary(BN xx, BN yy)
 {
-    BN bn_1(1);
-    BN bn_0(1,0);
-    BN g=bn_1;
+    BN g(BN::bn1());
     int xcount=xx.countzeroright();
     int ycount=yy.countzeroright();
     g=g<<min(xcount,ycount);
@@ -107,10 +103,10 @@ BN gcdExtendedEuclideanBinary(BN xx, BN yy)
     BNsign x=xx;
     BNsign y=yy;
 
-    BNsign a=bn_1;
-    BNsign b=bn_0;
-    BNsign c=bn_0;
-    BNsign d=bn_1;
+    BNsign a(BN::bn1());
+    BNsign b(BN::bn0());
+    BNsign c(BN::bn0());
+    BNsign d(BN::bn1());
 
     do {
         while(u.isEven())
@@ -162,21 +158,16 @@ BN gcdExtendedEuclideanBinary(BN xx, BN yy)
 
 BN gcdInverseEuclideanBinary(BN xx, BN mod)
 {
-    BN bn_1(1);
-    BN bn_0(1,0);
     if(mod.is0())
-        return bn_0;
-    if (xx == bn_1)
-        return bn_1;
+        return BN::bn0();
+    if (xx == BN::bn1())
+        return xx;
 
-//    if(mod.is0()||gcdEuclidean(xx,mod)!=bn_1)
-//        return bn_0;
-
-    BN g=bn_1;
+    BN g(BN::bn1());
     int xcount=xx.countzeroright();
     int ycount=mod.countzeroright();
     if(min(xcount,ycount))
-        return bn_0;
+        return BN::bn0();
     //min(xcount,ycount) = 0!
 //    g=g<<min(xcount,ycount);
 //    xx=xx>>min(xcount,ycount);
@@ -187,10 +178,10 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
     BNsign x=xx;
     BNsign y=mod;
 
-    BNsign a=bn_1;
-    BNsign b=bn_0;
-    BNsign c=bn_0;
-    BNsign d=bn_1;
+    BNsign a(BN::bn1());
+    BNsign b(BN::bn0());
+    BNsign c(BN::bn0());
+    BNsign d(BN::bn1());
     if(mod.isEven())
         do
         {
@@ -292,8 +283,8 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
         }
         while(!u.is0());
 
-    if(v!=bn_1)
-        return bn_0;
+    if(v!=BN::bn1())
+        return BN::bn0();
 
     if(c.value.is0())
         c.sign=false;
@@ -314,7 +305,7 @@ vector <BN> multi_inverse(const vector <BN> &x, const BN &mod)
 
     a.push_back(x[0]);
 
-    for(    vector<BN>::const_iterator xi=x.begin()+1;
+    for( vector<BN>::const_iterator xi=x.begin()+1;
         xi!=x.end();
         xi++)
         a.push_back(a.back() * (*xi) % mod);
@@ -356,7 +347,7 @@ BN gcdLehmer(BN x,BN y)
                 bt2s t;
                 t = A - q*C;    A = C;    C = t;
                 t = B - q*D;    B = D;    D = t;
-                t = xp- q*yp;    xp= yp;    yp= t;
+                t = xp- q*yp;   xp= yp;   yp= t;
             }
         if(B == 0) {
             x = x % y;
@@ -380,7 +371,7 @@ BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
     BN u;
     for(int i=1;i<t;i++)
     {
-        C[i] = 1;
+        C[i] = BN::bn1();
         for(int j=0; j<i; j++)
         {
             u = gcdInverseEuclideanBinary(m[j],m[i]);
@@ -389,7 +380,7 @@ BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
     }
     u = v[0];
     BN x = u;
-    BN Pm=1;
+    BN Pm(BN::bn1());
     for(int i=1;i<t;i++)
     {
         BN xmi = x%m[i];
@@ -411,7 +402,7 @@ BN CTO(const std::vector <BN>& m, const std::vector <BN>& v)
     BN M = m[0];
     for (int i=1;i<t;i++)
         M = M * m[i];
-    BN x(1,0);
+    BN x(BN::bn0());
     for (int i=0;i<t;i++)
     {
         BN Mi = M/m[i];
