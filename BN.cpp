@@ -191,14 +191,12 @@ const BN BN::operator + (const BN&bn)const {
 
 BN & BN::operator ++()
 {
-    size_t index = 0;
-    do {
-        ++ba[index];
-        ++index;
-    } while (index < ba.size() && ba[index - 1] == 0);
-    if (index == ba.size()) {
-        ba.push_back(1);
+    for (auto& i : ba) {
+        ++i;
+        if (i != 0)
+            return *this;
     }
+    ba.push_back(1);
     return *this;
 }
 
@@ -229,15 +227,15 @@ const BN BN::operator - (const BN& bn) const
 
 BN & BN::operator --()
 {
-    size_t index = 0;
-    do {
-        --ba[index];
-        ++index;
-    } while (index < ba.size() && ba[index - 1] == bmax);
+    for (auto& i : ba) {
+        if (i) {
+            --i;
+            return *this;
+        }
+        --i;
+    }
+    Norm();
 
-    // Normalization:
-    if (index == ba.size())
-        Norm();
     return *this;
 }
 
@@ -295,18 +293,17 @@ const BN BN::mulbase(const bt &multiplier)const
 BN& BN::mulbaseappr(const bt &multiplier)
 {
     bt2 curr = 0;
-    ba.push_back(0);
-    for (size_t i =0; i < ba.size(); ++i, curr >>= bz8)
-        ba[i] = curr += ba[i] * multiplier;
-    if (curr) {
-        ba[ba.size()] = curr;
+    for(auto& i : ba) {
+        i = curr += static_cast<bt2>(i) * multiplier;
+        curr >>= bz8;
     }
-    Norm();
+    if (curr)
+        ba.push_back(curr);
     return *this;
 }
 
 const BN BN::operator * (const BN&bn)const {
-    if (max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
+    if (0 && max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
         return fast_mul(bn);
 
     // classical O(n*n) multiplication.
@@ -320,7 +317,7 @@ const BN BN::operator * (const BN&bn)const {
     const BN& b = ba.size() > bn.ba.size() ? *this : bn;
     const BN& a = ba.size() > bn.ba.size() ? bn : *this;
 
-    BN result(a.ba.size() + b.ba.size() + 1, 0);
+    BN result(a.ba.size() + b.ba.size(), 0);
     for (size_t i = 0; i < b.ba.size(); ++i) {
         bt2 curr = 0;
         bt2 x = b.ba[i];
@@ -395,12 +392,12 @@ BN BN::karatsubaRecursive(const BN& bn, size_t start, size_t len) const {
     const BN& U = *this;
     const BN& V = bn;
 
-    // A = u1.caracuba(v1);
+    // A = u1 * v1;
     BN A(U.karatsubaRecursive(V, start + n, n + len % 2));
-    // B = u0.caracuba(v0);
+    // B = u0 * v0;
     BN B(U.karatsubaRecursive(V, start, n));
 
-    //  C = (u0 + u1).caracuba(v0 + v1)
+    //  C = (u0 + u1) * (v0 + v1)
     BN u01(U.karatsuba_add(start, n));
     BN v01(V.karatsuba_add(start, n));
     BN C(u01.karatsubaRecursive(v01, 0, n+1));
