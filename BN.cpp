@@ -303,7 +303,7 @@ BN& BN::mulbaseappr(const bt &multiplier)
 }
 
 const BN BN::operator * (const BN&bn)const {
-    if (0 && max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
+    if (max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
         return fast_mul(bn);
 
     // classical O(n*n) multiplication.
@@ -1128,7 +1128,6 @@ BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
     return A;
 
 }
-
 
 bt2 inverse(bt2 a, bt2 mod) {
 
