@@ -85,12 +85,15 @@ BN gcdBinary(BN a,BN b)
     return b << min(acount,bcount);
 }
 
-BN gcdExtendedEuclideanBinary(BN xx, BN yy)
+BN gcdInverseEuclideanBinary(BN xx, BN mod)
 {
+    BN& yy = mod;
     BN g(BN::bn1());
     int xcount=xx.countzeroright();
     int ycount=yy.countzeroright();
-    g=g<<min(xcount,ycount);
+    if (xcount && ycount)
+        return BN::bn0();
+
     xx=xx>>min(xcount,ycount);
     yy=yy>>min(xcount,ycount);
 
@@ -142,146 +145,9 @@ BN gcdExtendedEuclideanBinary(BN xx, BN yy)
         }
     }
     while(!u.is0());
-    //u.is0() == true;
-    BNsign A=c;
-    BNsign B=d;
-    A.PrintSign();
-    B.PrintSign();
-    (g*v).PrintDec();
-    return g*v;
-    // A*x + B*y == v
-}
-
-BN gcdInverseEuclideanBinary(BN xx, BN mod)
-{
-    if(mod.is0())
-        return BN::bn0();
-    if (xx == BN::bn1())
-        return xx;
-
-    BN g(BN::bn1());
-    int xcount=xx.countzeroright();
-    int ycount=mod.countzeroright();
-    if(min(xcount,ycount))
-        return BN::bn0();
-    //min(xcount,ycount) = 0!
-//    g=g<<min(xcount,ycount);
-//    xx=xx>>min(xcount,ycount);
-//    mod=mod>>min(xcount,ycount);
-
-    BN u=xx;
-    BN v=mod;
-    BNsign x=xx;
-    BNsign y=mod;
-
-    BNsign a(BN::bn1());
-    BNsign b(BN::bn0());
-    BNsign c(BN::bn0());
-    BNsign d(BN::bn1());
-    if(mod.isEven())
-        do
-        {
-            int ucount=u.countzeroright();
-            u=u>>ucount;
-            while(ucount)
-            {
-                int abcount=min(a.value.countzeroright(),b.value.countzeroright());
-                if(abcount>ucount)
-                {
-                    a.value=a.value>>ucount;
-                    b.value=b.value>>ucount;
-                    ucount=0;
-                }
-                else if(abcount)
-                {
-                    a.value=a.value>>abcount;
-                    b.value=b.value>>abcount;
-                    ucount-=abcount;
-                }
-                else
-                {
-                    a=(a+y);
-                    a.value=a.value>>1;
-                    b=(b-x);
-                    b.value=b.value>>1;
-                    ucount--;
-                }
-            }
-            int vcount=v.countzeroright();
-            v=v>>vcount;
-            while(vcount)
-            {
-                int cdcount=min(c.value.countzeroright(),d.value.countzeroright());
-                if(cdcount>vcount) {
-                    c.value=c.value>>vcount;
-                    d.value=d.value>>vcount;
-                    vcount=0;
-                } else if(cdcount) {
-                    c.value=c.value>>cdcount;
-                    d.value=d.value>>cdcount;
-                    vcount-=cdcount;
-                } else {
-                    c=(c+y);
-                    c.value=c.value>>1;
-                    d=(d-x);
-                    d.value=d.value>>1;
-                    vcount--;
-                }
-            }
-            if(u>=v) {
-                u=u-v;
-                a=a-c;
-                b=b-d;
-            } else {
-                v=v-u;
-                c=c-a;
-                d=d-b;
-            }
-        }
-        while(!u.is0());
-    else
-        do
-        {
-            int ucount=u.countzeroright();
-            u=u>>ucount;
-            while(ucount)
-            {
-                int acount = a.value.countzeroright();
-                if(acount) {
-                    a.value=a.value>>min(acount,ucount);
-                    ucount-=min(acount,ucount);
-                } else {
-                    a=(a+y);
-                    a.value=a.value>>1;
-                    ucount--;
-                }
-            }
-            int vcount=v.countzeroright();
-            v=v>>vcount;
-            while(vcount) {
-                int ccount = c.value.countzeroright();
-                if(ccount) {
-                    c.value=c.value>>min(ccount,vcount);
-                    vcount-=min(ccount,vcount);
-                } else {
-                    c=(c+y);
-                    c.value=c.value>>1;
-                    vcount--;
-                }
-            }
-            if(u>=v) {
-                u=u-v;
-                a=a-c;
-            } else {
-                v=v-u;
-                c=c-a;
-            }
-        }
-        while(!u.is0());
 
     if(v!=BN::bn1())
         return BN::bn0();
-
     if(c.value.is0())
         c.sign=false;
     if(c.sign)

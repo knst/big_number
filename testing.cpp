@@ -213,7 +213,6 @@ int testing_ij(int max1,int max2, int i,int j)
                         printf("mod:\t");        mod.PrintDec();
                         printf("inverse:\t");        gcdInverse.PrintDec();
                         printf("inverseB:\t");        gcdInverseBin.PrintDec();
-                        gcdExtendedEuclideanBinary(bn1,mod);//(.PrintDec();
                         return 8;
                 }
                 if(gcd != BN::bn1() || mod == BN::bn1()) {
