@@ -10,10 +10,6 @@
 
 using namespace std;
 
-bt2s Abs(bt2s x) {
-    return x<0?-x:x;
-}
-
 BN gcdEuclidean(BN a,BN b)
 {
     while(!b.is0()) {
@@ -79,10 +75,10 @@ BN gcdBinary(BN a,BN b)
 
     while(!a.is0()) {
         if(a >= b) {
-            a.subappr(b);
+            a = a - b;
             a = a >> a.countzeroright();
         } else {
-            b.subappr(a);
+            b = b - a;
             b = b >> b.countzeroright();
         }
     }

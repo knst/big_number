@@ -69,11 +69,6 @@ public:
     const BN modbase(const bt&)const;
     BN& modbaseappr(const bt&);
 
-    // This function subtraction "bn" from "this".
-    // Constrains: this >= bn
-    // TODO: work slow
-    void subappr(const BN&);
-
     BN & operator = (const BN&);
     BN & operator = (BN&&);
     const BN operator + (const BN&)const;

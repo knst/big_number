@@ -542,25 +542,6 @@ BN& BN::modbaseappr(const bt &diviser)
     return *this;
 }
 
-void BN::subappr(const BN& bn)
-{
-    bool flag = 0;
-    size_t pos = 0;
-
-    for (; pos < bn.rbc; ++pos) {
-        bt2s res = static_cast<bt2s>(ba[pos]) - bn.ba[pos] - flag;
-        ba[pos] = static_cast<bt>(res);
-        flag = (res < 0);
-    }
-
-    if (flag) {
-        while (!ba[pos]--)
-            ++pos;
-    }
-
-    Norm();
-}
-
 void BN::divmod(const BN& bn, BN& div, BN& mod) const
 {
     if(bn.is0())
