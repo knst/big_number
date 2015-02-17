@@ -1206,15 +1206,17 @@ BN BN::Sqrt()const
 {
     if(is0())
         return BN::bn1();
-    BN x((this->rbc+1)/2,0);
-    x.ba[(this->rbc+1)/2]=1;
-    x.rbc=(this->rbc+1)/2+1;
+
+    size_t rbc2 = (rbc + 1) / 2 + 1;
+    BN x(rbc2, 0);
+    x.rbc = rbc2;
+    x.ba[rbc2 - 1] = 1;
+
     BN x0;
     do {
-        x0=x;
-        x=( (*this)/x+x )>>1;
-    }
-    while(x0>x);
+        x0 = x;
+        x = ((*this)/x + x) >> 1;
+    } while(x0 > x);
     return x0;
 }
 
