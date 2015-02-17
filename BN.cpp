@@ -1129,34 +1129,6 @@ BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
 
 }
 
-bt2 inverse(bt2 a, bt2 mod) {
-
-    bt2 start_mod = mod;
-    a = a % mod;
-    if(a == 0)
-        return 0;
-    bt2s x0;
-    bt2s x1 = 0;
-    bt2s x2 = 1;
-    while(mod % a) {
-        bt2 q = mod/a;
-        x0 = x1;
-        x1 = x2;
-
-        x2 = x0 - x1 * (bt2s) q;
-        bt2 new_mod = a;
-        a = mod % a;
-        mod = new_mod;
-    }
-
-    if(a !=  1)
-                return 0;
-        if(x2 < 0)
-                return start_mod + x2;
-        return x2;
-}
-
-
 BN BN::Sqrt() const
 {
     if(is0())
