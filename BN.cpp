@@ -701,11 +701,12 @@ const BN BN::operator << (int shift) const {
 
     BN result(rbc + baseshift + 1, 0);
     result.ba[baseshift] = ba[0] << realshift;
-    for(size_t i = 1; i <= rbc; i++) {
+    for(size_t i = 1; i < rbc; i++) {
         result.ba[i + baseshift] =
             (ba[i - 1] >> (bz8 - realshift)) |
             (ba[i] << realshift);
     }
+    result.ba[rbc + baseshift] = ba[rbc - 1] >> (bz8 - realshift);
     result.Norm();
     return result;
 }
