@@ -46,7 +46,7 @@ void BN::InitMemory(int type)
 void BN::Norm()
 {
     for(rbc = ba.size() - 1; rbc > 0 && ba[rbc] == 0; rbc--);
-        rbc++;
+    rbc++;
 }
 
 BN::BN()
@@ -694,11 +694,13 @@ const BN BN::operator >> (int shift) const {
         return BN::bn0();
 
     BN result(rbc - baseshift, 0);
-    for (size_t i = 0; i < rbc - baseshift; ++i) {
+    for (size_t i = 0; i < rbc - baseshift - 1; ++i) {
         result.ba[i] =
             (ba[i + baseshift] >> realshift) |
             (ba[i + baseshift + 1] << (bz8 - realshift));
     }
+    result.ba[rbc - baseshift - 1] = ba[rbc - 1] >> realshift;
+
     result.Norm();
     return result;
 }
@@ -1287,21 +1289,22 @@ BN BN::Qrt() const
 
 int BN::countzeroright()const
 {
-    if(ba[0] & 1)
-            return 0;
+    if (ba[0] & 1)
+        return 0;
+    if (is0())
+        return 0;
+
     size_t count = 0;
-    while(count < rbc && !ba[count])
-            count++;
-    if (count == rbc)
-        return bz8 * (count - 1);
+    while(!ba[count])
+        ++count;
 
     bt last = ba[count];
-    size_t d = 0;
+    size_t result = count * bz8;
     while(!(last & 1)) {
-        ++d;
+        ++result;
         last >>= 1;
     }
-    return count * bz8 + d;
+    return result;
 }
 
 bool BN::bitI(size_t index)const {
