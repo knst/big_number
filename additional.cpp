@@ -323,45 +323,6 @@ vector <BN> multi_inverse(const vector <BN> &x, const BN &mod)
     return x_inverse;
 }
 
-//#define DEBUG_LEHMER
-BN gcdLehmer(BN x,BN y)
-{
-    if(x<y)
-        x.swap(y);
-
-    while(y.digitCount()>1)
-    {
-        bt2s xp = x[x.digitCount()-1];
-        bt2s yp = y[y.digitCount()-1];
-        bt2s A = 1;
-        bt2s B = 0;
-        bt2s C = 0;
-        bt2s D = 1;
-        if(x.digitCount()==y.digitCount())
-            while( (yp+C)!=0 && (yp+D)!=0 )
-            {
-                bt2s q = (xp+A)/(yp+C);
-                bt2s qp= (xp+B)/(yp+D);
-                if(q!=qp)
-                    break;
-                bt2s t;
-                t = A - q*C;    A = C;    C = t;
-                t = B - q*D;    B = D;    D = t;
-                t = xp- q*yp;   xp= yp;   yp= t;
-            }
-        if(B == 0) {
-            x = x % y;
-            x.swap(y);
-        } else {
-            BN T = (B<0 ? x.mulbase(Abs(A)) - y.mulbase(Abs(B)) : y.mulbase(Abs(B)) - x.mulbase(Abs(A)));
-            BN U = (D<0 ? x.mulbase(Abs(C)) - y.mulbase(Abs(D)) : y.mulbase(Abs(D)) - x.mulbase(Abs(C)));
-            x=T;
-            y=U;
-        }
-    }
-    return gcdBinary(x,y);
-}
-
 BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
 {
     if(m.size()!=v.size())

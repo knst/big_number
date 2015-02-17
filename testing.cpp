@@ -205,14 +205,6 @@ int testing_ij(int max1,int max2, int i,int j)
                         mod.PrintDec();
                         return 7;
                 }
-                if(gcd!=gcdLehmer(bn1,mod))
-                {
-                        gcdEuclidean(bn1,mod).PrintDec();
-                        gcdLehmer(bn1,mod).PrintDec();
-                        bn1.PrintDec();
-                        mod.PrintDec();
-                        return 7;
-                }
                 BN gcdInverse=gcdInverseEuclidean(bn1,mod);
                 BN gcdInverseBin=gcdInverseEuclideanBinary(bn1,mod);
                 if(gcdInverse!=gcdInverseBin)
