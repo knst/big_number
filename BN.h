@@ -134,7 +134,7 @@ public:
 
 private:
     void InitMemory(int type);
-    // Normalization of BN: changing rbc in according to value.
+    // Normalization of BN: pop leading null
     void Norm();
 
     BN reduction_barrett_precomputation()const;
@@ -144,8 +144,6 @@ private:
     BN karatsubaRecursive(const BN& bn, size_t start, size_t len) const;
 
 private:
-    // used memory (base count)
-    size_t rbc;
     // data
     std::vector<bt> ba;
 

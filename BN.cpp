@@ -28,12 +28,11 @@ void BN::InitMemory(int type)
 {
     switch(type) {
     case 1: {
-        ba.resize(rbc);
         ba.assign(sizeof(bmax), bmax);
         break;
     }
     case -1:
-        for(size_t i = 0; i < rbc; ++i)
+        for(size_t i = 0; i < ba.size(); ++i)
             ba[i] = rand() % bsize;
         Norm();
         break;
@@ -47,60 +46,54 @@ void BN::Norm()
 {
     while (ba.size() > 1 && ba.back() == 0)
         ba.pop_back();
-    rbc = ba.size();
 }
 
 BN::BN()
-: rbc(1)
-, ba(rbc + 1)
+: ba(1)
 {
 }
 
 BN::BN(uint64_t basecount, int type)
-: rbc(1)
-, ba(basecount)
+: ba(basecount)
 {
     if (type == 1 || type == -1) {
-        rbc = basecount;
         InitMemory(type);
+        Norm();
     } else if (type != 0)
         throw invalid_argument("BN constructor: invalid type " + to_string(type));
 }
 
 BN::BN(uint64_t x)
-: rbc((sizeof(uint64_t) + bz - 1) / bz)
-, ba(rbc + 1)
+: ba((sizeof(uint64_t) + bz - 1) / bz)
 {
-    for(size_t i = 0; i < rbc; i++, x >>= bz8)
+    for(size_t i = 0; i < ba.size(); i++, x >>= bz8)
         ba[i] = static_cast<bt>(x);
     Norm();
 }
 
 BN::BN(const BN& bn)
-: rbc(bn.rbc)
-, ba(bn.ba)
+: ba(bn.ba)
 {
 }
 
 BN::BN(BN&& bn)
-: rbc(bn.rbc)
-, ba(move(bn.ba))
+: ba(move(bn.ba))
 {
 }
 
 BN::BN(const vector<bt>& _ba, size_t _rbc)
-: rbc(_rbc)
-, ba(_ba)
+: ba(_ba)
 {
-    if (!_rbc)
+    if (_rbc)
+        ba.resize(_rbc);
+    else
         Norm();
 }
 
 BN::BN(const BN& bn, size_t start, size_t count)
-: rbc(count ? count : bn.rbc - start)
-, ba(rbc + 1)
+: ba(count ? count : bn.ba.size() - start + 1)
 {
-    size_t last = min(count, bn.rbc - start);
+    size_t last = min(count, bn.ba.size()- start);
     for(size_t i = 0; i < last; i++)
         ba[i] = bn.ba[i + start];
     Norm();
@@ -116,7 +109,6 @@ BN::BN(const string &str,const int &status)
                 continue;
             bn = bn.mulbase(10) + BN(i - '0');
         }
-        rbc = bn.rbc;
         ba = move(bn.ba);
         return;
     }
@@ -149,7 +141,6 @@ BN::BN(const string &str,const int &status)
 
 void BN::swap(BN& bn) {
     ba.swap(bn.ba);
-    std::swap(rbc, bn.rbc);
 }
 
 BN & BN::operator = (const BN& bn)
@@ -157,7 +148,6 @@ BN & BN::operator = (const BN& bn)
     if (this == &bn)
         return *this;
     ba = bn.ba;
-    rbc = bn.rbc;
 
     return *this;
 }
@@ -167,7 +157,6 @@ BN & BN::operator = (BN&& bn)
     if (this == &bn)
         return *this;
     ba = move(bn.ba);
-    rbc = bn.rbc;
 
     return *this;
 }
@@ -209,7 +198,6 @@ BN & BN::operator ++()
     } while (index < ba.size() && ba[index - 1] == 0);
     if (index == ba.size()) {
         ba.push_back(1);
-        ++rbc;
     }
     return *this;
 }
@@ -275,7 +263,6 @@ BN BN::divbt(size_t t) const
 
     BN res(ba.size() - t, 0);
     res.ba.assign(ba.begin() + t, ba.end());
-    res.rbc = rbc - t;
     return res;
 }
 
@@ -288,23 +275,19 @@ BN BN::modbt(size_t t) const
         return *this;
 
     BN res(move(vector<bt>(ba.begin(), ba.begin() + t)));
-    res.ba.resize(res.rbc);
     res.Norm();
     return res;
 }
 
 const BN BN::mulbase(const bt &multiplier)const
 {
-    BN result(rbc+1, 0);
+    BN result(ba.size() + 1, 0);
     bt2 curr = 0;
-    for(size_t i = 0; i < rbc; i++, curr>>=bz8)
+    for(size_t i = 0; i < ba.size(); i++, curr>>=bz8)
         result.ba[i] = curr += static_cast<bt2>(ba[i]) * multiplier;
     if (curr) {
-        result.ba[rbc] = curr;
-        result.rbc = rbc + 1;
+        result.ba[ba.size()] = curr;
     } else
-        result.rbc = rbc;
-    result.ba.resize(result.rbc);
     result.Norm();
     return result;
 }
@@ -313,13 +296,12 @@ BN& BN::mulbaseappr(const bt &multiplier)
 {
     bt2 curr = 0;
     ba.push_back(0);
-    for (size_t i =0; i < rbc; ++i, curr >>= bz8)
+    for (size_t i =0; i < ba.size(); ++i, curr >>= bz8)
         ba[i] = curr += ba[i] * multiplier;
     if (curr) {
-        ba[rbc] = curr;
-        ++rbc;
+        ba[ba.size()] = curr;
     }
-    ba.resize(rbc);
+    Norm();
     return *this;
 }
 
@@ -387,7 +369,6 @@ BN BN::karatsuba_add(size_t start, size_t count) const {
     }
 
     result.ba[count] = res;
-    result.rbc = count + 1;
     return result;
 }
 
@@ -425,18 +406,18 @@ BN BN::karatsubaRecursive(const BN& bn, size_t start, size_t len) const {
     BN C(u01.karatsubaRecursive(v01, 0, n+1));
 
 //    res = B + A.mulbt(2*n);
-    BN res(B.ba, A.rbc + 2 * n);
-    res.ba.resize(A.rbc + 2 + 2 * n);
+    BN res(B.ba, A.ba.size() + 2 * n);
+    res.ba.resize(A.ba.size() + 2 + 2 * n);
 
-    for(size_t i = 0; i < A.rbc; ++i)
+    for(size_t i = 0; i < A.ba.size(); ++i)
         res.ba[i + 2 * n] = A.ba[i];
 
     return res + C.mulbt(n) - (A + B).mulbt(n);
 }
 
 const BN BN::karatsuba(const BN& bn)const {
-    size_t x = rbc;
-    size_t y = bn.rbc;
+    size_t x = ba.size();
+    size_t y = bn.ba.size();
     size_t len = max(x, y);
     if(min(x, y) < karacuba_const)
         return this->fast_mul(bn);
@@ -449,8 +430,8 @@ const BN BN::karatsuba(const BN& bn)const {
 }
 
 const BN BN::karatsuba_old(const BN& bn)const {
-    size_t x = rbc;
-    size_t y = bn.rbc;
+    size_t x = ba.size();
+    size_t y = bn.ba.size();
 
     size_t M = max(x,y);
     size_t n = (M + 1) / 2;
@@ -534,7 +515,6 @@ BN& BN::modbaseappr(const bt &diviser)
     }
     ba.resize(1);
     ba[0] = curr;
-    rbc = 1;
     return *this;
 }
 
@@ -805,7 +785,6 @@ BN BN::reduction_special(const BN &mod) const {
     // Bt = b^t;
     BN Bt(t+1,0);
     Bt.ba[t] = (bt) 1;
-    Bt.rbc = t+1;
 
     BN c = Bt - mod;
 
@@ -1187,10 +1166,9 @@ BN BN::Sqrt() const
     if(is0())
         return BN::bn1();
 
-    size_t rbc2 = (rbc + 1) / 2 + 1;
+    size_t rbc2 = (ba.size() + 1) / 2 + 1;
     BN x(rbc2, 0);
-    x.rbc = rbc2;
-    x.ba[rbc2 - 1] = 1;
+    x.ba.back() = 1;
 
     BN x0;
     do {
