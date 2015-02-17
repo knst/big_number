@@ -208,7 +208,7 @@ BN & BN::operator ++()
         ++index;
     } while (index < rbc && ba[index - 1] == 0);
     if (index == rbc) {
-        if (ba.size() == rbc + 1)
+        if (ba.size() == rbc)
             ba.push_back(1);
         else
             ba[rbc] = 1;
