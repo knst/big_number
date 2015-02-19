@@ -15,16 +15,18 @@ int testingMul_ij(int max1,int max2, int,int) {
     BN bn1(rand()%max1+1,-1);
     BN bn2(rand()%max2+1,-1);
     BN mul = bn1*bn2;
-    BN f_m = bn1.fast_mul(bn2);
-    BN c_m = bn1.karatsuba(bn2);
-    BN c_o = bn1.karatsuba_old(bn2);
-    if(mul != f_m || mul != c_m || mul != c_o) {
+    BN c_m = bn1.classicMultiplication(bn2);
+    BN f_m = bn1.fastMultiplication(bn2);
+    BN k_m = bn1.karatsubaMultiplication(bn2);
+    BN k_o = bn1.karatsuba_old(bn2);
+    if(mul != c_m || mul != f_m || mul != k_m || mul != k_o) {
         printf("bn1:\t");       bn1.PrintDec();
         printf("bn2:\t");       bn2.PrintDec();
-        printf("bn1*bn2:\t");   mul.PrintDec();
-        printf("bn1**bn2:\t");  f_m.PrintDec();
-        printf("bn1c*bn2:\t");  c_m.PrintDec();
-        printf("bn1cobn2:\t");  c_o.PrintDec();
+        printf("bn1 * bn2:\t");   mul.PrintDec();
+        printf("bn1 * bn2 classic:\t"); f_m.PrintDec();
+        printf("bn1 * bn2 fast:\t");  f_m.PrintDec();
+        printf("bn1 * bn2 karatsuba:\t");  k_m.PrintDec();
+        printf("bn1 * bn2 karatsuba_o:\t");  k_o.PrintDec();
         return 1;
     }
     return 0;
@@ -372,12 +374,12 @@ void multest(int base,int test)
 
         t = clock();
         for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-                (*i) * (*j);
+            i->classicMultiplication(*j);
         float t1 = clock() - t;
 
         t = clock();
         for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-                (*i).fast_mul(*j);
+            i->fastMultiplication(*j);
         float t2 = clock() - t;
 
 //        t = clock();
@@ -387,7 +389,7 @@ void multest(int base,int test)
 
         t = clock();
         for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-            (*i).karatsuba(*j);
+            i->karatsubaMultiplication(*j);
         float t3 = clock() - t;
 
         float diviser = test;
@@ -606,7 +608,7 @@ void restest(int base,int test) {
 
 void resulttest() {
     cout<<"Test \"multiplication\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (µs)\tComma's (µs)\tCaracuba (µs)"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (µs)\tComma's (µs)\tKaratsuba (µs)"<<endl;
 
     multest(16, 500000);
     multest(32, 100000);

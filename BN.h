@@ -81,9 +81,12 @@ public:
 
     BN & operator --();
     const BN operator * (const BN&)const;
-    const BN fast_mul (const BN&)const;        //быстрый столбик
-    const BN karatsuba (const BN&)const;
-    const BN karatsuba_old (const BN&)const;
+    // classic multiplication O(n*n)
+    const BN classicMultiplication(const BN&) const;
+    // quick multiplication O(n*n)
+    const BN fastMultiplication(const BN&) const;
+    const BN karatsubaMultiplication(const BN&) const;
+    const BN karatsuba_old(const BN&) const;
     void divmod(const BN& bn, BN& div, BN& mod) const;
     const BN operator / (const BN&)const;
     const BN operator % (const BN&)const;
@@ -139,14 +142,10 @@ private:
 
     BN reduction_barrett_precomputation()const;
 
-    BN karatsuba_add(size_t start, size_t count) const;      //для складывания частей числа для Карацубы
-    // x += y.mulbt(mul_bt);
-    BN karatsubaRecursive(const BN& bn, size_t start, size_t len) const;
-
 private:
     // data
     std::vector<bt> ba;
-
+    friend std::vector<bt> karatsubaRecursive(const std::vector<bt>&, const std::vector<bt>&, size_t, size_t);
 };
 
 #endif /* _BN_H */

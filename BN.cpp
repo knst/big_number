@@ -22,7 +22,7 @@ using namespace std;
 // n < bt4_max * / (bt - 1) * bt_max^3
 constexpr bt4 MaximalSizeForFastMul = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
 
-constexpr size_t karacuba_const = 50;
+constexpr size_t karatsubaMinimalSize = 50;
 
 void BN::InitMemory(int type)
 {
@@ -93,10 +93,11 @@ BN::BN(const vector<bt>& _ba, size_t _rbc)
 BN::BN(const BN& bn, size_t start, size_t count)
 : ba(count ? count : bn.ba.size() - start + 1)
 {
-    size_t last = min(count, bn.ba.size()- start);
+    size_t last = min(count, bn.ba.size() - start);
+    if (bn.ba.size() < start)
+        last = 0;
     for(size_t i = 0; i < last; i++)
         ba[i] = bn.ba[i + start];
-    Norm();
 }
 
 BN::BN(const string &str,const int &status)
@@ -302,10 +303,17 @@ BN& BN::mulbaseappr(const bt &multiplier)
     return *this;
 }
 
-const BN BN::operator * (const BN&bn)const {
-    if (max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
-        return fast_mul(bn);
+const BN BN::operator * (const BN& bn)const {
+    if (min(bn.ba.size(), ba.size()) > karatsubaMinimalSize)
+        return karatsubaMultiplication(bn);
 
+    if (max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
+        return fastMultiplication(bn);
+
+    return classicMultiplication(bn);
+}
+
+const BN BN::classicMultiplication(const BN& bn) const {
     // classical O(n*n) multiplication.
     if(bn.ba.size() == 1)
         return mulbase(bn.ba.front());
@@ -331,7 +339,7 @@ const BN BN::operator * (const BN&bn)const {
     return result;
 }
 
-const BN BN::fast_mul (const BN& bn) const {
+const BN BN::fastMultiplication (const BN& bn) const {
     size_t n = ba.size();
     size_t m = bn.ba.size();
 
@@ -355,75 +363,113 @@ const BN BN::fast_mul (const BN& bn) const {
     return move(result);
 }
 
-BN BN::karatsuba_add(size_t start, size_t count) const {
-    BN result(count + 1, 0);
+vector<bt> karatsubaSum(
+    const vector<bt>& a,
+    const vector<bt>& b
+) {
+    size_t n = a.size();
+    size_t m = b.size();
+    if (n != m)
+        throw "wtf";
 
-    bt2 res = 0;
-    for(size_t pos = 0; pos < count; pos++) {
-        res = res + (bt2) ba[start + pos] + (bt2) ba[start + count + pos];
-        result.ba[pos] = res;
-        res >>= bz8;
+    vector<bt> result(n + 1);
+
+    bt2 sum = 0;
+    for(size_t pos = 0; pos < n; ++pos) {
+        sum += a[pos] + b[pos];
+        result[pos] = sum;
+        sum >>= bz8;
     }
 
-    result.ba[count] = res;
+    result.back() = sum;
     return result;
 }
 
-BN BN::karatsubaRecursive(const BN& bn, size_t start, size_t len) const {
-    size_t n = len / 2;
-    if (n < karacuba_const) {
-        BN result(len + len + 2, 0);
-        bt4 t = 0;
-        for(size_t s = 0; s < len + len - 1; s++) {
-            size_t end_index = min(len - 1, s);
-            size_t start_index = s >= len ? s - len + 1 : 0;
-            for(size_t i = start_index; i <= end_index; i++) {
-                t += static_cast<bt2>(ba[i + start]) * bn.ba[s - i + start];
-            }
-            result.ba[s] = t;
-            t = t >> bz8;
-        }
+vector<bt> karatsubaSum2(const vector<bt>& u, size_t start, size_t n, size_t m) {
+    vector<bt> result(m + 1);
 
-        result.ba[len + len - 1] = t;
-        result.Norm();
-        return result;
+    bt2 sum = 0;
+    for (size_t pos = 0; pos < n; ++pos) {
+        sum += u[start + pos] + u[start + pos + n];
+        result[pos] = sum;
+        sum >>= bz8;
+    }
+    if (n != m) {
+        sum += u[start + n + n];
+        result[n] = sum;
+        sum >>= bz8;
     }
 
-    const BN& U = *this;
-    const BN& V = bn;
-
-    // A = u1 * v1;
-    BN A(U.karatsubaRecursive(V, start + n, n + len % 2));
-    // B = u0 * v0;
-    BN B(U.karatsubaRecursive(V, start, n));
-
-    //  C = (u0 + u1) * (v0 + v1)
-    BN u01(U.karatsuba_add(start, n));
-    BN v01(V.karatsuba_add(start, n));
-    BN C(u01.karatsubaRecursive(v01, 0, n+1));
-
-//    res = B + A.mulbt(2*n);
-    BN res(B.ba, A.ba.size() + 2 * n);
-    res.ba.resize(A.ba.size() + 2 + 2 * n);
-
-    for(size_t i = 0; i < A.ba.size(); ++i)
-        res.ba[i + 2 * n] = A.ba[i];
-
-    return res + C.mulbt(n) - (A + B).mulbt(n);
+    result[m] = sum;
+    return result;
 }
 
-const BN BN::karatsuba(const BN& bn)const {
+
+vector<bt> karatsubaRecursive(
+    const vector<bt>& U,
+    const vector<bt>& V,
+    size_t start,
+    size_t count
+) {
+    if (U.size() != V.size())
+        throw "wtf";
+
+    size_t len = count;
+    size_t n = len / 2;
+    size_t m = len - n;
+    if (n < karatsubaMinimalSize) {
+        vector<bt> a(U.begin() + start, U.begin() + start + count);
+        vector<bt> b(V.begin() + start, V.begin() + start + count);
+        BN A(a);
+        BN B(b);
+        return A.fastMultiplication(B).ba;
+    }
+
+    vector<bt> u0(U.begin(), U.begin() + n);
+    vector<bt> v0(V.begin(), V.begin() + n);
+    vector<bt> u1(U.begin() + n, U.end());
+    vector<bt> v1(V.begin() + n, V.end());
+
+    vector<bt> A = karatsubaRecursive(u0, v0, 0, n);
+    vector<bt> B = karatsubaRecursive(u1, v1, n, m);
+/*
+    vector<bt> u01 = karatsubaSum2(U, start, n, m);
+    vector<bt> v01 = karatsubaSum2(V, start, n, m);
+*/
+    u0.resize(m);
+    v0.resize(m);
+
+    vector<bt> u01 = karatsubaSum(u0, u1);
+    vector<bt> v01 = karatsubaSum(v0, v1);
+    u01.resize(m + 1);
+    v01.resize(m + 1);
+
+    vector<bt> C = karatsubaRecursive(u01, v01, 0, m + 1);
+
+    BN Ab(A);
+    BN Bb(B);
+    BN Cb(C);
+
+    Ab.Norm();
+    Bb.Norm();
+    Cb.Norm();
+
+    BN result = Bb + Ab.mulbt(n + n) + Cb.mulbt(n) - (Ab + Bb).mulbt(n);
+    return result.ba;
+}
+
+const BN BN::karatsubaMultiplication(const BN& bn) const {
     size_t x = ba.size();
     size_t y = bn.ba.size();
     size_t len = max(x, y);
-    if(min(x, y) < karacuba_const)
-        return this->fast_mul(bn);
+    if(min(x, y) < karatsubaMinimalSize)
+        return this->fastMultiplication(bn);
 
-    BN U(*this);
-    BN V(bn);
-    U.ba.resize(len + 1);
-    V.ba.resize(len + 1);
-    return U.karatsubaRecursive(V, 0, len);
+    vector<bt> U = ba;
+    vector<bt> V = bn.ba;
+    U.resize(len);
+    V.resize(len);
+    return karatsubaRecursive(U, V, 0, len);
 }
 
 const BN BN::karatsuba_old(const BN& bn)const {
@@ -432,8 +478,8 @@ const BN BN::karatsuba_old(const BN& bn)const {
 
     size_t M = max(x,y);
     size_t n = (M + 1) / 2;
-    if(min(x,y) < karacuba_const)
-        return move(this->fast_mul(bn));
+    if(min(x,y) < karatsubaMinimalSize)
+        return move(this->fastMultiplication(bn));
 
     const BN& U = *this;
     const BN& V = bn;
