@@ -401,7 +401,7 @@ vector<bt> karatsubaSum2(const vector<bt>& u, size_t start, size_t n, size_t m) 
     }
 
     result[m] = sum;
-    return result;
+    return move(result);
 }
 
 
@@ -411,9 +411,6 @@ vector<bt> karatsubaRecursive(
     size_t start,
     size_t count
 ) {
-    if (U.size() != V.size())
-        throw "wtf";
-
     size_t len = count;
     size_t n = len / 2;
     size_t m = len - n;
@@ -422,31 +419,22 @@ vector<bt> karatsubaRecursive(
         vector<bt> b(V.begin() + start, V.begin() + start + count);
         BN A(a);
         BN B(b);
-        return A.fastMultiplication(B).ba;
+        return A.fastMultiplication(B).raw();
     }
 
-    vector<bt> u0(U.begin() + start, U.begin() + start + n);
-    vector<bt> v0(V.begin() + start, V.begin() + start + n);
-    vector<bt> u1(U.begin() + start + n, U.begin() + start + count);
-    vector<bt> v1(V.begin() + start + n, V.begin() + start + count);
+    const vector<bt>& A = karatsubaRecursive(U, V, start + n, m);
+    const vector<bt>& B = karatsubaRecursive(U, V, start, n);
 
-    vector<bt> A = karatsubaRecursive(u1, v1, 0, m);
-    vector<bt> B = karatsubaRecursive(u0, v0, 0, n);
-
-    vector<bt> u01 = karatsubaSum2(U, start, n, m);
-    vector<bt> v01 = karatsubaSum2(V, start, n, m);
-    vector<bt> C = karatsubaRecursive(u01, v01, 0, m + 1);
+    const vector<bt>& u01 = karatsubaSum2(U, start, n, m);
+    const vector<bt>& v01 = karatsubaSum2(V, start, n, m);
+    const vector<bt>& C = karatsubaRecursive(u01, v01, 0, m + 1);
 
     BN Ab(A);
     BN Bb(B);
     BN Cb(C);
 
-    Ab.Norm();
-    Bb.Norm();
-    Cb.Norm();
-
     BN result = Bb + Ab.mulbt(n + n) + Cb.mulbt(n) - (Ab + Bb).mulbt(n);
-    return result.ba;
+    return result.raw();
 }
 
 const BN BN::karatsubaMultiplication(const BN& bn) const {
@@ -1299,6 +1287,10 @@ void BN::PrintDec(bool newstr)const
         if(newstr)
                 printf("\n");
         delete []s;
+}
+
+const vector<bt> BN::raw() const {
+    return ba;
 }
 
 bool BN::is0() const

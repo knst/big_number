@@ -135,6 +135,7 @@ public:
     void PrintHex(bool newstr=true)const;
     void PrintDec(bool newstr=true)const;
 
+    const std::vector<bt> raw() const;
 private:
     void InitMemory(int type);
     // Normalization of BN: pop leading null
@@ -145,7 +146,6 @@ private:
 private:
     // data
     std::vector<bt> ba;
-    friend std::vector<bt> karatsubaRecursive(const std::vector<bt>&, const std::vector<bt>&, size_t, size_t);
 };
 
 #endif /* _BN_H */
