@@ -425,25 +425,16 @@ vector<bt> karatsubaRecursive(
         return A.fastMultiplication(B).ba;
     }
 
-    vector<bt> u0(U.begin(), U.begin() + n);
-    vector<bt> v0(V.begin(), V.begin() + n);
-    vector<bt> u1(U.begin() + n, U.end());
-    vector<bt> v1(V.begin() + n, V.end());
+    vector<bt> u0(U.begin() + start, U.begin() + start + n);
+    vector<bt> v0(V.begin() + start, V.begin() + start + n);
+    vector<bt> u1(U.begin() + start + n, U.begin() + start + count);
+    vector<bt> v1(V.begin() + start + n, V.begin() + start + count);
 
-    vector<bt> A = karatsubaRecursive(u0, v0, 0, n);
-    vector<bt> B = karatsubaRecursive(u1, v1, n, m);
-/*
+    vector<bt> A = karatsubaRecursive(u1, v1, 0, m);
+    vector<bt> B = karatsubaRecursive(u0, v0, 0, n);
+
     vector<bt> u01 = karatsubaSum2(U, start, n, m);
     vector<bt> v01 = karatsubaSum2(V, start, n, m);
-*/
-    u0.resize(m);
-    v0.resize(m);
-
-    vector<bt> u01 = karatsubaSum(u0, u1);
-    vector<bt> v01 = karatsubaSum(v0, v1);
-    u01.resize(m + 1);
-    v01.resize(m + 1);
-
     vector<bt> C = karatsubaRecursive(u01, v01, 0, m + 1);
 
     BN Ab(A);
