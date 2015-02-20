@@ -1295,8 +1295,6 @@ const vector<bt> BN::raw() const {
 
 bool BN::is0() const
 {
-    if (ba.size() > 1 && ba.back() == 0)
-        throw logic_error("wtf, ba.back() is 0");
     if (ba.size() > 1 || ba[0])
         return false;
     return true;
