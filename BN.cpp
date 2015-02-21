@@ -422,19 +422,63 @@ vector<bt> karatsubaRecursive(
         return A.fastMultiplication(B).raw();
     }
 
-    const vector<bt>& A = karatsubaRecursive(U, V, start + n, m);
-    const vector<bt>& B = karatsubaRecursive(U, V, start, n);
+#if 0 // it is not fast
+    vector<bt> u01(m + 1);
+    vector<bt> v01(m + 1);
+
+    bt2 usum = 0;
+    bt2 vsum = 0;
+    for (size_t pos = 0; pos < n; ++pos) {
+        usum += U[start + pos] + U[start + pos + n];
+        vsum += V[start + pos] + V[start + pos + n];
+        u01[pos] = usum;
+        v01[pos] = vsum;
+        usum >>= bz8;
+        vsum >>= bz8;
+    }
+    if (n != m) {
+        usum += U[start + n + n];
+        vsum += V[start + n + n];
+        u01[n] = usum;
+        v01[n] = vsum;
+        usum >>= bz8;
+        vsum >>= bz8;
+    }
+
+    u01[m] = usum;
+    v01[m] = vsum;
+#endif
 
     const vector<bt>& u01 = karatsubaSum2(U, start, n, m);
     const vector<bt>& v01 = karatsubaSum2(V, start, n, m);
-    const vector<bt>& C = karatsubaRecursive(u01, v01, 0, m + 1);
 
-    BN Ab(A);
-    BN Bb(B);
-    BN Cb(C);
+    vector<bt> A = karatsubaRecursive(U, V, start + n, m);
+    vector<bt> B = karatsubaRecursive(U, V, start, n);
+    vector<bt> C = karatsubaRecursive(u01, v01, 0, m + 1);
 
-    BN result = Bb + Ab.mulbt(n + n) + Cb.mulbt(n) - (Ab + Bb).mulbt(n);
-    return result.raw();
+    size_t ABCn = max(C.size(), max(A.size(), B.size()));
+    A.resize(ABCn);
+    B.resize(ABCn);
+    C.resize(ABCn);
+
+    vector<bt> result = B;
+    result.resize(m + m + n + n + 1);
+
+    bt2s sum = 0;;
+    for (size_t i = n; i < result.size(); ++i) {
+        sum += result[i];
+        if (i < ABCn + n) {
+            sum += C[i - n];
+            sum -= A[i - n];
+            sum -= B[i - n];
+        }
+        if (i >= n + n && i < n + n + ABCn) {
+            sum += A[i - n - n];
+        }
+        result[i] = sum;
+        sum >>= 8;
+    }
+    return result;
 }
 
 const BN BN::karatsubaMultiplication(const BN& bn) const {
