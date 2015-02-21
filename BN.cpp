@@ -385,7 +385,7 @@ vector<bt> karatsubaSum(
     return result;
 }
 
-vector<bt> karatsubaSum2(const vector<bt>& u, size_t start, size_t n, size_t m) {
+inline vector<bt> karatsubaSum2(const vector<bt>& u, size_t start, size_t n, size_t m) {
     vector<bt> result(m + 1);
 
     bt2 sum = 0;
@@ -415,11 +415,23 @@ vector<bt> karatsubaRecursive(
     size_t n = len / 2;
     size_t m = len - n;
     if (n < karatsubaMinimalSize) {
-        vector<bt> a(U.begin() + start, U.begin() + start + count);
-        vector<bt> b(V.begin() + start, V.begin() + start + count);
-        BN A(a);
-        BN B(b);
-        return A.fastMultiplication(B).raw();
+        vector<bt> result(len + len, 0);
+
+        bt4 t = 0;
+        for(size_t s = 0; s < len + len - 1; s++) {
+
+            size_t end_index = min(len - 1, s) + start;
+            size_t start_index = s >= len ? s - len + 1 : 0;
+            for(size_t i = start_index + start, j = s - start_index + start; i <= end_index; i++, --j)
+                t += static_cast<bt2>(U[i]) * V[j];
+
+
+            result[s] = t;
+            t = t >> bz8;
+        }
+
+        result[len + len - 1] = t;
+        return result;
     }
 
 #if 0 // it is not fast
