@@ -513,7 +513,7 @@ const BN BN::karatsuba_old(const BN& bn)const {
 
     size_t M = max(x,y);
     size_t n = (M + 1) / 2;
-    if(min(x,y) < karatsubaMinimalSize)
+    if(n < karatsubaMinimalSize)
         return move(this->fastMultiplication(bn));
 
     const BN& U = *this;
@@ -650,7 +650,6 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         }
         x += delimoe.ba[j + n];
         delimoe.ba[j + n] = x;
-        x >>= bz8;
 
         // If `x' is negative, than `q' is too large.
         // Decrement `q' and update `delimoe'.
