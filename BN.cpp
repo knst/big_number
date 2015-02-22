@@ -631,60 +631,40 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         bt2 q = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) / delitel.ba[n-1];
         bt2 r = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) % delitel.ba[n-1];
 
-        bool doAdjust = true;
         if (q == bsize || q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2]) {
             --q;
             r += delitel.ba[n-1];
-            if (q == bsize || (r < bsize && q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2])) {
+            if (q == bsize || (r < bsize && q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2]))
                 --q;
-                doAdjust = false;
-            }
         }
 
         if (!q)
             continue;
 
-        // Calculation temp = delitel * q
-        bt2 x = 0;
-        for(size_t i = 0; i < n; ++i) {
-            x = (x >> bz8) + q * delitel.ba[i];
-            temp[i] = x;
+        bt4s x = 0;
+        for (size_t i = 0; i < n; ++i) {
+            x += delimoe.ba[j + i];
+            x -= q * delitel.ba[i];
+            delimoe.ba[j + i] = x;
+            x >>= bz8;
         }
-        temp[n] = x >> bz8;
+        x += delimoe.ba[j + n];
+        delimoe.ba[j + n] = x;
+        x >>= bz8;
 
-        bool qDecremented = false;
-        if (doAdjust) {
-            // temp1 * b^j <= delimoe ?
-
-            size_t index = n;
-            while (index <= n && temp[index] == delimoe.ba[index + j])
-                --index;
-            if (index <= n && temp[index] > delimoe.ba[index + j]) {
-                --q;
-                qDecremented = true;
+        // If `x' is negative, than `q' is too large.
+        // Decrement `q' and update `delimoe'.
+        if (x < 0) {
+            --q;
+            x = 0;
+            for (size_t i = 0; i < n; ++i) {
+                x += delimoe.ba[j + i];
+                x += delitel.ba[i];
+                delimoe.ba[j + i] = x;
+                x >>= bz8;
             }
-        }
-
-        // delimoe = delimoe - temp * b^(i-n)
-        {
-            bt2s res = 0;
-            size_t pos = 0;
-
-            if (qDecremented)
-                for (; pos <= n; ++pos) {
-                    res = (res >> 8) + delimoe.ba[j + pos] + delitel.ba[pos] - temp[pos];
-                    delimoe.ba[j + pos] = static_cast<bt>(res);
-                }
-            else
-                for (; pos <= n; ++pos) {
-                    res = (res >> 8) + delimoe.ba[j + pos] - temp[pos];
-                    delimoe.ba[j + pos] = static_cast<bt>(res);
-                }
-
-            if (res) {
-                while (!delimoe.ba[j + pos]--)
-                    ++pos;
-            }
+            x += delimoe.ba[j + n];
+            delimoe.ba[j + n] = x;
         }
 
         div.ba[j] = q;

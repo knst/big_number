@@ -16,6 +16,7 @@ using bt = uint8_t;
 using bt2 = uint16_t;
 using bt2s = int16_t;
 using bt4 = uint32_t;
+using bt4s = int32_t;
 constexpr bt2 bsize = 256;
 constexpr bt bmax = 255;
 
@@ -25,6 +26,7 @@ using bt = uint16_t;
 using bt2 = uint32_t;
 using bt2s = int32_t;
 using bt4 = uint64_t;
+using bt4s = int64_t;
 constexpr bt2 bsize = 65536;
 constexpr bt bmax = 65535;
 
