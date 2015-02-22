@@ -1344,12 +1344,11 @@ bool BN::isEven() const
 }
 
 const BN BN::bn0() {
-    static BN bn(1, 0);
+    static BN bn(0);
     return bn;
 }
 
 const BN BN::bn1() {
-    static BN bn(1, 0);
-    bn.ba[0] = 1;
+    static BN bn(1);
     return bn;
 }
