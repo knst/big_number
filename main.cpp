@@ -20,10 +20,10 @@ int main(int argc, char**) {
     uint64_t t = clock();
 
     try {
-        testingExp();
-        testingMul();
         testingBN();
         testing();
+        testingMul();
+        testingExp();
         if (argc > 1)
             resulttest();
     } catch (const std::exception& exc) {
