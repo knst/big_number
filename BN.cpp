@@ -24,24 +24,6 @@ constexpr bt4 MaximalSizeForFastMul = numeric_limits<bt4>::max() / bmax / bmax /
 
 constexpr size_t karatsubaMinimalSize = 50;
 
-void BN::InitMemory(int type)
-{
-    switch(type) {
-    case 1: {
-        ba.assign(sizeof(bmax), bmax);
-        break;
-    }
-    case -1:
-        for(size_t i = 0; i < ba.size(); ++i)
-            ba[i] = rand() % bsize;
-        Norm();
-        break;
-
-    default:
-        throw "Unknow type (BN::BN)";
-    }
-}
-
 void BN::Norm()
 {
     while (ba.size() > 1 && ba.back() == 0)
@@ -56,8 +38,10 @@ BN::BN()
 BN::BN(uint64_t basecount, int type)
 : ba(basecount)
 {
-    if (type == 1 || type == -1) {
-        InitMemory(type);
+    if (type == -1) {
+        // Fill random data.
+        for(size_t i = 0; i < ba.size(); ++i)
+            ba[i] = rand() % bsize;
         Norm();
     } else if (type != 0)
         throw invalid_argument("BN constructor: invalid type " + to_string(type));

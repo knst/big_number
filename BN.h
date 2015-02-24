@@ -43,7 +43,7 @@ public:
 public:
     BN();
 
-    //value. 0:fill 0, 1:fill 1, -1:rand()
+    //value. 0:fill 0, -1:rand()
     BN(uint64_t basecount, int type);
 
     explicit BN(uint64_t x);
@@ -139,7 +139,6 @@ public:
 
     const std::vector<bt> raw() const;
 private:
-    void InitMemory(int type);
     // Normalization of BN: pop leading null
     void Norm();
 
