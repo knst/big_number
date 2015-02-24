@@ -18,17 +18,21 @@
 
 using namespace std;
 
+namespace {
 // maximal size for cache-optimazed multiplication is:
 // n < bt4_max * / (bt - 1) * bt_max^3
 constexpr bt4 MaximalSizeForFastMul = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
 
 constexpr size_t karatsubaMinimalSize = 50;
 
-void BN::Norm()
+// Normalization of BN: pop leading null
+inline void Norm(vector<bt>& ba) noexcept
 {
     while (ba.size() > 1 && ba.back() == 0)
         ba.pop_back();
 }
+
+} // anonymous namespace for private methods and constants.
 
 BN::BN()
 : ba(1)
@@ -42,7 +46,7 @@ BN::BN(uint64_t basecount, int type)
         // Fill random data.
         for(size_t i = 0; i < ba.size(); ++i)
             ba[i] = rand() % bsize;
-        Norm();
+        Norm(ba);
     } else if (type != 0)
         throw invalid_argument("BN constructor: invalid type " + to_string(type));
 }
@@ -52,7 +56,7 @@ BN::BN(uint64_t x)
 {
     for(size_t i = 0; i < ba.size(); i++, x >>= bz8)
         ba[i] = static_cast<bt>(x);
-    Norm();
+    Norm(ba);
 }
 
 BN::BN(const BN& bn)
@@ -71,7 +75,7 @@ BN::BN(const vector<bt>& _ba, size_t _rbc)
     if (_rbc)
         ba.resize(_rbc);
     else
-        Norm();
+        Norm(ba);
 }
 
 BN::BN(const BN& bn, size_t start, size_t count)
@@ -121,7 +125,7 @@ BN::BN(const string &str,const int &status)
             index--;
         }
     }
-    Norm();
+    Norm(ba);
 }
 
 void BN::swap(BN& bn) {
@@ -169,7 +173,7 @@ const BN BN::operator + (const BN&bn)const {
 
     result.back() = over;
     BN resultBn(move(result));
-    resultBn.Norm();
+    Norm(resultBn.ba);
     return resultBn;
 }
 
@@ -206,7 +210,7 @@ const BN BN::operator - (const BN& bn) const
     for(;pos < ba.size(); pos++)
         result.ba[pos] = ba[pos];
 
-    result.Norm();
+    Norm(result.ba);
     return move(result);
 }
 
@@ -219,7 +223,7 @@ BN & BN::operator --()
         }
         --i;
     }
-    Norm();
+    Norm(ba);
 
     return *this;
 }
@@ -232,7 +236,7 @@ BN BN::mulbt(size_t t) const
     BN res(ba.size() + t, 0);
     for(size_t i = 0; i < ba.size(); ++i)
         res.ba[i + t] = ba[i];
-    res.Norm();
+    Norm(res.ba);
     return res;
 }
 
@@ -258,7 +262,7 @@ BN BN::modbt(size_t t) const
         return *this;
 
     BN res(move(vector<bt>(ba.begin(), ba.begin() + t)));
-    res.Norm();
+    Norm(res.ba);
     return res;
 }
 
@@ -271,7 +275,7 @@ const BN BN::mulbase(const bt &multiplier)const
     if (curr) {
         result.ba[ba.size()] = curr;
     } else
-    result.Norm();
+    Norm(result.ba);
     return result;
 }
 
@@ -319,7 +323,7 @@ const BN BN::classicMultiplication(const BN& bn) const {
         }
         result.ba[i + a.ba.size()] = curr >> bz8;
     }
-    result.Norm();
+    Norm(result.ba);
     return result;
 }
 
@@ -343,7 +347,7 @@ const BN BN::fastMultiplication (const BN& bn) const {
     }
 
     result.ba.back() = t;
-    result.Norm();
+    Norm(result.ba);
     return move(result);
 }
 
@@ -528,7 +532,7 @@ const BN BN::divbase(const bt& diviser) const
         result.ba[i] = curr / diviser;
         curr %= diviser;
     }
-    result.Norm();
+    Norm(result.ba);
     return result;
 }
 
@@ -543,7 +547,7 @@ BN& BN::divbaseappr(const bt &diviser)
         ba[i] = curr / diviser;
         curr %= diviser;
     }
-    Norm();
+    Norm(ba);
     return *this;
 }
 
@@ -652,8 +656,8 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
 
         div.ba[j] = q;
     }
-    div.Norm();
-    delimoe.Norm();
+    Norm(div.ba);
+    Norm(delimoe.ba);
     if (d != 1)
         mod = move(delimoe.divbase(d));
     else
@@ -699,7 +703,7 @@ const BN BN::operator >> (int shift) const {
     }
     result.ba.back() = ba.back() >> realshift;
 
-    result.Norm();
+    Norm(result.ba);
     return result;
 }
 
@@ -724,7 +728,7 @@ const BN BN::operator << (int shift) const {
             (ba[i] << realshift);
     }
     result.ba.back() = ba.back() >> (bz8 - realshift);
-    result.Norm();
+    Norm(result.ba);
     return result;
 }
 
@@ -1214,7 +1218,7 @@ BN BN::fastQrt() const
     }
 
     result.ba[n + n - 1] = t;
-    result.Norm();
+    Norm(result.ba);
     return move(result);
 }
 
@@ -1237,7 +1241,7 @@ BN BN::Qrt() const
         res.ba[i + ba.size()] = cuv;
         res.ba[i + ba.size() + 1] += (cuv >> bz8);
     }
-    res.Norm();
+    Norm(res.ba);
     return res;
 }
 

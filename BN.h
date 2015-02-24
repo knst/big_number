@@ -139,9 +139,6 @@ public:
 
     const std::vector<bt> raw() const;
 private:
-    // Normalization of BN: pop leading null
-    void Norm();
-
     BN reduction_barrett_precomputation()const;
 
 private:
