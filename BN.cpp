@@ -885,27 +885,7 @@ BN BN::PowMod(uint64_t power, const BN& mod) const
 }
 
 BN BN::PowMod(const BN& power, const BN& mod) const {
-    if(power.is0())
-        return BN::bn1();
-
-    BN res(BN::bn1());
-    BN t = *this % mod;
-
-    size_t len = power.bitCount();
-    bt mask = 1;
-    const bt *curr = &*power.ba.begin();
-    for(size_t i = 0; i < len; i++) {
-        if(!mask) {
-            mask = 1;
-            ++curr;
-        }
-        if((*curr) & mask)
-            res = res * t % mod;
-        if (i + 1 != len)
-            t = t.Qrt() % mod;
-        mask <<= 1;
-    }
-    return res;
+    return expRightToLeft(power, mod);
 }
 
 BN BN::PowModBarrett(const BN& power, const BN& mod) const {
@@ -937,63 +917,28 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
 
 
 BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
-
     if(exponent.is0())
         return BN::bn1();
 
-    BN A(BN::bn1());
-    BN S = (*this) % mod;
+    BN result(BN::bn1());
+    BN S = *this % mod;
 
-    int exponent_len = exponent.bitCount();
-    bt exponent_mask = (bt)  1;
-    const bt *exponent_current_base = &*exponent.ba.begin();
-
-    for(int i=0;i<exponent_len;i++) {
-        if(!exponent_mask) {
-            exponent_mask = (bt) 1;
-            ++exponent_current_base;
+    size_t len = exponent.bitCount();
+    bt mask = 1;
+    const bt *curr = &*exponent.ba.begin();
+    for(size_t i = 0; i < len; i++) {
+        if(!mask) {
+            mask = 1;
+            ++curr;
         }
+        if(*curr & mask)
+            result = result * S % mod;
 
-        if( (*exponent_current_base) & exponent_mask) {
-            A = A * S % mod;
-        }
-
-        if (i + 1 != exponent_len)
+        if (i + 1 != len)
             S = S.Qrt() % mod;
-        exponent_mask <<= 1;
+        mask <<= 1;
     }
-    return A;
-}
-
-BN BN::expLeftToRight(const BN& exponent, const BN& mod) const {
-    if(exponent.is0())
-        return BN::bn1();
-
-    BN A(BN::bn1());
-    BN g = *this % mod;
-
-    int exponent_len = exponent.bitCount();
-    bt exponent_mask = 1;
-    int start_shift_exponent_mask = (exponent_len - 1 ) % bz8;
-    exponent_mask <<= start_shift_exponent_mask;
-    const bt * exponent_current_base = &*exponent.ba.begin() + (exponent.ba.size() - 1);
-    for(int i = 0; i < exponent_len; i++) {
-        if(!exponent_mask) {
-            exponent_mask = (bt) 1 << (bz8 - 1);
-            --exponent_current_base;
-            //printf("(%x)",*exponent_current_base);
-        }
-
-        if( (*exponent_current_base) & exponent_mask) {
-            A = A.Qrt() % mod * g % mod;
-        } else {
-            A = A.Qrt() % mod;
-        }
-
-        exponent_mask >>= 1;
-    }
-    return A;
-
+    return result;
 }
 
 vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {

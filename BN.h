@@ -112,7 +112,6 @@ public:
     BN PowMod(const BN& power, const BN& mod) const;
     BN PowModBarrett(const BN& power, const BN& mod) const;
     BN expRightToLeft(const BN& power, const BN& mod) const;
-    BN expLeftToRight(const BN& power, const BN& mod) const;
     std::vector <BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
     BN expLeftToRightK_ary(const BN& exponent, const BN& mod, const std::vector<BN>& g) const;
     std::vector <BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;

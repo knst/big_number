@@ -50,7 +50,7 @@ int testingExp_ij(int max1,int max2, int,int) {
     vector <BN> precompSlide = g.expSlidingWindowPrecomputation(mod, k_slide);
     vector <BN> precompSlideU = g.expBest_SlidePrecomp(mod);
 
-    BN res1 = g.expLeftToRight(exp,mod);
+    BN res1 = g.expRightToLeft(exp,mod);
     BN res2 = g.expRightToLeft(exp,mod);
     BN res3 = g.expLeftToRightK_ary(exp,mod,precomp);
     BN res3_1 = g.expLeftToRightK_aryVar(exp, mod, precompVar, K);
@@ -446,7 +446,7 @@ void unitest(int base,int test) {
 
     t = clock();
     for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-        g.expLeftToRight(*e, mod);
+        g.expRightToLeft(*e, mod);
     float t1 = clock() - t;
 
     t = clock();
@@ -588,7 +588,7 @@ void restest(int base,int test) {
 
     t = clock();
     for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-        g.expLeftToRight(*e, mod);
+        g.expRightToLeft(*e, mod);
     float t1 = clock() - t;
 
     t = clock();
@@ -628,7 +628,7 @@ void resulttest() {
     modtest(128, 5);
 
     cout<<"Test \"Universal Methods\":"<<endl;
-    cout<<"Base\tBit\tTests\tLeft-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
+    cout<<"Base\tBit\tTests\tRight-to-Left(ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
 
     unitest(16, 50);
     unitest(32, 25);
@@ -654,7 +654,7 @@ void resulttest() {
     karytest(10, 128, 5);
 
     cout<<"Test \"k in Sliding Window\":"<<endl;
-    cout<<"Base\tBit\tTests\tLeft-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
+    cout<<"Base\tBit\tTests\tRight-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
 
     slidetest(16, 50);
     slidetest(32, 25);
