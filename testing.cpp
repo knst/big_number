@@ -357,7 +357,6 @@ void testing() {
         else
                 cout<<"FAIL\n";
 
-        cout<<"Exiting...\n";
         cout.flush();
 }
 
