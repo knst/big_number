@@ -67,18 +67,33 @@ BN::BN(const BN& bn)
 {
 }
 
-BN::BN(BN&& bn)
+BN::BN(BN&& bn) noexcept
 : ba(move(bn.ba))
 {
 }
 
-BN::BN(const vector<bt>& _ba, size_t _rbc)
+BN::BN(vector<bt>&& _ba) noexcept
+: ba(move(_ba))
+{
+    Norm(ba);
+}
+
+BN::BN(const vector<bt>& _ba)
 : ba(_ba)
 {
-    if (_rbc)
-        ba.resize(_rbc);
-    else
-        Norm(ba);
+    Norm(ba);
+}
+
+
+BN::BN(vector<bt>&& _ba, size_t rbc)
+: ba(move(_ba))
+{
+    ba.resize(rbc);
+}
+
+BN::BN(const vector<bt>& _ba, size_t rbc)
+: ba(_ba.begin(), _ba.begin() + rbc)
+{
 }
 
 BN::BN(const string &str,const int &status)

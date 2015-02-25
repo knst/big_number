@@ -53,8 +53,14 @@ public:
 
     explicit BN(uint64_t x);
     BN(const BN&);
-    BN(BN&& bn);
-    BN(const std::vector<bt>&, size_t rbc = 0);
+    BN(BN&& bn) noexcept;
+
+    BN(std::vector<bt>&&) noexcept;
+    BN(const std::vector<bt>&);
+
+    BN(std::vector<bt>&&, size_t rbc);
+    BN(const std::vector<bt>&, size_t rbc);
+
     BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
     void swap(BN& bn);
