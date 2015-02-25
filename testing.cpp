@@ -299,14 +299,21 @@ int testingBN()
 }
 
 void testing() {
-        BN bn1(BN::makeRandom(15000));
-        BN bn2(BN::makeRandom(15000));
-        std::cout<<"Test 1:\t";
-        cout.flush();
-        if(bn1+bn2-bn1!=bn1*bn2/bn1)
-                cout<<"FAIL\n";
-        else
-                cout<<"OK\n";
+    BN bn1(BN::makeRandom(15000));
+    BN bn2(BN::makeRandom(15000));
+    std::cout << "Test 1:\t";
+    cout.flush();
+    if(bn1 + bn2 - bn1 != bn1 * bn2 / bn1) {
+        bn1.PrintHex();
+        bn2.PrintHex();
+        (bn1 + bn2).PrintHex();
+        (bn1 + bn2 - bn1).PrintHex();
+        (bn1 * bn2).PrintHex();
+        (bn1 * bn2 / bn1).PrintHex();
+        cout <<" FAIL" << endl;
+    } else
+        cout << "OK" << endl;
+
         cout<<"Test 2:\t";
         cout.flush();
         if((uint64_t)(bn1*bn2/bn1/bn2)!=1)

@@ -484,7 +484,7 @@ vector<bt> karatsubaRecursive(
             sum += A[i - n - n];
         }
         result[i] = sum;
-        sum >>= 8;
+        sum >>= bz8;
     }
     return result;
 }
@@ -1097,7 +1097,7 @@ BN BN::fastQrt() const
         size_t start_index = s >= n ? s - n + 1 : 0;
         size_t end_index = min(n - 1, s);
         while (start_index < end_index) {
-            t += static_cast<bt4>(2 * static_cast<bt2>(ba[start_index]) * ba[end_index]);
+            t += 2 * static_cast<bt4>(ba[start_index]) * ba[end_index];
             ++start_index;
             --end_index;
         }
@@ -1123,8 +1123,8 @@ BN BN::Qrt() const
         bt4 cuv = res.ba[2 * i] + static_cast<bt2>(ba[i]) * ba[i];
         res.ba[2 * i] = cuv;
         for (size_t j = i + 1; j < ba.size(); ++j) {
-            cuv = static_cast<bt2>(res.ba[i + j]) +
-                (static_cast<bt4>((static_cast<bt2>(ba[i]) * ba[j])) << 1) +
+            cuv = static_cast<bt4>(res.ba[i + j]) +
+                ((static_cast<bt4>(ba[i]) * ba[j]) << 1) +
                 (cuv >> bz8);
             res.ba[i + j] = cuv;
         }
