@@ -18,7 +18,7 @@ int testingMul_ij(int max1,int max2, int,int) {
     BN c_m = bn1.classicMultiplication(bn2);
     BN f_m = bn1.fastMultiplication(bn2);
     BN k_m = bn1.karatsubaMultiplication(bn2);
-    BN k_o = bn1.karatsuba_old(bn2);
+    BN k_o = bn1.karatsubaMultiplication(bn2);
     if(mul != c_m || mul != f_m || mul != k_m || mul != k_o) {
         printf("bn1:\t");       bn1.PrintDec();
         printf("bn2:\t");       bn2.PrintDec();
@@ -380,11 +380,6 @@ void multest(int base,int test)
         for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
             i->fastMultiplication(*j);
         float t2 = clock() - t;
-
-//        t = clock();
-//        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-//            (*i).karatsuba_old(*j);
-//        float t3 = clock() - t;
 
         t = clock();
         for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)

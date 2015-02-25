@@ -18,11 +18,14 @@
 
 using namespace std;
 
+// anonymous namespace for private methods and constants.
 namespace {
-// maximal size for cache-optimazed multiplication is:
+
+// Maximal size for cache-optimazed multiplication is:
 // n < bt4_max * / (bt - 1) * bt_max^3
 constexpr bt4 MaximalSizeForFastMul = numeric_limits<bt4>::max() / bmax / bmax / bmax * (bmax - 1) - 1;
 
+// Minimal size of multiplicand, than karatsuba algorithm is most effective.
 constexpr size_t karatsubaMinimalSize = 50;
 
 // Normalization of BN: pop leading null
@@ -32,7 +35,7 @@ inline void Norm(vector<bt>& ba) noexcept
         ba.pop_back();
 }
 
-} // anonymous namespace for private methods and constants.
+} // namespace
 
 BN::BN()
 : ba(1)
@@ -76,16 +79,6 @@ BN::BN(const vector<bt>& _ba, size_t _rbc)
         ba.resize(_rbc);
     else
         Norm(ba);
-}
-
-BN::BN(const BN& bn, size_t start, size_t count)
-: ba(count ? count : bn.ba.size() - start + 1)
-{
-    size_t last = min(count, bn.ba.size() - start);
-    if (bn.ba.size() < start)
-        last = 0;
-    for(size_t i = 0; i < last; i++)
-        ba[i] = bn.ba[i + start];
 }
 
 BN::BN(const string &str,const int &status)
@@ -493,31 +486,6 @@ const BN BN::karatsubaMultiplication(const BN& bn) const {
     U.resize(len);
     V.resize(len);
     return karatsubaRecursive(U, V, 0, len);
-}
-
-const BN BN::karatsuba_old(const BN& bn)const {
-    size_t x = ba.size();
-    size_t y = bn.ba.size();
-
-    size_t M = max(x,y);
-    size_t n = (M + 1) / 2;
-    if(n < karatsubaMinimalSize)
-        return move(this->fastMultiplication(bn));
-
-    const BN& U = *this;
-    const BN& V = bn;
-
-    BN u0(U, 0, n);
-    BN v0(V, 0, n);
-
-    BN u1(U, n, n);
-    BN v1(V, n, n);
-
-    BN A = u1.karatsuba_old(v1);
-    BN B = u0.karatsuba_old(v0);
-    BN C = (u0 + u1).karatsuba_old(v0+v1);
-
-    return move(A.mulbt(2*n) + (C-A-B).mulbt(n) + B);
 }
 
 const BN BN::divbase(const bt& diviser) const

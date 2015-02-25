@@ -50,7 +50,6 @@ public:
     BN(const BN&);
     BN(BN&& bn);
     BN(const std::vector<bt>&, size_t rbc = 0);
-    BN(const BN&, size_t start, size_t count = 0);
     BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
     void swap(BN& bn);
@@ -88,7 +87,6 @@ public:
     // quick multiplication O(n*n)
     const BN fastMultiplication(const BN&) const;
     const BN karatsubaMultiplication(const BN&) const;
-    const BN karatsuba_old(const BN&) const;
     void divmod(const BN& bn, BN& div, BN& mod) const;
     const BN operator / (const BN&)const;
     const BN operator % (const BN&)const;
