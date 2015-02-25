@@ -103,8 +103,7 @@ public:
     size_t bitCount()const;
 
 
-    BN reduction_barrett(const BN& mod,const BN& mu) const;
-    BN reduction_special(const BN& mod) const;
+    BN reductionBarrett(const BN& mod,const BN& mu) const;
     BN Pow(uint64_t)const;
     BN PowMod(uint64_t power, const BN& mod) const;
     BN PowMod(const BN& power, const BN& mod) const;
@@ -135,8 +134,6 @@ public:
     void PrintDec(bool newstr=true)const;
 
     const std::vector<bt> raw() const;
-private:
-    BN reduction_barrett_precomputation()const;
 
 private:
     // data

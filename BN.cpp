@@ -35,6 +35,13 @@ inline void Norm(vector<bt>& ba) noexcept
         ba.pop_back();
 }
 
+const BN reductionBarrettPrecomputation(const BN& mod) {
+    size_t rbc = mod.digitCount() * 2 + 1;
+    vector<bt> ba(rbc);
+    ba.back() = 1;
+    return move(BN(ba, rbc) / mod);
+}
+
 } // namespace
 
 BN::BN()
@@ -763,59 +770,22 @@ size_t BN::bitCount() const
     return (ba.size() - 1) * bz8 + x;
 }
 
-BN BN::reduction_barrett_precomputation() const {
-    return BN::bn1().mulbt(2*ba.size()) / *this;
-}
-
-BN BN::reduction_barrett(const BN& mod, const BN& mu) const {
+BN BN::reductionBarrett(const BN& mod, const BN& mu) const {
     // m = m[k-1]...m[1]m[0], rbc = k
     size_t k = mod.ba.size();
-    if(k*2 < ba.size()) {
-        return (*this)%mod;
+    if(k * 2 < ba.size()) {
+        return (*this) % mod;
     }
 
-    BN x = *this;
-    BN q1 = x.divbt(k-1);
+    BN q1 = divbt(k-1);
     BN q2 = q1*mu;
     BN q3 = q2.divbt(k+1);
-    BN r1 = this->modbt(k+1);
+    BN r1 = modbt(k+1);
     BN r2 = (q3 * mod).modbt(k+1);
-    BN r;
-    if(r1 >= r2)
-            r = r1 - r2;
-        else
-            r = BN::bn1().mulbt(k+1) + r1 - r2;
+    BN r = r1 - r2;
     while(r >= mod)
         r = r - mod;
     return r;
-}
-
-
-
-BN BN::reduction_special(const BN &mod) const {
-    size_t t = mod.ba.size();
-
-    // Bt = b^t;
-    BN Bt(t+1,0);
-    Bt.ba[t] = (bt) 1;
-
-    BN c = Bt - mod;
-
-    BN q = this -> divbt(t);
-    BN r = *this - q.mulbt(t);
-
-    BN r_sum = r;
-
-    while(!q.is0()) {
-        BN Q = (q*c).divbt(t);
-        BN R = q*c - Q.mulbt(t);
-        r_sum = r_sum + R;
-        q = Q;
-        r = R;
-    }
-    while(r_sum>=mod)
-        r_sum=r_sum-mod;
-    return r_sum;
 }
 
 BN BN::Pow(uint64_t power) const
@@ -861,7 +831,7 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
         return BN::bn1();
 
 
-    BN mu = mod.reduction_barrett_precomputation();
+    BN mu = reductionBarrettPrecomputation(mod);
     BN res(BN::bn1());
     BN t = (*this) % mod;
 
@@ -874,10 +844,10 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
             ++curr;
         }
         if( (*curr) & mask)
-            res = (res*t).reduction_barrett(mod, mu);
+            res = (res*t).reductionBarrett(mod, mu);
 
         if (i + 1 != len)
-            t = t.Qrt().reduction_barrett(mod, mu);
+            t = t.Qrt().reductionBarrett(mod, mu);
         mask <<= 1;
     }
     return res;
@@ -1050,13 +1020,13 @@ BN BN::expSlidingWindow(BN exponent, BN mod, vector <BN> g, int k) const {
 
 vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
     vector <BN> garr (bsize);
-    BN mu = mod.reduction_barrett_precomputation();
-    BN g = this -> reduction_barrett(mod, mu);
+    BN mu = reductionBarrettPrecomputation(mod);
+    BN g = this -> reductionBarrett(mod, mu);
     garr[0] = BN::bn1();
     garr[1] = g;
-    garr[2] = g.Qrt().reduction_barrett(mod,mu);
+    garr[2] = g.Qrt().reductionBarrett(mod,mu);
     for(bt2 i = 1; i < bsize/2; i++)
-        garr[2*i+1] = (garr[2*i-1] * garr[2]).reduction_barrett(mod,mu);
+        garr[2*i+1] = (garr[2*i-1] * garr[2]).reductionBarrett(mod,mu);
     return garr;
 
 }
@@ -1065,12 +1035,12 @@ vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
 
 BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
     BN A(BN::bn1());
-    BN mu = mod.reduction_barrett_precomputation();
+    BN mu = reductionBarrettPrecomputation(mod);
     int i = exponent.bitCount() - 1;
     int k = bz8;
     while (i >= 0) {
         if(exponent.bitI(i) == 0) {
-            A = A.Qrt().reduction_barrett(mod, mu);
+            A = A.Qrt().reductionBarrett(mod, mu);
             i--;
             continue;
         }
@@ -1082,8 +1052,8 @@ BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
         for(int j = i; j >= l; j--)
             gx = (gx << 1) | exponent.bitI(j);
         for(int j = 0; j < i - l + 1; j++)
-            A = A.Qrt().reduction_barrett(mod, mu);
-        A = (A * (g[gx])).reduction_barrett(mod, mu);
+            A = A.Qrt().reductionBarrett(mod, mu);
+        A = (A * (g[gx])).reductionBarrett(mod, mu);
         i = l - 1;
     }
     return A;
