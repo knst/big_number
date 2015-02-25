@@ -398,7 +398,7 @@ void multest(int base,int test)
         t2 /= diviser;
         t3 /= diviser;
 
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),(int)test, t1, t2, t3);
+        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*8),(int)test, t1, t2, t3);
 }
 
 void modtest(int base,int test) {
@@ -431,7 +431,7 @@ void modtest(int base,int test) {
     t1 /= diviser;
     t2 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2);
 }
 
 void unitest(int base,int test) {
@@ -482,7 +482,7 @@ void unitest(int base,int test) {
     t4 /= diviser;
     t5 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2, t3, t4, t5);
 }
 
 void karytest(int K, int base,int test) {
@@ -514,7 +514,7 @@ void karytest(int K, int base,int test) {
     t1 /= diviser;
     t2 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2);
 }
 
 void slidetest(int base,int test) {
@@ -574,7 +574,7 @@ void slidetest(int base,int test) {
     t4 /= diviser;
     t5 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2, t3, t4, t5);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2, t3, t4, t5);
 }
 
 void restest(int base,int test) {
@@ -603,7 +603,7 @@ void restest(int base,int test) {
     t1 /= diviser;
     t2 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*sizeof(bt)*8),test, t1, t2);
+    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2);
 }
 
 
