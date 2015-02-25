@@ -12,8 +12,8 @@
 using namespace std;
 
 int testingMul_ij(int max1,int max2, int,int) {
-    BN bn1(rand()%max1+1,-1);
-    BN bn2(rand()%max2+1,-1);
+    BN bn1(BN::makeRandom(rand() % max1 + 1));
+    BN bn2(BN::makeRandom(rand() % max2 + 1));
     BN mul = bn1*bn2;
     BN c_m = bn1.classicMultiplication(bn2);
     BN f_m = bn1.fastMultiplication(bn2);
@@ -33,9 +33,9 @@ int testingMul_ij(int max1,int max2, int,int) {
 }
 
 int testingExp_ij(int max1,int max2, int,int) {
-    BN g(rand()%max1 + 1, -1);
-    BN exp(rand()%max2 + 1, -1);
-    BN mod(rand()%max2 + 1, -1);
+    BN g(BN::makeRandom(rand() % max1 + 1));
+    BN exp(BN::makeRandom(rand() % max2 + 1));
+    BN mod(BN::makeRandom(rand() % max2 + 1));
     int vsize = rand() % (rand()%2 ? max1 : max2) + 1;
     if(vsize >  (int) sizeof(unsigned int) * 8 - 2)
         return 0;
@@ -156,9 +156,9 @@ int testingExp() {
 
 int testing_ij(int max1,int max2, int i,int j)
 {
-        BN bn1(rand()%max1+1,-1);
-        BN bn2(rand()%max2+1,-1);
-        BN mod(rand()%max2+1,-1);
+        BN bn1(BN::makeRandom(rand() % max1 + 1));
+        BN bn2(BN::makeRandom(rand() % max2 + 1));
+        BN mod(BN::makeRandom(rand() % max2 + 1));
 
     if(
         bn1 != BN::bn0() &&
@@ -299,8 +299,8 @@ int testingBN()
 }
 
 void testing() {
-        BN bn1(15000,-1);
-        BN bn2(15000,-1);
+        BN bn1(BN::makeRandom(15000));
+        BN bn2(BN::makeRandom(15000));
         std::cout<<"Test 1:\t";
         cout.flush();
         if(bn1+bn2-bn1!=bn1*bn2/bn1)
@@ -328,7 +328,7 @@ void testing() {
         cout<<"Test sqrt:\t";
         cout.flush();
         BN sqrt;
-        BN bnn(400,-1);
+        BN bnn(BN::makeRandom(400));
         sqrt=bnn.Sqrt();
         BN sqrt1=sqrt;
         ++sqrt1;
@@ -345,8 +345,8 @@ void testing() {
         cout.flush();
         cout<<"Test gcd:\t";
         cout.flush();
-        BN bnn1(2500,-1);
-        BN bnn2(2500,-1);
+        BN bnn1(BN::makeRandom(2500));
+        BN bnn2(BN::makeRandom(2500));
         BN bngcd1=gcdEuclidean(bnn1,bnn2);
         cout<<"HaBePHo OK :)"<<endl;
         cout<<"Test binary gcd:\t";
@@ -367,8 +367,8 @@ void multest(int base,int test)
         vector <BN> v2;
 
         for(int i=0;i<test;i++) {
-                v1.push_back( BN(base,-1) );
-                v2.push_back( BN(base,-1) );
+                v1.push_back(BN::makeRandom(base));
+                v2.push_back(BN::makeRandom(base));
         }
 
         t = clock();
@@ -402,11 +402,11 @@ void modtest(int base,int test) {
 
 
     for(int i=0;i<test;i++) {
-        g.push_back( BN(base,-1) );
-        exp.push_back( BN(base,-1) );
-        BN m = BN(base,-1);
+        g.push_back(BN::makeRandom(base));
+        exp.push_back(BN::makeRandom(base));
+        BN m(BN::makeRandom(base));
         while (m.is0() || (gcdBinary(m, (BN)bsize) != (BN) 1))
-            m = BN(base,-1);
+            m = BN::makeRandom(base);
         mod.push_back( m );
     }
 
@@ -430,13 +430,13 @@ void modtest(int base,int test) {
 void unitest(int base,int test) {
     uint64_t t;
 
-    BN g(base, -1);
+    BN g(BN::makeRandom(base));
     vector <BN> exp;
-    BN mod(base, -1);
+    BN mod(BN::makeRandom(base));
 
 
     for(int i=0;i<test;i++) {
-        exp.push_back( BN(base,-1) );
+        exp.push_back(BN::makeRandom(base));
     }
 
     t = clock();
@@ -481,12 +481,12 @@ void unitest(int base,int test) {
 void karytest(int K, int base,int test) {
     uint64_t t;
 
-    BN g(base, -1);
+    BN g(BN::makeRandom(base));
     vector <BN> exp;
-    BN mod(base, -1);
+    BN mod(BN::makeRandom(base));
 
     for(int i=0;i<test;i++) {
-        exp.push_back( BN(base,-1) );
+        exp.push_back(BN::makeRandom(base));
     }
 
     t = clock();
@@ -513,13 +513,13 @@ void karytest(int K, int base,int test) {
 void slidetest(int base,int test) {
     uint64_t t;
 
-    BN g(base, -1);
+    BN g(BN::makeRandom(base));
     vector <BN> exp;
-    BN mod(base, -1);
+    BN mod(BN::makeRandom(base));
 
 
     for(int i=0;i<test;i++) {
-        exp.push_back( BN(base,-1) );
+        exp.push_back(BN::makeRandom(base));
     }
 
     int k;
@@ -573,12 +573,12 @@ void slidetest(int base,int test) {
 void restest(int base,int test) {
     uint64_t t;
 
-    BN g(base, -1);
+    BN g(BN::makeRandom(base));
     vector <BN> exp;
-    BN mod(base, -1);
+    BN mod(BN::makeRandom(base));
 
     for(int i=0;i<test;i++) {
-        exp.push_back( BN(base,-1) );
+        exp.push_back(BN::makeRandom(base));
     }
 
     t = clock();

@@ -49,16 +49,9 @@ BN::BN()
 {
 }
 
-BN::BN(uint64_t basecount, int type)
+BN::BN(uint64_t basecount, int)
 : ba(basecount)
 {
-    if (type == -1) {
-        // Fill random data.
-        for(size_t i = 0; i < ba.size(); ++i)
-            ba[i] = rand() % bsize;
-        Norm(ba);
-    } else if (type != 0)
-        throw invalid_argument("BN constructor: invalid type " + to_string(type));
 }
 
 BN::BN(uint64_t x)
@@ -1221,4 +1214,14 @@ const BN BN::bn0() {
 const BN BN::bn1() {
     static BN bn(1);
     return bn;
+}
+
+BN BN::makeRandom(size_t byteCount) {
+    vector<bt> result(byteCount / bz);
+    if (result.empty())
+        result.push_back(rand() & bmax);
+    else
+        for (auto& i : result)
+            i = rand() & bmax;
+    return move(BN(move(result)));
 }

@@ -40,10 +40,15 @@ public:
     static const BN bn0();
     static const BN bn1();
 
+    // Generate random number with maximal size in byteCount.
+    // Warning, if byteCount isn't divisor of sizeof(bt), than
+    // count of bytes could be trunced.
+    // Minimal size is one "bt".
+    static BN makeRandom(size_t byteCount);
 public:
     BN();
 
-    //value. 0:fill 0, -1:rand()
+    //value. 0: fill 0
     BN(uint64_t basecount, int type);
 
     explicit BN(uint64_t x);
