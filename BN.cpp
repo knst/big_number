@@ -42,6 +42,10 @@ const BN reductionBarrettPrecomputation(const BN& mod) {
     return move(BN(ba, rbc) / mod);
 }
 
+constexpr size_t KarySize = 256;
+constexpr bt KaryMask = 0xFF;
+constexpr size_t KaryBits = 8;
+
 } // namespace
 
 BN::BN()
@@ -889,9 +893,9 @@ BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
 
 vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
     BN g = *this % mod;
-    vector <BN> garr(bsize);
+    vector <BN> garr(KarySize);
     garr[0] = BN::bn1();
-    for(bt2 i = 1; i < bsize; i++) {
+    for(size_t i = 1; i < KarySize; i++) {
         garr[i] = garr[i-1] * g % mod;
     }
     return garr;
@@ -903,9 +907,12 @@ BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& 
 
     BN A(BN::bn1());
     for(int i = exponent.ba.size() - 1; i >= 0; i--) {
-        for(int k = 0; k < (int)bz8; k++)
-            A = A.Qrt() % mod;
-        A = A * g[exponent.ba[i]] % mod;
+        bt value = exponent.ba[i];
+        for (size_t b = bz - 1; b < bz; --b) {
+            for(int k = 0; k < KaryBits; k++)
+                A = A.Qrt() % mod;
+            A = A * g[(value >> KaryBits * b) & KaryMask] % mod;
+        }
     }
     return A;
 }
@@ -954,13 +961,13 @@ BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
 vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
     BN g = *this % mod;
 
-    vector<BN> garr(bsize);
+    vector<BN> garr(KarySize);
 
     garr[0] = BN::bn1();
     garr[1] = g;
     garr[2] = g.Qrt() % mod;
-    for(bt2 i = 1; i < bsize/2; i++)
-        garr[2*i+1] = garr[2*i-1] * garr[2] % mod;
+    for(size_t i = 1; i < KarySize / 2; i++)
+        garr[2 * i + 1] = garr[2 * i - 1] * garr[2] % mod;
     return garr;
 }
 
@@ -970,21 +977,23 @@ BN BN::expLeftToRightK_aryMod(BN exponent, BN mod, vector <BN> g) const {
 
     BN A(BN::bn1());
     for(int i = exponent.ba.size() - 1; i >= 0; i--) {
-        bt ei = exponent.ba[i];
+        for (size_t b = bz - 1; b < bz; --b) {
+            bt ei = (exponent.ba[i] >> KaryBits * b) & KaryMask;
 
-        int hi = 0;
-        if(ei != 0) {
-            while(! (ei & 1)) {
-                ei >>= 1;
-                hi++;
+            int hi = 0;
+            if(ei != 0) {
+                while(! (ei & 1)) {
+                    ei >>= 1;
+                    hi++;
+                }
             }
-        }
 
-        for(int k = 0; k < (int)bz8 - hi; k++)
-            A = A.Qrt() % mod;
-        A = A * g[ei] % mod;
-        for(int k = 0; k < hi; k++)
-            A = A.Qrt() % mod;
+            for(int k = 0; k + hi < KaryBits; k++)
+                A = A.Qrt() % mod;
+            A = A * g[ei] % mod;
+            for(int k = 0; k < hi; k++)
+                A = A.Qrt() % mod;
+        }
     }
     return A;
 
@@ -1027,14 +1036,14 @@ BN BN::expSlidingWindow(BN exponent, BN mod, vector <BN> g, int k) const {
 }
 
 vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
-    vector <BN> garr (bsize);
+    vector <BN> garr (KarySize);
     BN mu = reductionBarrettPrecomputation(mod);
     BN g = this -> reductionBarrett(mod, mu);
     garr[0] = BN::bn1();
     garr[1] = g;
     garr[2] = g.Qrt().reductionBarrett(mod,mu);
-    for(bt2 i = 1; i < bsize/2; i++)
-        garr[2*i+1] = (garr[2*i-1] * garr[2]).reductionBarrett(mod,mu);
+    for(bt2 i = 1; i < KarySize/ 2; i++)
+        garr[2 * i + 1] = (garr[2 * i - 1] * garr[2]).reductionBarrett(mod,mu);
     return garr;
 
 }
@@ -1045,7 +1054,7 @@ BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
     BN A(BN::bn1());
     BN mu = reductionBarrettPrecomputation(mod);
     int i = exponent.bitCount() - 1;
-    int k = bz8;
+    int k = KaryBits;
     while (i >= 0) {
         if(exponent.bitI(i) == 0) {
             A = A.Qrt().reductionBarrett(mod, mu);
