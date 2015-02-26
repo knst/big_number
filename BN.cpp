@@ -667,11 +667,9 @@ const BN BN::operator % (const BN& bn)const
     return move(mod);
 }
 
-const BN BN::operator >> (int shift) const {
+const BN BN::operator >> (size_t shift) const {
     if(shift == 0)
         return *this;
-    if(shift < 0)
-        return (*this) >> (-shift);
 
     size_t baseshift = shift / bz8;
     size_t realshift = shift - baseshift * bz8;
@@ -694,12 +692,9 @@ const BN BN::operator >> (int shift) const {
     return result;
 }
 
-const BN BN::operator << (int shift) const {
+const BN BN::operator << (size_t shift) const {
     if(shift == 0)
         return *this;
-
-    if (shift < 0)
-        return *this >> (-shift);
 
     size_t baseshift = shift / bz8;
     size_t realshift = shift - baseshift * bz8;
@@ -909,7 +904,7 @@ BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& 
     for(int i = exponent.ba.size() - 1; i >= 0; i--) {
         bt value = exponent.ba[i];
         for (size_t b = bz - 1; b < bz; --b) {
-            for(int k = 0; k < KaryBits; k++)
+            for(size_t k = 0; k < KaryBits; k++)
                 A = A.Qrt() % mod;
             A = A * g[(value >> KaryBits * b) & KaryMask] % mod;
         }
@@ -988,7 +983,7 @@ BN BN::expLeftToRightK_aryMod(BN exponent, BN mod, vector <BN> g) const {
                 }
             }
 
-            for(int k = 0; k + hi < KaryBits; k++)
+            for(size_t k = 0; k + hi < KaryBits; k++)
                 A = A.Qrt() % mod;
             A = A * g[ei] % mod;
             for(int k = 0; k < hi; k++)
@@ -1177,10 +1172,10 @@ bool BN::bitI(size_t index)const {
     return false;
 }
 
-BN::operator uint64_t () const {
+uint64_t BN::get64() const noexcept {
     uint64_t result = 0;
-    for(size_t i = min(ba.size(), sizeof(uint64_t)/bz); i; i--)
-        result = (result << bz8) | ba[i-1];
+    for(size_t i = min(ba.size(), sizeof(uint64_t) / bz) - 1; i < sizeof(uint64_t); i--)
+        result = (result << bz8) | ba[i];
     return result;
 }
 

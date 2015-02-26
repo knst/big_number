@@ -103,8 +103,8 @@ public:
     void divmod(const BN& bn, BN& div, BN& mod) const;
     const BN operator / (const BN&)const;
     const BN operator % (const BN&)const;
-    const BN operator >>(int shift)const;
-    const BN operator <<(int shift) const;
+    const BN operator >>(size_t shift)const;
+    const BN operator <<(size_t shift) const;
     bool operator < (const BN&)const;
     bool operator <=(const BN&)const;
     bool operator > (const BN&)const;
@@ -140,7 +140,7 @@ public:
     BN fastQrt()const;
     int countzeroright()const;
     bool bitI(size_t i)const;
-    operator uint64_t()const;
+    uint64_t get64() const noexcept;
     bool is0() const;
     bool isEven() const;
     void PrintHex(bool newstr=true)const;

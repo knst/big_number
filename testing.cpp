@@ -178,15 +178,15 @@ int testing_ij(int max1,int max2, int i,int j)
                         printf("f22:\t");        (bn1bn2/bn1).PrintDec();
                         return 1;
                 }
-                if((uint64_t)(bn1*bn2/bn1/bn2)!=1)
+                if((bn1*bn2/bn1/bn2).get64()!=1)
                         return 2;
                 if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
                         return 3;
-                if((uint64_t)(bn1*bn2)!=(uint64_t)bn1*(uint64_t)bn2)
+                if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
                         return 4;
                 if(bn1*bn1!=bn1.Qrt())
                         return 5;
-                uint64_t pow=(uint64_t)bn1;
+                uint64_t pow=bn1.get64();
                 BN powbn(pow);
                 if(j % 10 == 0 && mod!= BN::bn0() &&bn2.PowMod(pow,mod)!=bn2.PowMod(powbn,mod))
                 {
@@ -316,7 +316,7 @@ void testing() {
 
         cout<<"Test 2:\t";
         cout.flush();
-        if((uint64_t)(bn1*bn2/bn1/bn2)!=1)
+        if((bn1*bn2/bn1/bn2).get64()!=1)
                 cout<<"FAIL\n";
         else
                 cout<<"OK\n";
@@ -328,7 +328,7 @@ void testing() {
                 cout<<"OK\n";
         cout<<"Test 4:\t";
         cout.flush();
-        if((uint64_t)(bn1*bn2)!=(uint64_t)bn1*(uint64_t)bn2)
+        if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
                 cout<<"FAIL\n";
         else
                 cout<<"OK\n";
