@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#define DOUBLE_BASE
+
 #ifndef DOUBLE_BASE
 using bt = uint8_t;
 using bt2 = uint16_t;
