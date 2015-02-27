@@ -108,12 +108,12 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
     BNsign d(BN::bn1());
 
     do {
-        while(u.isEven())
-        {
-            u=u>>1;
+        size_t uZeros = u.countzeroright();
+        size_t vZeros = v.countzeroright();
+        for (size_t i = 0; i < uZeros; ++i) {
             if(a.value.isEven() && b.value.isEven()) {
-                a.value=a.value>>1;
-                b.value=b.value>>1;
+                a.value = a.value>>1;
+                b.value = b.value>>1;
             } else {
                 a=(a+y);
                 a.value=a.value>>1;
@@ -121,12 +121,10 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
                 b.value=b.value>>1;
             }
         }
-        while(v.isEven())
-        {
-            v=v>>1;
-            if(c.value.isEven()&&d.value.isEven()) {
-                c.value=c.value>>1;
-                d.value=d.value>>1;
+        for (size_t i = 0; i < vZeros; ++i) {
+            if(c.value.isEven() && d.value.isEven()) {
+                c.value = c.value>>1;
+                d.value = d.value>>1;
             } else {
                 c=(c+y);
                 c.value=c.value>>1;
@@ -134,7 +132,9 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
                 d.value=d.value>>1;
             }
         }
-        if(u>=v) {
+        u = u >> uZeros;
+        v = v >> vZeros;
+        if(u >= v) {
             u=u-v;
             a=a-c;
             b=b-d;
