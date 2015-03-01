@@ -24,9 +24,15 @@ BNsign::BNsign(const BNsign& bn)
 {
 }
 
-BNsign::BNsign(BNsign&& bn)
+BNsign::BNsign(BNsign&& bn) noexcept
 : value(move(bn.value))
 , sign(bn.sign)
+{
+}
+
+BNsign::BNsign(BN&& bn, const bool bnsign) noexcept
+: value(move(bn))
+, sign(bnsign)
 {
 }
 
@@ -47,7 +53,7 @@ BNsign& BNsign::operator = (const BNsign& bn)
     return *this;
 }
 
-BNsign& BNsign::operator = (BNsign&& bn)
+BNsign& BNsign::operator = (BNsign&& bn) noexcept
 {
     if (this == &bn)
         return *this;
@@ -78,18 +84,15 @@ const BNsign BNsign::operator + (const BNsign& bn) const
 const BNsign BNsign::operator - (const BNsign& bn) const
 {
     bool firstIsGreater = (this->value >= bn.value);
+    bool newSign = !(bn.sign || firstIsGreater) || (sign && firstIsGreater);
 
-    BNsign res;
-    if (sign == bn.sign) {
-        if (firstIsGreater)
-            res.value = this->value - bn.value;
-        else
-            res.value = bn.value - this->value;
-    } else
-       res.value = this->value + bn.value;
+    if (sign != bn.sign)
+        return move(BNsign(move(value + bn.value), newSign));
 
-    res.sign = !(bn.sign || firstIsGreater) || (sign && firstIsGreater);
-    return res;
+    if (firstIsGreater)
+        return move(BNsign(move(value - bn.value), newSign));
+
+    return move(BNsign(move(bn.value - value), newSign));
 }
 
 const BNsign BNsign::operator * (const BNsign& bn) const

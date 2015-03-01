@@ -22,10 +22,11 @@ public:
 public:
     BNsign();
     BNsign(const BNsign& bn);
-    BNsign(BNsign&& bn);
+    BNsign(BNsign&& bn) noexcept;
     BNsign(const BN& bn, bool negative = false);
+    BNsign(BN&& bn, bool negative = false) noexcept;
     BNsign& operator = (const BNsign&);
-    BNsign& operator = (BNsign&&);
+    BNsign& operator = (BNsign&&) noexcept;
     const BNsign operator + (const BNsign&) const;
     const BNsign operator - (const BNsign&) const;
     const BNsign operator * (const BNsign&) const;
