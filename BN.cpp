@@ -270,8 +270,7 @@ BN BN::modbt(size_t t) const
 
 const BN BN::mulbase(const bt &multiplier)const
 {
-    BN result(*this);
-    return result.mulbaseappr(multiplier);
+    return move(BN(*this).mulbaseappr(multiplier));
 }
 
 BN& BN::mulbaseappr(const bt &multiplier)
@@ -447,8 +446,7 @@ const BN BN::karatsubaMultiplication(const BN& bn) const {
 
 const BN BN::divbase(const bt& diviser) const
 {
-    BN result(*this);
-    return result.divbaseappr(diviser);
+    return move(BN(*this).divbaseappr(diviser));
 }
 
 BN& BN::divbaseappr(const bt &diviser)
