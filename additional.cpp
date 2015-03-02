@@ -19,21 +19,23 @@ BN gcdEuclidean(BN a,BN b)
     return a;
 }
 
-BN gcdInverseEuclidean(BN a, BN mod)
+BN gcdInverseEuclidean(const BN& a, const BN& mod)
 {
-    BN start_mod = mod;
-    a = a % mod;
+    BN startMod(mod);
 
-    if(a.is0())
-        return BN::bn0();
+    BN A(a % mod);
+    BN B(mod);
+
+    if(A.is0())
+        return move(BN::bn0());
 
     BNsign x0;
     BNsign x1(BN::bn0());
     BNsign x2(BN::bn1());
+    BN Div;
+    BN Mod;
     while (true) {
-        BN Div;
-        BN Mod;
-        mod.divmod(a, Div, Mod);
+        B.divmod(A, Div, Mod);
         if (Mod.is0())
             break;
         x0 = move(x1);
@@ -41,18 +43,15 @@ BN gcdInverseEuclidean(BN a, BN mod)
 
         x2 = x0 - x1 * (BNsign)Div;
 
-        mod = move(a);
-        a = move(Mod);
+        B = move(A);
+        A = move(Mod);
     }
 
-    if(a != BN::bn1())
-        return BN::bn0();
-    if(x2.value.is0())
-        x2.sign = false;
-    if(!x2.sign)
-        return x2.value;
-    else
-        return start_mod - x2.value;
+    if(A != BN::bn1())
+        return move(BN::bn0());
+    if(x2.sign && !x2.value.is0())
+        return move(startMod - x2.value);
+    return move(x2.value);
 }
 
 BN gcdBinary(BN a,BN b)
@@ -63,8 +62,8 @@ BN gcdBinary(BN a,BN b)
     if(b.is0())
         return a;
 
-    int acount = a.countzeroright();
-    int bcount = b.countzeroright();
+    size_t acount = a.countzeroright();
+    size_t bcount = b.countzeroright();
 
     a >>= acount;
     b >>= bcount;
@@ -82,15 +81,15 @@ BN gcdBinary(BN a,BN b)
             b >>= b.countzeroright();
         }
     }
-    return b <<= min(acount,bcount);
+    return move(b <<= min(acount,bcount));
 }
 
 BN gcdInverseEuclideanBinary(BN xx, BN mod)
 {
     BN& yy = mod;
     BN g(BN::bn1());
-    int xcount=xx.countzeroright();
-    int ycount=yy.countzeroright();
+    size_t xcount=xx.countzeroright();
+    size_t ycount=yy.countzeroright();
     if (xcount && ycount)
         return BN::bn0();
 
@@ -111,26 +110,20 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
         size_t uZeros = u.countzeroright();
         size_t vZeros = v.countzeroright();
         for (size_t i = 0; i < uZeros; ++i) {
-            if(a.value.isEven() && b.value.isEven()) {
-                a.value >>= 1;
-                b.value >>= 1;
-            } else {
+            if(!a.value.isEven() || !b.value.isEven()) {
                 a=(a+y);
-                a.value >>= 1;
                 b=(b-x);
-                b.value >>= 1;
             }
+            a.value >>= 1;
+            b.value >>= 1;
         }
         for (size_t i = 0; i < vZeros; ++i) {
-            if(c.value.isEven() && d.value.isEven()) {
-                c.value >>= 1;
-                d.value >>= 1;
-            } else {
+            if(!c.value.isEven() || !d.value.isEven()) {
                 c=(c+y);
-                c.value >>= 1;
                 d=(d-x);
-                d.value >>= 1;
             }
+            c.value >>= 1;
+            d.value >>= 1;
         }
         u >>= uZeros;
         v >>= vZeros;
@@ -146,14 +139,12 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
     }
     while(!u.is0());
 
-    if(v!=BN::bn1())
-        return BN::bn0();
-    if(c.value.is0())
-        c.sign=false;
-    if(c.sign)
-        return mod-(c.value)%mod;
-    else
-        return c.value%mod;
+    if(v != BN::bn1())
+        return move(BN::bn0());
+
+    if(c.sign && !c.value.is0())
+        return move(mod - c.value % mod);
+    return move(c.value % mod);
 }
 
 vector <BN> multi_inverse(const vector <BN> &x, const BN &mod)

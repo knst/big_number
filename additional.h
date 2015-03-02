@@ -15,7 +15,7 @@
 BN gcdEuclidean(BN x,BN y);
 BN gcdBinary(BN x,BN y);
 BN gcdLehmer(BN x,BN y);
-BN gcdInverseEuclidean(BN a,BN mod);
+BN gcdInverseEuclidean(const BN& a, const BN& mod);
 BN gcdInverseEuclideanBinary(BN x,BN mod);
 BN gcdExtendedEuclideanBinary(BN xx, BN yy);
 std::vector <BN> multi_inverse(const std::vector <BN>& x, const BN &mod);
