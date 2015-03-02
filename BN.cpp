@@ -428,7 +428,7 @@ vector<bt> karatsubaRecursive(
         result[i] = sum;
         sum >>= bz8;
     }
-    return result;
+    return move(result);
 }
 
 const BN BN::karatsubaMultiplication(const BN& bn) const {
@@ -593,32 +593,38 @@ const BN BN::operator % (const BN& bn)const
     return move(mod);
 }
 
-const BN BN::operator >> (size_t shift) const {
-    if(shift == 0)
+BN& BN::operator >>= (size_t shift) {
+    if (shift == 0)
         return *this;
-
     size_t baseshift = shift / bz8;
     size_t realshift = shift - baseshift * bz8;
 
     if (realshift == 0)
-        return divbt(baseshift);
+        return *this = divbt(baseshift);
 
-    if (baseshift >= ba.size())
-        return BN::bn0();
+    if (baseshift >= ba.size()) {
+        ba.resize(0);
+        ba[0] = 0;
+        return *this;
+    }
 
-    BN result(ba.size() - baseshift, 0);
     for (size_t i = 0; i < ba.size() - baseshift - 1; ++i) {
-        result.ba[i] =
+        ba[i] =
             (ba[i + baseshift] >> realshift) |
             (ba[i + baseshift + 1] << (bz8 - realshift));
     }
-    result.ba.back() = ba.back() >> realshift;
+    ba[ba.size() - baseshift - 1] = ba.back() >> realshift;
+    ba.resize(ba.size() - baseshift);
 
-    Norm(result.ba);
-    return result;
+    Norm(ba);
+    return *this;
 }
 
-const BN BN::operator << (size_t shift) const {
+const BN BN::operator >> (size_t shift) const {
+    return move(BN(*this) >>= shift);
+}
+
+BN& BN::operator <<= (size_t shift) {
     if(shift == 0)
         return *this;
 
@@ -626,18 +632,22 @@ const BN BN::operator << (size_t shift) const {
     size_t realshift = shift - baseshift * bz8;
 
     if (realshift == 0)
-        return mulbt(baseshift);
+        return *this = mulbt(baseshift);
 
-    BN result(ba.size() + baseshift + 1, 0);
-    result.ba[baseshift] = ba[0] << realshift;
-    for(size_t i = 1; i < ba.size(); i++) {
-        result.ba[i + baseshift] =
+    ba.resize(ba.size() + baseshift + 1, 0);
+    ba.back() = ba.back() >> (bz8 - realshift);
+    for (size_t i = ba.size() - 1; i; --i) {
+        ba[i + baseshift] =
             (ba[i - 1] >> (bz8 - realshift)) |
             (ba[i] << realshift);
     }
-    result.ba.back() = ba.back() >> (bz8 - realshift);
-    Norm(result.ba);
-    return result;
+    ba[baseshift] = ba[0] << realshift;
+    Norm(ba);
+    return *this;
+}
+
+const BN BN::operator << (size_t shift) const {
+    return move(BN(*this) <<= shift);
 }
 
 bool BN::operator < (const BN& bn) const

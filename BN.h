@@ -103,8 +103,12 @@ public:
     void divmod(const BN& bn, BN& div, BN& mod) const;
     const BN operator / (const BN&)const;
     const BN operator % (const BN&)const;
-    const BN operator >>(size_t shift)const;
-    const BN operator <<(size_t shift) const;
+
+    const BN operator >> (size_t shift)const;
+    BN& operator >>= (size_t shift);
+    const BN operator << (size_t shift) const;
+    BN& operator <<= (size_t shift);
+
     bool operator < (const BN&)const;
     bool operator <=(const BN&)const;
     bool operator > (const BN&)const;

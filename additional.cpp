@@ -66,8 +66,8 @@ BN gcdBinary(BN a,BN b)
     int acount = a.countzeroright();
     int bcount = b.countzeroright();
 
-    a = a >> acount;
-    b = b >> bcount;
+    a >>= acount;
+    b >>= bcount;
 
     // TODO why swap(a, b) is faster than a.swap(b) ?
     if(a < b)
@@ -76,13 +76,13 @@ BN gcdBinary(BN a,BN b)
     while(!a.is0()) {
         if(a >= b) {
             a = a - b;
-            a = a >> a.countzeroright();
+            a >>= a.countzeroright();
         } else {
             b = b - a;
-            b = b >> b.countzeroright();
+            b >>= b.countzeroright();
         }
     }
-    return b << min(acount,bcount);
+    return b <<= min(acount,bcount);
 }
 
 BN gcdInverseEuclideanBinary(BN xx, BN mod)
@@ -94,8 +94,8 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
     if (xcount && ycount)
         return BN::bn0();
 
-    xx=xx>>min(xcount,ycount);
-    yy=yy>>min(xcount,ycount);
+    xx >>= min(xcount,ycount);
+    yy >>= min(xcount,ycount);
 
     BN u=xx;
     BN v=yy;
@@ -112,28 +112,28 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
         size_t vZeros = v.countzeroright();
         for (size_t i = 0; i < uZeros; ++i) {
             if(a.value.isEven() && b.value.isEven()) {
-                a.value = a.value>>1;
-                b.value = b.value>>1;
+                a.value >>= 1;
+                b.value >>= 1;
             } else {
                 a=(a+y);
-                a.value=a.value>>1;
+                a.value >>= 1;
                 b=(b-x);
-                b.value=b.value>>1;
+                b.value >>= 1;
             }
         }
         for (size_t i = 0; i < vZeros; ++i) {
             if(c.value.isEven() && d.value.isEven()) {
-                c.value = c.value>>1;
-                d.value = d.value>>1;
+                c.value >>= 1;
+                d.value >>= 1;
             } else {
                 c=(c+y);
-                c.value=c.value>>1;
+                c.value >>= 1;
                 d=(d-x);
-                d.value=d.value>>1;
+                d.value >>= 1;
             }
         }
-        u = u >> uZeros;
-        v = v >> vZeros;
+        u >>= uZeros;
+        v >>= vZeros;
         if(u >= v) {
             u=u-v;
             a=a-c;
