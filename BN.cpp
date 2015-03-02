@@ -280,19 +280,18 @@ BN BN::modbt(size_t t) const
 
 const BN BN::mulbase(const bt &multiplier)const
 {
-    BN result(ba.size() + 1, 0);
-    bt2 curr = 0;
-    for(size_t i = 0; i < ba.size(); i++, curr>>=bz8)
-        result.ba[i] = curr += static_cast<bt2>(ba[i]) * multiplier;
-    if (curr) {
-        result.ba[ba.size()] = curr;
-    } else
-    Norm(result.ba);
-    return result;
+    BN result(*this);
+    return result.mulbaseappr(multiplier);
 }
 
 BN& BN::mulbaseappr(const bt &multiplier)
 {
+    if (!multiplier) {
+        ba.resize(1);
+        ba.front() = 0;
+        return *this;
+    }
+
     bt2 curr = 0;
     for(auto& i : ba) {
         i = curr += static_cast<bt2>(i) * multiplier;
@@ -315,15 +314,13 @@ const BN BN::operator * (const BN& bn)const {
 
 const BN BN::classicMultiplication(const BN& bn) const {
     // classical O(n*n) multiplication.
-    if(bn.ba.size() == 1)
-        return mulbase(bn.ba.front());
-
-    if (ba.size() == 1)
-        return bn.mulbase(ba.front());
-
     // Tested: b * a is faster than a * b
     const BN& b = ba.size() > bn.ba.size() ? *this : bn;
     const BN& a = ba.size() > bn.ba.size() ? bn : *this;
+
+    if (a.ba.size() == 1)
+        return b.mulbase(a.ba.front());
+
 
     BN result(a.ba.size() + b.ba.size(), 0);
     for (size_t i = 0; i < b.ba.size(); ++i) {
@@ -460,18 +457,8 @@ const BN BN::karatsubaMultiplication(const BN& bn) const {
 
 const BN BN::divbase(const bt& diviser) const
 {
-    if(diviser == 0)
-        throw "Div by 0";
-    BN result(ba.size(), 0);
-    bt2 curr=0;
-    for (size_t i = ba.size() - 1; i < ba.size(); --i) {
-        curr <<= bz8;
-        curr += ba[i];
-        result.ba[i] = curr / diviser;
-        curr %= diviser;
-    }
-    Norm(result.ba);
-    return result;
+    BN result(*this);
+    return result.divbaseappr(diviser);
 }
 
 BN& BN::divbaseappr(const bt &diviser)
@@ -479,11 +466,9 @@ BN& BN::divbaseappr(const bt &diviser)
     if(diviser == 0)
             throw "Div by 0";
     bt2 curr = 0;
-    for(size_t i = ba.size() - 1; i < ba.size(); --i) {
-        curr <<= bz8;
-        curr += ba[i];
-        ba[i] = curr / diviser;
-        curr %= diviser;
+    for (size_t i = ba.size(); i; --i) {
+        curr = (curr % diviser << bz8) + ba[i - 1];
+        ba[i - 1] = curr / diviser;
     }
     Norm(ba);
     return *this;
@@ -500,7 +485,7 @@ const BN BN::modbase(const bt &diviser)const
         curr %= diviser;
     }
 
-    BN result = BN::bn0();
+    BN result;
     result.ba[0]=curr;
 
     return result;
