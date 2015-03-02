@@ -363,44 +363,22 @@ const BN BN::fastMultiplication (const BN& bn) const {
     return move(result);
 }
 
-vector<bt> karatsubaSum(
-    const vector<bt>& a,
-    const vector<bt>& b
-) {
-    size_t n = a.size();
-    size_t m = b.size();
-    if (n != m)
-        throw "wtf";
-
-    vector<bt> result(n + 1);
-
-    bt2 sum = 0;
-    for(size_t pos = 0; pos < n; ++pos) {
-        sum += a[pos] + b[pos];
-        result[pos] = sum;
-        sum >>= bz8;
-    }
-
-    result.back() = sum;
-    return result;
-}
-
-inline vector<bt> karatsubaSum2(const vector<bt>& u, size_t start, size_t n, size_t m) {
-    vector<bt> result(m + 1);
+inline vector<bt> karatsubaSum(const vector<bt>& u, size_t start, size_t n, size_t m) {
+    vector<bt> result;
+    result.reserve(m + 1);
 
     bt2 sum = 0;
     for (size_t pos = 0; pos < n; ++pos) {
         sum += u[start + pos] + u[start + pos + n];
-        result[pos] = sum;
+        result.emplace_back(sum);
         sum >>= bz8;
     }
     if (n != m) {
         sum += u[start + n + n];
-        result[n] = sum;
+        result.emplace_back(sum);
         sum >>= bz8;
     }
-
-    result[m] = sum;
+    result.emplace_back(sum);
     return move(result);
 }
 
@@ -415,7 +393,8 @@ vector<bt> karatsubaRecursive(
     size_t n = len / 2;
     size_t m = len - n;
     if (n < karatsubaMinimalSize) {
-        vector<bt> result(len + len, 0);
+        vector<bt> result;
+        result.reserve(len + len);
 
         bt4 t = 0;
         for(size_t s = 0; s < len + len - 1; s++) {
@@ -426,43 +405,15 @@ vector<bt> karatsubaRecursive(
                 t += static_cast<bt2>(U[i]) * V[j];
 
 
-            result[s] = t;
+            result.emplace_back(t);
             t = t >> bz8;
         }
-
-        result[len + len - 1] = t;
+        result.emplace_back(t);
         return result;
     }
 
-#if 0 // it is not fast
-    vector<bt> u01(m + 1);
-    vector<bt> v01(m + 1);
-
-    bt2 usum = 0;
-    bt2 vsum = 0;
-    for (size_t pos = 0; pos < n; ++pos) {
-        usum += U[start + pos] + U[start + pos + n];
-        vsum += V[start + pos] + V[start + pos + n];
-        u01[pos] = usum;
-        v01[pos] = vsum;
-        usum >>= bz8;
-        vsum >>= bz8;
-    }
-    if (n != m) {
-        usum += U[start + n + n];
-        vsum += V[start + n + n];
-        u01[n] = usum;
-        v01[n] = vsum;
-        usum >>= bz8;
-        vsum >>= bz8;
-    }
-
-    u01[m] = usum;
-    v01[m] = vsum;
-#endif
-
-    const vector<bt>& u01 = karatsubaSum2(U, start, n, m);
-    const vector<bt>& v01 = karatsubaSum2(V, start, n, m);
+    const vector<bt>& u01 = karatsubaSum(U, start, n, m);
+    const vector<bt>& v01 = karatsubaSum(V, start, n, m);
 
     vector<bt> A = karatsubaRecursive(U, V, start + n, m);
     vector<bt> B = karatsubaRecursive(U, V, start, n);
