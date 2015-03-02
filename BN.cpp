@@ -197,7 +197,7 @@ BN & BN::operator ++()
         if (i != 0)
             return *this;
     }
-    ba.push_back(1);
+    ba.emplace_back(1);
     return *this;
 }
 
@@ -254,28 +254,18 @@ BN BN::mulbt(size_t t) const
 
 BN BN::divbt(size_t t) const
 {
-    if(t == 0)
-        return *this;
-
     if(t >= ba.size())
         return BN::bn0();
 
-    BN res(ba.size() - t, 0);
-    res.ba.assign(ba.begin() + t, ba.end());
-    return res;
+    return move(vector<bt>(ba.begin() + t, ba.end()));
 }
 
 BN BN::modbt(size_t t) const
 {
-    if(t == 0)
-        return BN::bn0();
-
     if(t >= ba.size())
         return *this;
 
-    BN res(move(vector<bt>(ba.begin(), ba.begin() + t)));
-    Norm(res.ba);
-    return res;
+    return move(vector<bt>(ba.begin(), ba.begin() + t));
 }
 
 const BN BN::mulbase(const bt &multiplier)const
@@ -298,7 +288,7 @@ BN& BN::mulbaseappr(const bt &multiplier)
         curr >>= bz8;
     }
     if (curr)
-        ba.push_back(curr);
+        ba.emplace_back(curr);
     return *this;
 }
 
@@ -535,7 +525,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     delimoe.ba.resize(delimoe.ba.size() + 2);
     delitel.ba.resize(delitel.ba.size() + 1);
 
-    div.ba.resize(m + 2);
+    div.ba.resize(m + 1);
 
     vector<bt> temp(n + 1);
     for (size_t j = m; j <= m; --j) {
@@ -1174,7 +1164,7 @@ const BN BN::bn1() {
 BN BN::makeRandom(size_t byteCount) {
     vector<bt> result(byteCount / bz);
     if (result.empty())
-        result.push_back(rand() & bmax);
+        result.emplace_back(rand() & bmax);
     else
         for (auto& i : result)
             i = rand() & bmax;
