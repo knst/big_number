@@ -537,8 +537,10 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
                 --q;
         }
 
-        if (!q)
+        if (!q) {
+            div.ba[j] = 0;
             continue;
+        }
 
         bt4s x = 0;
         for (size_t i = 0; i < n; ++i) {
