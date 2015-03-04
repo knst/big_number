@@ -108,7 +108,8 @@ BN::BN(const string &str,const int &status)
         for (auto i : str) {
             if (i < '0' || i > '9')
                 continue;
-            bn = bn.mulbase(10) + BN(i - '0');
+            bn.mulbaseappr(10);
+            bn += BN(i - '0');
         }
         ba = move(bn.ba);
         return;
@@ -513,10 +514,14 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         return;
     }
 
-    bt d = bsize  / (bn.ba.back() + 1);
+    BN delimoe(*this);
+    BN delitel(bn);
 
-    BN delimoe(d == 1 ? *this : this->mulbase(d));
-    BN delitel(d == 1 ? bn : bn.mulbase(d));
+    bt d = bsize  / (bn.ba.back() + 1);
+    if (d != 1) {
+        delimoe.mulbaseappr(d);
+        delitel.mulbaseappr(d);
+    }
 
     size_t n = delitel.ba.size();
     size_t m = delimoe.ba.size() - n + 1;
@@ -534,7 +539,7 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         if (q == bsize || q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2]) {
             --q;
             r += delitel.ba[n-1];
-            if (q == bsize || (r < bsize && q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2]))
+            if (r < bsize && q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2])
                 --q;
         }
 
@@ -572,10 +577,10 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
     }
     Norm(div.ba);
     Norm(delimoe.ba);
+
     if (d != 1)
-        mod = move(delimoe.divbase(d));
-    else
-        mod = move(delimoe);
+        delimoe.divbaseappr(d);
+    mod = move(delimoe);
 }
 
 const BN BN::operator / (const BN&bn)const
