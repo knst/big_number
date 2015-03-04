@@ -394,16 +394,17 @@ vector<bt> karatsubaRecursive(
             result.emplace_back(t);
             t = t >> bz8;
         }
-        result.emplace_back(t);
-        return result;
+        if (t)
+            result.emplace_back(t);
+        return move(result);
     }
 
     const vector<bt>& u01 = karatsubaSum(U, start, n, m);
     const vector<bt>& v01 = karatsubaSum(V, start, n, m);
 
-    vector<bt> A = karatsubaRecursive(U, V, start + n, m);
-    vector<bt> B = karatsubaRecursive(U, V, start, n);
-    vector<bt> C = karatsubaRecursive(u01, v01, 0, m + 1);
+    vector<bt> A = move(karatsubaRecursive(U, V, start + n, m));
+    vector<bt> B = move(karatsubaRecursive(U, V, start, n));
+    vector<bt> C = move(karatsubaRecursive(u01, v01, 0, m + 1));
 
     size_t ABCn = max(C.size(), max(A.size(), B.size()));
     A.resize(ABCn);
@@ -1038,7 +1039,9 @@ BN BN::fastQrt() const
         size_t start_index = s >= n ? s - n + 1 : 0;
         size_t end_index = min(n - 1, s);
         while (start_index < end_index) {
-            t += 2 * static_cast<bt4>(ba[start_index]) * ba[end_index];
+            bt2 m = static_cast<bt2>(ba[start_index]) * ba[end_index];
+            t += m;
+            t += m;
             ++start_index;
             --end_index;
         }
