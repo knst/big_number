@@ -203,27 +203,31 @@ BN & BN::operator ++()
 
 const BN BN::operator - (const BN& bn) const
 {
-    BN result(ba.size(), 0);
+    return move(BN(*this) -= bn);
+}
+
+BN& BN::operator -= (const BN& bn)
+{
+    if (ba.size() < bn.ba.size())
+        ba.resize(bn.ba.size());
 
     bool flag = 0;
     size_t pos = 0;
 
     for (; pos < bn.ba.size() && pos < ba.size(); ++pos) {
         bt2s res = static_cast<bt2s>(ba[pos]) - bn.ba[pos] - flag;
-        result.ba[pos] = static_cast<bt>(res);
+        ba[pos] = static_cast<bt>(res);
         flag = (res < 0);
     }
 
     for (; flag && pos < ba.size(); ++pos) {
-        result.ba[pos] = ba[pos] - 1;
-        flag = (result.ba[pos] > ba[pos]);
+        if (ba[pos])
+            flag = false;
+        --ba[pos];
     }
 
-    for(;pos < ba.size(); pos++)
-        result.ba[pos] = ba[pos];
-
-    Norm(result.ba);
-    return move(result);
+    Norm(ba);
+    return *this;
 }
 
 BN & BN::operator --()
@@ -725,10 +729,10 @@ BN BN::reductionBarrett(const BN& mod, const BN& mu) const {
     BN q3 = q2.divbt(k+1);
     BN r1 = modbt(k+1);
     BN r2 = (q3 * mod).modbt(k+1);
-    BN r = r1 - r2;
-    while(r >= mod)
-        r = r - mod;
-    return r;
+    r1 -= r2;
+    while (r1 >= mod)
+        r1 -= mod;
+    return r1;
 }
 
 BN BN::Pow(uint64_t power) const

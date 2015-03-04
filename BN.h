@@ -85,15 +85,19 @@ public:
 
     BN & operator = (const BN&);
     BN & operator = (BN&&);
+
     const BN operator + (const BN&)const;
     BN & operator ++();
 
     // This function return (this - bn).
     // Constrains: this >= bn
+    // If this < bn, than result like in boost library.
     //
     const BN operator - (const BN&)const;
+    BN& operator -= (const BN&);
 
     BN & operator --();
+
     const BN operator * (const BN&)const;
     // classic multiplication O(n*n)
     const BN classicMultiplication(const BN&) const;

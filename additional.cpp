@@ -50,7 +50,7 @@ BN gcdInverseEuclidean(const BN& a, const BN& mod)
     if(A != BN::bn1())
         return move(BN::bn0());
     if(x2.sign && !x2.value.is0())
-        return move(startMod - x2.value);
+        return move(startMod -= x2.value);
     return move(x2.value);
 }
 
@@ -74,10 +74,10 @@ BN gcdBinary(BN a,BN b)
 
     while(!a.is0()) {
         if(a >= b) {
-            a = a - b;
+            a -= b;
             a >>= a.countzeroright();
         } else {
-            b = b - a;
+            b -= a;
             b >>= b.countzeroright();
         }
     }
@@ -111,16 +111,16 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
         size_t vZeros = v.countzeroright();
         for (size_t i = 0; i < uZeros; ++i) {
             if(!a.value.isEven() || !b.value.isEven()) {
-                a=(a+y);
-                b=(b-x);
+                a += y;
+                b -= x;
             }
             a.value >>= 1;
             b.value >>= 1;
         }
         for (size_t i = 0; i < vZeros; ++i) {
             if(!c.value.isEven() || !d.value.isEven()) {
-                c=(c+y);
-                d=(d-x);
+                c += y;
+                d -= x;
             }
             c.value >>= 1;
             d.value >>= 1;
@@ -128,13 +128,13 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
         u >>= uZeros;
         v >>= vZeros;
         if(u >= v) {
-            u=u-v;
-            a=a-c;
-            b=b-d;
+            u -= v;
+            a -= c;
+            b -= d;
         } else {
-            v=v-u;
-            c=c-a;
-            d=d-b;
+            v -= u;
+            c -= a;
+            d -= b;
         }
     }
     while(!u.is0());
@@ -143,7 +143,7 @@ BN gcdInverseEuclideanBinary(BN xx, BN mod)
         return move(BN::bn0());
 
     if(c.sign && !c.value.is0())
-        return move(mod - c.value % mod);
+        return move(mod -= c.value % mod);
     return move(c.value % mod);
 }
 

@@ -27,8 +27,13 @@ public:
     BNsign(BN&& bn, bool negative = false) noexcept;
     BNsign& operator = (const BNsign&);
     BNsign& operator = (BNsign&&) noexcept;
+
     const BNsign operator + (const BNsign&) const;
+    BNsign& operator += (const BNsign& );
+
     const BNsign operator - (const BNsign&) const;
+    BNsign& operator -= (const BNsign& );
+
     const BNsign operator * (const BNsign&) const;
     //const BNsign operator / (const BNsign&) const;
     //bool operator == (const BNsign&) const;
