@@ -202,7 +202,7 @@ BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
         //u = (v[i] - x) * C[i] % m[i];
         u = vix * C[i] % m[i];
         Pm = Pm * m[i-1];
-        x = x + u * Pm;
+        x += u * Pm;
     }
     return x;
 }
@@ -220,7 +220,7 @@ BN CTO(const std::vector <BN>& m, const std::vector <BN>& v)
     for (int i=0;i<t;i++)
     {
         BN Mi = M/m[i];
-        x = x + v[i] * (M/m[i]) * gcdInverseEuclideanBinary(M/m[i],m[i]) % M;
+        x += v[i] * (M/m[i]) * gcdInverseEuclideanBinary(M/m[i],m[i]) % M;
     }
-    return x%M;
+    return x % M;
 }

@@ -86,7 +86,8 @@ public:
     BN & operator = (const BN&);
     BN & operator = (BN&&);
 
-    const BN operator + (const BN&)const;
+    const BN operator + (const BN& ) const;
+    BN& operator += (const BN& );
     BN & operator ++();
 
     // This function return (this - bn).

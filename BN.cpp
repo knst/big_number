@@ -162,31 +162,27 @@ BN & BN::operator = (BN&& bn)
     return *this;
 }
 
-const BN BN::operator + (const BN&bn)const {
-    const BN& a = ba.size() > bn.ba.size() ? *this : bn;
-    const BN& b = ba.size() > bn.ba.size() ? bn : *this;
+const BN BN::operator + (const BN& bn)const {
+    return move(BN(*this) += bn);
+}
 
-    vector<bt> result(a.ba.size() + 1);
+BN& BN::operator += (const BN& bn) {
+    ba.resize(max(ba.size(), bn.ba.size()));
 
-    bt over = 0;
-    for(size_t pos = 0; pos < b.ba.size(); pos++) {
-        result[pos] = a.ba[pos] + b.ba[pos];
-        bt over2 = (result[pos] < b.ba[pos]);
-
-        result[pos] = result[pos] + over;
-        bt over3 = (result[pos] < over);
-        over = over2 + over3;
+    bt2 sum = 0;
+    for(size_t pos = 0; pos < bn.ba.size(); pos++) {
+        sum = (sum >> bz8) + ba[pos] + bn.ba[pos];
+        ba[pos] = sum;
     }
 
-    for(size_t pos = b.ba.size(); pos < a.ba.size(); pos++) {
-        result[pos] = a.ba[pos] + over;
-        over = (result[pos] < over);
+    for(size_t pos = bn.ba.size(); pos < ba.size(); pos++) {
+        sum = (sum >> bz8) + ba[pos];
+        ba[pos] = sum;
     }
-
-    result.back() = over;
-    BN resultBn(move(result));
-    Norm(resultBn.ba);
-    return resultBn;
+    sum >>= bz8;
+    if (sum)
+        ba.emplace_back(sum);
+    return *this;
 }
 
 
@@ -1024,7 +1020,8 @@ BN BN::Sqrt() const
     BN x0;
     do {
         x0 = x;
-        x = ((*this)/x + x) >> 1;
+        x += *this / x;
+        x >>= 1;
     } while(x0 > x);
     return x0;
 }

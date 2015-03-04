@@ -73,7 +73,7 @@ BNsign& BNsign::operator += (const BNsign& bn)
     bool firstIsGreater = (this->value >= bn.value);
 
     if(sign == bn.sign)
-        value = value + bn.value;
+        value += bn.value;
     else {
         if (firstIsGreater)
             value -= bn.value;
@@ -96,7 +96,7 @@ BNsign& BNsign::operator -= (const BNsign& bn)
     bool newSign = !(bn.sign || firstIsGreater) || (sign && firstIsGreater);
 
     if (sign != bn.sign) {
-        value = value + bn.value;
+        value += bn.value;
         sign = newSign;
         return *this;
     }
