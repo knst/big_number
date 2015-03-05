@@ -376,9 +376,9 @@ vector<bt> karatsubaRecursive(
     size_t start,
     size_t count
 ) {
-    size_t len = count;
-    size_t n = len / 2;
-    size_t m = len - n;
+    const size_t len = count;
+    const size_t n = len / 2;
+    const size_t m = len - n;
     if (n < karatsubaMinimalSize) {
         vector<bt> result;
         result.reserve(len + len);
@@ -395,8 +395,7 @@ vector<bt> karatsubaRecursive(
             result.emplace_back(t);
             t = t >> bz8;
         }
-        if (t)
-            result.emplace_back(t);
+        result.emplace_back(t);
         return move(result);
     }
 
@@ -405,27 +404,29 @@ vector<bt> karatsubaRecursive(
 
     vector<bt> A = move(karatsubaRecursive(U, V, start + n, m));
     vector<bt> B = move(karatsubaRecursive(U, V, start, n));
-    vector<bt> C = move(karatsubaRecursive(u01, v01, 0, m + 1));
-
-    size_t ABCn = max(C.size(), max(A.size(), B.size()));
-    A.resize(ABCn);
-    B.resize(ABCn);
-    C.resize(ABCn);
+    const vector<bt> C = move(karatsubaRecursive(u01, v01, 0, m + 1));
 
     vector<bt> result = B;
-    result.resize(m + m + n + n + 1);
+    result.resize(len + len);
 
-    bt2s sum = 0;;
-    for (size_t i = n; i < result.size(); ++i) {
+    for (size_t i = 0; i < A.size(); ++i)
+        result[i + n + n] = A[i];
+
+    const size_t abcSize = m + m + 2;
+    A.resize(abcSize);
+    B.resize(abcSize);
+
+    bt2s sum = 0;
+    for (size_t i = 0; i < abcSize; ++i) {
+        sum += result[i + n];
+        sum += C[i];
+        sum -= A[i];
+        sum -= B[i];
+        result[i + n] = sum;
+        sum >>= bz8;
+    }
+    for (size_t i = n + abcSize; i < result.size(); ++i) {
         sum += result[i];
-        if (i < ABCn + n) {
-            sum += C[i - n];
-            sum -= A[i - n];
-            sum -= B[i - n];
-        }
-        if (i >= n + n && i < n + n + ABCn) {
-            sum += A[i - n - n];
-        }
         result[i] = sum;
         sum >>= bz8;
     }
