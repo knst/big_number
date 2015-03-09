@@ -887,13 +887,11 @@ BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
 
     uint32_t curr = 0;
     for(int i = x - K; i >= 0; i--) {
-        A = A.Qrt();
+        A = A.Qrt() % mod;
         curr <<= 1;
         curr |= exponent.bitI(i);
     }
-    A = A * g[curr] % mod;
-
-    return A;
+    return A * g[curr] % mod;
 }
 
 vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
