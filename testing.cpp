@@ -497,11 +497,9 @@ void karytest(int K, int base,int test) {
     }
 
     t = clock();
-    if(1 || K == 8) {
-        vector <BN> precomp = g.expLeftToRightK_aryPrecomputation(mod);
-        for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
-            g.expLeftToRightK_ary(*e, mod, precomp);
-    }
+    vector <BN> precomp = g.expLeftToRightK_aryPrecomputation(mod);
+    for(vector <BN> :: iterator e = exp.begin(); e != exp.end(); e++)
+        g.expLeftToRightK_ary(*e, mod, precomp);
     float t1 = clock() - t;
 
     t = clock();
@@ -514,7 +512,7 @@ void karytest(int K, int base,int test) {
     t1 /= diviser;
     t2 /= diviser;
 
-    printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2);
+    printf("%d\t%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*8),test, K, t1, t2);
 }
 
 void slidetest(int base,int test) {
@@ -630,7 +628,7 @@ void resulttest() {
     modtest(128, 5);
 
     cout<<"Test \"Universal Methods\":"<<endl;
-    cout<<"Base\tBit\tTests\tRight-to-Left(ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
+    cout<<"Base\tBit\tTests\tR-t-L(ms)\tR-t-L (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
 
     unitest(16, 50);
     unitest(32, 25);
@@ -656,7 +654,7 @@ void resulttest() {
     karytest(10, 128, 5);
 
     cout<<"Test \"k in Sliding Window\":"<<endl;
-    cout<<"Base\tBit\tTests\tRight-to-Right (ms)\tRight-to-Left (ms)\tk-ary (ms) \t k-ary [mod] (ms)\tsliding (ms)"<<endl;
+    cout<<"Base\tBit\tTests\tk = 4 (ms)\tk = 8 (ms)\tk = 9 (ms) \tk = 10 (ms)\tk = 11 (ms)"<<endl;
 
     slidetest(16, 50);
     slidetest(32, 25);
