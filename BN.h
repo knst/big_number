@@ -39,8 +39,8 @@ constexpr bt bz8 = sizeof(bt) * 8;
 
 class BN {
 public:
-    static const BN bn0();
-    static const BN bn1();
+    static const BN bn0() noexcept;
+    static const BN bn1() noexcept;
 
     // Generate random number with maximal size in byteCount.
     // Warning, if byteCount isn't divisor of sizeof(bt), than
@@ -65,7 +65,7 @@ public:
 
     BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
 
-    void swap(BN& bn);
+    void swap(BN& bn) noexcept;
 
     // This function return this * base^t
     BN   mulbt(size_t t) const;
@@ -84,7 +84,7 @@ public:
     BN& modbaseappr(const bt&);
 
     BN & operator = (const BN&);
-    BN & operator = (BN&&);
+    BN & operator = (BN&&) noexcept;
 
     const BN operator + (const BN& ) const;
     BN& operator += (const BN& );
@@ -97,7 +97,7 @@ public:
     const BN operator - (const BN&)const;
     BN& operator -= (const BN&);
 
-    BN & operator --();
+    BN & operator --() noexcept;
 
     const BN operator * (const BN&)const;
     // classic multiplication O(n*n)
@@ -114,15 +114,16 @@ public:
     const BN operator << (size_t shift) const;
     BN& operator <<= (size_t shift);
 
-    bool operator < (const BN&)const;
-    bool operator <=(const BN&)const;
-    bool operator > (const BN&)const;
-    bool operator >=(const BN&)const;
-    bool operator ==(const BN&)const;
-    bool operator !=(const BN&)const;
-    bt   operator [](size_t index_base)const;
-    size_t digitCount()const;
-    size_t bitCount()const;
+    bool operator <  (const BN&) const noexcept;
+    bool operator <= (const BN&) const noexcept;
+    bool operator >  (const BN&) const noexcept;
+    bool operator >= (const BN&) const noexcept;
+    bool operator == (const BN&) const noexcept;
+    bool operator != (const BN&) const noexcept;
+    bt   operator [] (size_t index_base) const noexcept;
+
+    size_t digitCount() const noexcept;
+    size_t bitCount() const noexcept;
 
 
     BN reductionBarrett(const BN& mod,const BN& mu) const;
@@ -147,15 +148,16 @@ public:
     BN Sqrt()const;
     BN Qrt()const;
     BN fastQrt()const;
-    int countzeroright()const;
-    bool bitI(size_t i)const;
+    int countzeroright() const noexcept;
+    bool bitI(size_t i) const noexcept;
     uint64_t get64() const noexcept;
-    bool is0() const;
-    bool isEven() const;
+    bool is0() const noexcept;
+    bool isEven() const noexcept;
+
     void PrintHex(bool newstr=true)const;
     void PrintDec(bool newstr=true)const;
 
-    const std::vector<bt> raw() const;
+    const std::vector<bt> raw() const noexcept;
 
 private:
     // data

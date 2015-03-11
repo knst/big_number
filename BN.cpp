@@ -141,7 +141,7 @@ BN::BN(const string &str,const int &status)
     Norm(ba);
 }
 
-void BN::swap(BN& bn) {
+void BN::swap(BN& bn) noexcept {
     ba.swap(bn.ba);
 }
 
@@ -154,7 +154,7 @@ BN & BN::operator = (const BN& bn)
     return *this;
 }
 
-BN & BN::operator = (BN&& bn)
+BN & BN::operator = (BN&& bn) noexcept
 {
     if (this == &bn)
         return *this;
@@ -227,7 +227,7 @@ BN& BN::operator -= (const BN& bn)
     return *this;
 }
 
-BN & BN::operator --()
+BN & BN::operator --() noexcept
 {
     for (auto& i : ba) {
         if (i) {
@@ -657,7 +657,7 @@ const BN BN::operator << (size_t shift) const {
     return move(BN(*this) <<= shift);
 }
 
-bool BN::operator < (const BN& bn) const
+bool BN::operator < (const BN& bn) const noexcept
 {
     // TODO: maybe can be replaced to compare ba and bn.ba
     if(ba.size() > bn.ba.size())
@@ -674,42 +674,42 @@ bool BN::operator < (const BN& bn) const
     return false;
 }
 
-bool BN::operator <= (const BN&bn) const
+bool BN::operator <= (const BN&bn) const noexcept
 {
     return !(*this > bn);
 }
 
-bool BN::operator > (const BN& bn) const
+bool BN::operator > (const BN& bn) const noexcept
 {
     return bn < *this;
 }
 
-bool BN::operator >= (const BN& bn) const
+bool BN::operator >= (const BN& bn) const noexcept
 {
     return !(*this < bn);
 }
 
-bool BN::operator ==(const BN& bn) const
+bool BN::operator == (const BN& bn) const noexcept
 {
     return ba == bn.ba;
 }
 
-bool BN::operator !=(const BN& bn) const
+bool BN::operator !=(const BN& bn) const noexcept
 {
     return !(*this == bn);
 }
 
-bt BN::operator [](size_t index) const
+bt BN::operator [](size_t index) const noexcept
 {
     return ba[index];
 }
 
-size_t BN::digitCount() const
+size_t BN::digitCount() const noexcept
 {
     return ba.size();
 }
 
-size_t BN::bitCount() const
+size_t BN::bitCount() const noexcept
 {
     size_t x = 0;
     bt value = ba.back();
@@ -1084,7 +1084,7 @@ BN BN::Qrt() const
     return res;
 }
 
-int BN::countzeroright()const
+int BN::countzeroright() const noexcept
 {
     if (ba[0] & 1)
         return 0;
@@ -1104,7 +1104,7 @@ int BN::countzeroright()const
     return result;
 }
 
-bool BN::bitI(size_t index)const {
+bool BN::bitI(size_t index) const noexcept {
     if(index >= bz8 * ba.size())
         return false;
 
@@ -1151,30 +1151,30 @@ void BN::PrintDec(bool newstr)const
         delete []s;
 }
 
-const vector<bt> BN::raw() const {
+const vector<bt> BN::raw() const noexcept {
     return ba;
 }
 
-bool BN::is0() const
+bool BN::is0() const noexcept
 {
     if (ba.size() > 1 || ba[0])
         return false;
     return true;
 }
 
-bool BN::isEven() const
+bool BN::isEven() const noexcept
 {
     if(ba[0] & 1)
         return false;
     return true;
 }
 
-const BN BN::bn0() {
+const BN BN::bn0() noexcept {
     static BN bn(0);
     return bn;
 }
 
-const BN BN::bn1() {
+const BN BN::bn1() noexcept {
     static BN bn(1);
     return bn;
 }
