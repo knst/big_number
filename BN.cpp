@@ -12,6 +12,9 @@
 #include <stdexcept>
 #include <iostream>
 #include <time.h>
+#include <stack>
+#include <sstream>
+#include <iomanip>
 
 #include "BN.h"
 #include "additional.h"
@@ -1117,32 +1120,47 @@ uint64_t BN::get64() const noexcept {
     return result;
 }
 
+string to_hexstring(const BN& bn) {
+    string result;
+
+    const auto& raw = bn.raw();
+    for (auto i = raw.rbegin(); i != raw.rend(); ++i) {
+        stringstream stream;
+        stream << hex << setfill('0') << setw(bz * 2) << static_cast<uint32_t>(*i);
+        string group = stream.str();
+        result = result + group;
+    }
+    return result;
+}
+
+string to_string(BN bn) {
+    stack<char> chars;
+    do {
+        chars.push(bn.modbase(10).get64() + '0');
+        bn.divbaseappr(10);
+    } while (!bn.is0());
+
+    string s;
+    s.reserve(chars.size() + 1);
+    while (!chars.empty()) {
+        s = s + chars.top();
+        chars.pop();
+    }
+    return s;
+}
+
 void BN::PrintHex(bool newstr)const
 {
-        for(int i=ba.size() -1;i>=0;i--)
-                printf("%0*x",(int)bz*2,ba[i]);
-        if(newstr)
-                printf("\n");
+    cout << to_hexstring(*this);
+    if(newstr)
+        cout << "\n";
 }
 
 void BN::PrintDec(bool newstr)const
 {
-        BN bn=*this;
-        int slen=ba.size() *bz*4+1;                // длина 10-ного числа не более чем в 2 раза больше 16-ричного
-        char *s=new char [slen];
-        int count=0;
-        if(bn.is0())
-                s[count++]='0';
-        while(!bn.is0())
-        {
-                s[count++]=(bn.modbase(10)).ba[0]+'0';
-                bn.divbaseappr(10);
-        }
-        for(int i=count-1;i>=0;i--)
-                printf("%c",s[i]);
-        if(newstr)
-                printf("\n");
-        delete []s;
+    cout << to_string(*this);
+    if (newstr)
+        cout << "\n";
 }
 
 const vector<bt> BN::raw() const noexcept {

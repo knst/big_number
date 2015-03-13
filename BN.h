@@ -164,5 +164,8 @@ private:
     std::vector<bt> ba;
 };
 
+std::string to_string(BN bn);
+std::string to_hexstring(const BN& bn);
+
 #endif /* _BN_H */
 
