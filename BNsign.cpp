@@ -9,8 +9,6 @@
 
 #include "BN.h"
 
-#include <cstdio>
-
 using namespace std;
 
 BNsign::BNsign()
@@ -131,13 +129,13 @@ const BNsign BNsign::operator * (const BNsign& bn) const
 }*/
 
 
-//debug
-void BNsign::PrintSign() const
-{
-    if(sign)
-        putchar('-');
-    else
-        putchar('+');
-    value.PrintDec();
-    return;
+std::string signToChar(bool sign) {
+    return sign ? "-" : "+";
+}
+
+std::string to_string(const BNsign& bn) {
+    return signToChar(bn.sign) + to_string(bn.value);
+}
+std::string to_hexstring(const BNsign& bn) {
+    return signToChar(bn.sign) + to_hexstring(bn.value);
 }

@@ -39,9 +39,10 @@ public:
     //bool operator == (const BNsign&) const;
     //bool operator != (const BNsign&) const;
     //bool operator >= (const BNsign&) const;
-
-    void PrintSign() const;
 };
+
+std::string to_string(const BNsign& bn);
+std::string to_hexstring(const BNsign& bn);
 
 #endif /* _BNSIGN_H */
 
