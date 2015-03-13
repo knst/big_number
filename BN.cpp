@@ -293,13 +293,7 @@ BN& BN::mulbaseappr(const bt &multiplier)
 }
 
 const BN BN::operator * (const BN& bn)const {
-    if (min(bn.ba.size(), ba.size()) > karatsubaMinimalSize)
-        return karatsubaMultiplication(bn);
-
-    if (max(bn.ba.size(), ba.size()) < MaximalSizeForFastMul)
-        return fastMultiplication(bn);
-
-    return classicMultiplication(bn);
+    return karatsubaMultiplication(bn);
 }
 
 const BN BN::classicMultiplication(const BN& bn) const {
