@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace { // anonymous namespace for hide useless symbols
+
 void printBN(const string& name, const BN& bn) {
     cerr << name << "\t" << to_string(bn) << endl;
 }
@@ -21,7 +23,7 @@ void printTestError(const string& testName, size_t max1, size_t max2, size_t i, 
     cerr << "test = " << res << endl;
 }
 
-int testingMul_ij(int max1,int max2, int,int) {
+int testingMul_ij(int max1,int max2) {
     BN bn1(BN::makeRandom(rand() % max1 + 1));
     BN bn2(BN::makeRandom(rand() % max2 + 1));
     BN mul = bn1*bn2;
@@ -42,7 +44,7 @@ int testingMul_ij(int max1,int max2, int,int) {
     return 0;
 }
 
-int testingExp_ij(int max1,int max2, int,int) {
+int testingExp_ij(int max1,int max2) {
     BN g(BN::makeRandom(rand() % max1 + 1));
     BN exp(BN::makeRandom(rand() % max2 + 1));
     BN mod(BN::makeRandom(rand() % max2 + 1));
@@ -89,78 +91,6 @@ int testingExp_ij(int max1,int max2, int,int) {
         printBN("bn1##bn2", res12);
         return 1;
     }
-    return 0;
-}
-
-int testingMul() {
-    for(int i=0;i<=3;i++) {
-        int max1=0;
-        int max2=0;
-        switch(i) {
-            case 0:
-                max1=3;
-                max2=3;
-                break;
-            case 1:
-                max1=100;
-                max2=3;
-                break;
-            case 2:
-                max1=3;
-                max2=100;
-                break;
-            case 3:
-                max1=100;
-                max2=100;
-                break;
-        }
-        for(int j=0;j<100000;j++) {
-            int res=testingMul_ij(max1,max2,i,j);
-            if(res != 0) {
-                printTestError("Multiplication", max1, max2, j, res);
-                return res;
-            }
-        }
-    }
-    cout << "Multiple test: OK" << endl;
-    return 0;
-}
-
-int testingExp() {
-    for(int i=0;i<=3;i++) {
-        int max1=0;
-        int max2=0;
-        switch(i) {
-            case 0:
-                max1=3;
-                max2=3;
-                break;
-            case 1:
-                max1=100;
-                max2=3;
-                break;
-            case 2:
-                max1=3;
-                max2=100;
-                break;
-            case 3:
-                max1=100;
-                max2=100;
-                break;
-        }
-        int j_max = 20;
-        for(int j=0;j< j_max;j++) {
-            int res=testingExp_ij(max1,max2,i,j);
-            if(j % 5 == 0)
-                cerr << j*100/j_max << "% ...";
-            if(res != 0) {
-                printTestError("Exp", max1, max2, j, res);
-                return res;
-            }
-        }
-        cerr<<"100 %" <<endl;
-    }
-    cerr << "Exp test: OK" << endl;
     return 0;
 }
 
@@ -263,140 +193,6 @@ int testing_ij(int max1, int max2, int i)
         }
     }
     return 0;
-}
-
-int testingLoopBN(int max1, int max2) {
-    for (size_t i = 0; i < 1000; ++i) {
-        if(i % 250 == 0)
-            cout << max1 << " x " << max2 << "\ti = " << i << endl;
-        int res = testing_ij(max1, max2, i);
-        if (res) {
-            printTestError("BN", max1, max2, i, res);
-            return res;
-        }
-    }
-    return 0;
-}
-int testingBN()
-{
-    for (auto i : {
-            make_pair(3, 3),
-            make_pair(100, 3),
-            make_pair(3, 100),
-            make_pair(100, 100)
-    }) {
-        int result = testingLoopBN(i.first, i.second);
-        if (result)
-            return result;
-    }
-    return 0;
-}
-
-void testing() {
-    BN bn1(BN::makeRandom(15000));
-    BN bn2(BN::makeRandom(15000));
-
-    cout << "Test 1:\t";
-    cout.flush();
-    if(bn1 + bn2 - bn1 != bn1 * bn2 / bn1) {
-        printBN("bn1", bn1);
-        printBN("bn2", bn2);
-        printBN("f1", bn1 + bn2);
-        printBN("f2", bn1 + bn2 - bn1);
-        printBN("f3", bn1 * bn2);
-        printBN("f4", bn1 * bn2 / bn1);
-        cerr << "FAIL" << endl;
-    } else
-        cout << "OK" << endl;
-
-    cout << "Test 2:\t";
-    cout.flush();
-    if((bn1*bn2/bn1/bn2).get64()!=1)
-        cout << "FAIL" << endl;
-    else
-        cout << "OK" << endl;
-
-    cout << "Test 3:\t";
-    cout.flush();
-    if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
-        cout << "FAIL" << endl;
-    else
-        cout << "OK" << endl;
-
-    cout<<"Test 4:\t";
-    cout.flush();
-    if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
-        cout << "FAIL" << endl;
-    else
-        cout << "OK" << endl;
-
-    cout << "Test sqrt:\t";
-    cout.flush();
-    BN sqrt;
-    BN bnn(BN::makeRandom(400));
-    sqrt=bnn.Sqrt();
-    BN sqrt1=sqrt;
-    ++sqrt1;
-    if(bnn-sqrt*sqrt>bnn||(++sqrt)*(++sqrt)<=bnn)
-        cout << "FAIL" << endl;
-    else
-        cout << "OK" << endl;
-
-    cout << "Test qrt:\t";
-    cout.flush();
-    if(bn1*bn1!=bn1.Qrt())
-        cout << "FAIL" << endl;
-    else
-        cout << "OK" << endl;
-
-    cout<<"Test gcd:\t";
-    cout.flush();
-    BN bnn1(BN::makeRandom(2500));
-    BN bnn2(BN::makeRandom(2500));
-    BN bngcd1 = gcdEuclidean(bnn1,bnn2);
-    cout << "Finally" << endl;
-
-    cout<<"Test binary gcd:\t";
-    cout.flush();
-    BN bngcd2 = gcdBinary(bnn1,bnn2);
-    if(bngcd1 == bngcd2)
-        cout << "OK" << endl;
-    else
-        cout << "FAIL" << endl;
-}
-
-void multest(int base,int test)
-{
-        uint64_t t;
-        vector <BN> v1;
-        vector <BN> v2;
-
-        for(int i=0;i<test;i++) {
-                v1.push_back(BN::makeRandom(base));
-                v2.push_back(BN::makeRandom(base));
-        }
-
-        t = clock();
-        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-            i->classicMultiplication(*j);
-        float t1 = clock() - t;
-
-        t = clock();
-        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-            i->fastMultiplication(*j);
-        float t2 = clock() - t;
-
-        t = clock();
-        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
-            i->karatsubaMultiplication(*j);
-        float t3 = clock() - t;
-
-        float diviser = test;
-        t1 /= diviser;
-        t2 /= diviser;
-        t3 /= diviser;
-
-        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*8),(int)test, t1, t2, t3);
 }
 
 void modtest(int base,int test) {
@@ -602,6 +398,174 @@ void restest(int base,int test) {
     printf("%d\t%d\t%d\t%.2f\t\t%.2f\n",base,(int)(base*8),test, t1, t2);
 }
 
+std::initializer_list<pair<size_t, size_t>> defaultSizes() {
+    return {
+        {3, 3},
+        {100, 3},
+        {3, 100},
+        {100, 100}
+    };
+}
+
+} // end of anonymous namespace
+
+int testingMul() {
+    for (auto sizes : defaultSizes()) {
+        size_t max1 = sizes.first;
+        size_t max2 = sizes.second;
+        for(int i = 0; i < 100000; i++) {
+            if (int res=testingMul_ij(max1, max2)) {
+                printTestError("Multiplication", max1, max2, i, res);
+                return res;
+            }
+        }
+    }
+    cout << "Multiple test: OK" << endl;
+    return 0;
+}
+
+int testingExp() {
+    for (auto sizes: defaultSizes()) {
+        size_t max1 = sizes.first;
+        size_t max2 = sizes.second;
+        size_t j_max = 20;
+        for (size_t j = 0; j < j_max; ++j) {
+            if(j % 5 == 0)
+                cerr << j * 100 / j_max << "% ...";
+            if (int res=testingExp_ij(max1,max2)) {
+                printTestError("Exp", max1, max2, j, res);
+                return res;
+            }
+        }
+        cerr<<"100 %" <<endl;
+    }
+    cerr << "Exp test: OK" << endl;
+    return 0;
+}
+
+int testingBN()
+{
+    for (auto sizes : defaultSizes()) {
+        size_t max1 = sizes.first;
+        size_t max2 = sizes.second;
+        for (size_t i = 0; i < 1000; ++i) {
+            if(i % 250 == 0)
+                cout << max1 << " x " << max2 << "\ti = " << i << endl;
+            if (int res = testing_ij(max1, max2, i)) {
+                printTestError("BN", max1, max2, i, res);
+                return res;
+            }
+        }
+    }
+    return 0;
+}
+
+void testing() {
+    BN bn1(BN::makeRandom(15000));
+    BN bn2(BN::makeRandom(15000));
+
+    cout << "Test 1:\t";
+    cout.flush();
+    if(bn1 + bn2 - bn1 != bn1 * bn2 / bn1) {
+        printBN("bn1", bn1);
+        printBN("bn2", bn2);
+        printBN("f1", bn1 + bn2);
+        printBN("f2", bn1 + bn2 - bn1);
+        printBN("f3", bn1 * bn2);
+        printBN("f4", bn1 * bn2 / bn1);
+        cerr << "FAIL" << endl;
+    } else
+        cout << "OK" << endl;
+
+    cout << "Test 2:\t";
+    cout.flush();
+    if((bn1*bn2/bn1/bn2).get64()!=1)
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout << "Test 3:\t";
+    cout.flush();
+    if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout<<"Test 4:\t";
+    cout.flush();
+    if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout << "Test sqrt:\t";
+    cout.flush();
+    BN sqrt;
+    BN bnn(BN::makeRandom(400));
+    sqrt=bnn.Sqrt();
+    BN sqrt1=sqrt;
+    ++sqrt1;
+    if(bnn-sqrt*sqrt>bnn||(++sqrt)*(++sqrt)<=bnn)
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout << "Test qrt:\t";
+    cout.flush();
+    if(bn1*bn1!=bn1.Qrt())
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout<<"Test gcd:\t";
+    cout.flush();
+    BN bnn1(BN::makeRandom(2500));
+    BN bnn2(BN::makeRandom(2500));
+    BN bngcd1 = gcdEuclidean(bnn1,bnn2);
+    cout << "Finally" << endl;
+
+    cout<<"Test binary gcd:\t";
+    cout.flush();
+    BN bngcd2 = gcdBinary(bnn1,bnn2);
+    if(bngcd1 == bngcd2)
+        cout << "OK" << endl;
+    else
+        cout << "FAIL" << endl;
+}
+
+void multest(int base,int test)
+{
+        uint64_t t;
+        vector <BN> v1;
+        vector <BN> v2;
+
+        for(int i=0;i<test;i++) {
+                v1.push_back(BN::makeRandom(base));
+                v2.push_back(BN::makeRandom(base));
+        }
+
+        t = clock();
+        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
+            i->classicMultiplication(*j);
+        float t1 = clock() - t;
+
+        t = clock();
+        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
+            i->fastMultiplication(*j);
+        float t2 = clock() - t;
+
+        t = clock();
+        for(vector <BN> :: iterator i = v1.begin(), j = v2.begin(); i != v1.end(); i++, j++)
+            i->karatsubaMultiplication(*j);
+        float t3 = clock() - t;
+
+        float diviser = test;
+        t1 /= diviser;
+        t2 /= diviser;
+        t3 /= diviser;
+
+        printf("%d\t%d\t%d\t%.2f\t\t%.2f\t\t%.2f\n",base,(int)(base*8),(int)test, t1, t2, t3);
+}
 
 void resulttest() {
     cout<<"Test \"multiplication\":"<<endl;
