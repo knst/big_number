@@ -10,6 +10,7 @@
 
 #include "BN.h"
 #include "BNsign.h"
+
 #include <vector>
 
 BN gcdEuclidean(BN x,BN y);

@@ -3,10 +3,9 @@
 #include "BN.h"
 #include "additional.h"
 
-#include <stdlib.h>
-#include <iostream>
-#include <inttypes.h>
 #include <cstdio>
+#include <cstdlib>
+#include <iostream>
 #include <vector>
 
 using namespace std;

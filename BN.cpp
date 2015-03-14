@@ -5,18 +5,16 @@
  * Created on 27 Май 2010 г., 3:16
  */
 
+#include "BN.h"
+
 #include <cstdlib>
 #include <exception>
-#include <limits>
-#include <stdexcept>
-#include <iostream>
-#include <time.h>
-#include <stack>
-#include <sstream>
 #include <iomanip>
-
-#include "BN.h"
-#include "additional.h"
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <stack>
+#include <stdexcept>
 
 using namespace std;
 

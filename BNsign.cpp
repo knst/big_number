@@ -7,8 +7,6 @@
 
 #include "BNsign.h"
 
-#include "BN.h"
-
 using namespace std;
 
 BNsign::BNsign()

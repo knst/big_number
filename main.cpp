@@ -5,14 +5,11 @@
  * Created on 27 Май 2010 г., 3:09
  */
 
-#include <stdlib.h>
-#include <iostream>
 #include "BN.h"
-#include "BNsign.h"
 #include "testing.h"
-#include "additional.h"
-#include <cstdio>
+
 #include <ctime>
+#include <iostream>
 
 using namespace std;
 

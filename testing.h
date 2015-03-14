@@ -8,7 +8,6 @@
 #ifndef _TESTING_H
 #define _TESTING_H
 
-
 int testingExp();
 int testingMul();
 int testingBN();
