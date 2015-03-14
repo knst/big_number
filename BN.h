@@ -154,9 +154,6 @@ public:
     bool is0() const noexcept;
     bool isEven() const noexcept;
 
-    void PrintHex(bool newstr=true)const;
-    void PrintDec(bool newstr=true)const;
-
     const std::vector<bt> raw() const noexcept;
 
 private:

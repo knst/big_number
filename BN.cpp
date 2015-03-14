@@ -5,7 +5,6 @@
  * Created on 27 Май 2010 г., 3:16
  */
 
-#include <cstdio>
 #include <cstdlib>
 #include <exception>
 #include <limits>
@@ -1147,20 +1146,6 @@ string to_string(BN bn) {
         chars.pop();
     }
     return s;
-}
-
-void BN::PrintHex(bool newstr)const
-{
-    cout << to_hexstring(*this);
-    if(newstr)
-        cout << "\n";
-}
-
-void BN::PrintDec(bool newstr)const
-{
-    cout << to_string(*this);
-    if (newstr)
-        cout << "\n";
 }
 
 const vector<bt> BN::raw() const noexcept {
