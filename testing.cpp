@@ -11,6 +11,17 @@
 
 using namespace std;
 
+void printBN(const string& name, const BN& bn) {
+    cerr << name << "\t" << to_string(bn) << endl;
+}
+
+void printTestError(const string& testName, size_t max1, size_t max2, size_t i, size_t res) {
+    cerr << "Error in test \"" << testName << "\"" << endl;
+    cerr << "max: " << max1 << " x " << max2 << endl;
+    cerr << "i = " << i << endl;
+    cerr << "test = " << res << endl;
+}
+
 int testingMul_ij(int max1,int max2, int,int) {
     BN bn1(BN::makeRandom(rand() % max1 + 1));
     BN bn2(BN::makeRandom(rand() % max2 + 1));
@@ -20,13 +31,13 @@ int testingMul_ij(int max1,int max2, int,int) {
     BN k_m = bn1.karatsubaMultiplication(bn2);
     BN k_o = bn1.karatsubaMultiplication(bn2);
     if(mul != c_m || mul != f_m || mul != k_m || mul != k_o) {
-        printf("bn1:\t");       bn1.PrintDec();
-        printf("bn2:\t");       bn2.PrintDec();
-        printf("bn1 * bn2:\t");   mul.PrintDec();
-        printf("bn1 * bn2 classic:\t"); f_m.PrintDec();
-        printf("bn1 * bn2 fast:\t");  f_m.PrintDec();
-        printf("bn1 * bn2 karatsuba:\t");  k_m.PrintDec();
-        printf("bn1 * bn2 karatsuba_o:\t");  k_o.PrintDec();
+        printBN("bn1", bn1);
+        printBN("bn2", bn1);
+        printBN("bn1 * bn2 operator *", mul);
+        printBN("bn1 * bn2 classic", c_m);
+        printBN("bn1 * bn2 fast", f_m);
+        printBN("bn1 * bn2 karatsuba", k_m);
+        printBN("bn1 * bn2 karatsuba_o", k_o);
         return 1;
     }
     return 0;
@@ -60,23 +71,23 @@ int testingExp_ij(int max1,int max2, int,int) {
     BN res12 = g.expBest_Slide(exp, mod, precompSlideU);
 
     if(
-            res1 != res2 ||
-            res1 != res3 ||
-            res1 != res3_1 ||
-            res1 != res4 ||
-            res1 != res5 ||
-            res1 != res12) {
-        printf("g:\t");         g.PrintDec();
-        printf("exp:\t");       exp.PrintDec();
-        printf("mod:\t");       mod.PrintDec();
-        printf("bn1->bn2:\t");  res1.PrintDec();
-        printf("bn1<-bn2:\t");  res2.PrintDec();
-        printf("bn1=>bn2:\t");  res3.PrintDec();
-        printf("bn1==bn2:\t");  res3_1.PrintDec();
-        printf("bn1!>bn2:\t");  res4.PrintDec();
-        printf("bn1>>bn2:\t");  res5.PrintDec();
-        printf("bn1##bn2:\t");  res12.PrintDec();
-        puts("");
+        res1 != res2 ||
+        res1 != res3 ||
+        res1 != res3_1 ||
+        res1 != res4 ||
+        res1 != res5 ||
+        res1 != res12
+    ) {
+        printBN("g", g);
+        printBN("exp", exp);
+        printBN("mod", mod);
+        printBN("bn1->bn2", res1);
+        printBN("bn1<-bn2", res2);
+        printBN("bn1=>bn2", res3);
+        printBN("bn1==bn2", res3_1);
+        printBN("bn1!>bn2", res4);
+        printBN("bn1>>bn2", res5);
+        printBN("bn1##bn2", res12);
         return 1;
     }
     return 0;
@@ -107,12 +118,12 @@ int testingMul() {
         for(int j=0;j<100000;j++) {
             int res=testingMul_ij(max1,max2,i,j);
             if(res != 0) {
-                printf("Error int Mul-test: i=%d j=%d\ttest=%d\n",i,j,res);
+                printTestError("Multiplication", max1, max2, j, res);
                 return res;
             }
         }
     }
-    cout<<"Multiple test: OK" << endl;
+    cout << "Multiple test: OK" << endl;
     return 0;
 }
 
@@ -144,7 +155,7 @@ int testingExp() {
             if(j % 5 == 0)
                 cerr << j*100/j_max << "% ...";
             if(res != 0) {
-                printf("Error int Exp-test: i=%d j=%d\ttest=%d\n",i,j,res);
+                printTestError("Exp", max1, max2, j, res);
                 return res;
             }
         }
@@ -154,217 +165,205 @@ int testingExp() {
     return 0;
 }
 
-int testing_ij(int max1,int max2, int i,int j)
+int testing_ij(int max1, int max2, int i)
 {
-        BN bn1(BN::makeRandom(rand() % max1 + 1));
-        BN bn2(BN::makeRandom(rand() % max2 + 1));
-        BN mod(BN::makeRandom(rand() % max2 + 1));
+    BN bn1(BN::makeRandom(rand() % max1 + 1));
+    BN bn2(BN::makeRandom(rand() % max2 + 1));
+    BN mod(BN::makeRandom(rand() % max2 + 1));
 
     if(
-        bn1 != BN::bn0() &&
-        bn2 != BN::bn0() &&
-        !mod.is0()
+        bn1 == BN::bn0() ||
+        bn2 == BN::bn0() ||
+        mod.is0()
     ) {
-                if((bn1+bn2-bn1)*bn1!=bn1*bn2)
-                {
-                        printf("bn1:\t");        bn1.PrintDec();
-                        printf("bn2:\t");        bn2.PrintDec();
-                        printf("bn1+bn2:\t");        (bn1+bn2).PrintDec();
-                        printf("bn1*bn2:\t");        (bn1*bn2).PrintDec();
-                        printf("f1:\t");        (bn1+bn2-bn1).PrintDec();
-                        printf("f2:\t");        (bn1*bn2/bn1).PrintDec();
-                        BN bn1bn2=bn1*bn2;
-                        printf("bn1bn2:\t");        bn1bn2.PrintDec();
-                        printf("f22:\t");        (bn1bn2/bn1).PrintDec();
-                        return 1;
-                }
-                if((bn1*bn2/bn1/bn2).get64()!=1)
-                        return 2;
-                if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
-                        return 3;
-                if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
-                        return 4;
-                if(bn1*bn1!=bn1.Qrt())
-                        return 5;
-                uint64_t pow=bn1.get64();
-                BN powbn(pow);
-                if(j % 10 == 0 && mod!= BN::bn0() &&bn2.PowMod(pow,mod)!=bn2.PowMod(powbn,mod))
-                {
-                        printf("bn2:");bn2.PrintDec();
-                        printf("pow:");printf("%" PRIu64 "\n",pow);
-                        printf("pBN:");powbn.PrintDec();
-                        printf("mod:");mod.PrintDec();
-                        printf("Pll:");bn2.PowMod(pow,mod).PrintDec();
-                        printf("Pbn:");bn2.PowMod(powbn,mod).PrintDec();
-                        return 6;
-        }
-                BN gcd=gcdEuclidean(bn1,mod);
-                if(gcd!=gcdBinary(bn1,mod))
-                {
-                        gcdEuclidean(bn1,mod).PrintDec();
-                        gcdBinary(bn1,mod).PrintDec();
-                        bn1.PrintDec();
-                        mod.PrintDec();
-                        return 7;
-                }
-                BN gcdInverse=gcdInverseEuclidean(bn1,mod);
-                BN gcdInverseBin=gcdInverseEuclideanBinary(bn1,mod);
-                if(gcdInverse!=gcdInverseBin)
-                {
-                        printf("bn1:\t");        bn1.PrintDec();
-                        printf("mod:\t");        mod.PrintDec();
-                        printf("inverse:\t");        gcdInverse.PrintDec();
-                        printf("inverseB:\t");        gcdInverseBin.PrintDec();
-                        return 8;
-                }
-                if(gcd != BN::bn1() || mod == BN::bn1()) {
-                        if(gcdInverse!= BN::bn0()) {
-                                printf("bn1: ");        bn1.PrintDec();
-                                printf("mod: ");        mod.PrintDec();
-                                printf("inverse: ");        gcdInverseEuclidean(bn1,mod).PrintDec();
-                                printf("nod: ");        gcdBinary(bn1,mod).PrintDec();
-                                (gcdInverseEuclidean(bn1,mod)*bn1).PrintDec();
-                                (gcdInverseEuclidean(bn1,mod)*bn1%mod).PrintDec();
-                                return 9;
-                        }
-                } else {
-                        if(gcdInverse*bn1%mod!= BN::bn1() ||gcdInverse>=mod) {
-                                printf("bn1: ");        bn1.PrintDec();
-                                printf("mod: ");        mod.PrintDec();
-                                printf("inverse: ");        gcdInverseEuclidean(bn1,mod).PrintDec();
-                                printf("nod: ");        gcdBinary(bn1,mod).PrintDec();
-                                (gcdInverseEuclidean(bn1,mod)*bn1).PrintDec();
-                                (gcdInverseEuclidean(bn1,mod)*bn1%mod).PrintDec();
-                                return 10;
-                        }
-                }
-                if(i<2) {
-                        BN sqrt = bn1.Sqrt();
-                        BN sqrt1 = sqrt;
-                        ++sqrt1;
-                        BN odin(1);
-                        if(sqrt*sqrt>bn1||sqrt1*sqrt1<=bn1) {
-                                sqrt.PrintDec();
-                                bn1.PrintDec();
-                                return 11;
-                        }
-                }
-        } else
-                if(!mod.is0()) {
-                        if(bn1*bn2!= BN::bn0() ||bn1+bn2!=max(bn1,bn2))
-                                return 11;
-                }
-                else if(bn1*mod!= BN::bn0() ||bn1+mod!=max(bn1,mod))
-                        return 12;
+        if(!mod.is0()) {
+            if(bn1*bn2!= BN::bn0() ||bn1+bn2!=max(bn1,bn2))
+                return 11;
+        } else if(bn1*mod!= BN::bn0() ||bn1+mod!=max(bn1,mod))
+            return 12;
         return 0;
+    }
+
+    if((bn1+bn2-bn1)*bn1!=bn1*bn2) {
+        printBN("bn1", bn1);
+        printBN("bn2", bn2);
+        printBN("bn1 + bn2", bn1 + bn2);
+        printBN("bn1 * bn2", bn1 * bn2);
+        printBN("f1", bn1 + bn2 - bn1);
+        printBN("f2", bn1 * bn2 / bn1);
+        return 1;
+    }
+
+    if((bn1*bn2/bn1/bn2).get64()!=1)
+        return 2;
+
+    if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
+        return 3;
+
+    if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
+        return 4;
+
+    if(bn1*bn1!=bn1.Qrt())
+        return 5;
+
+    uint64_t pow=bn1.get64();
+    BN powbn(pow);
+    if(i % 10 == 0 && mod!= BN::bn0() &&bn2.PowMod(pow,mod)!=bn2.PowMod(powbn,mod))
+    {
+        printBN("bn2", bn2);
+        cout << "pow: \t" << pow << endl;
+        printBN("pBN", powbn);
+        printBN("mod", mod);
+        printBN("Pll", bn2.PowMod(pow,mod));
+        printBN("Pbn", bn2.PowMod(powbn,mod));
+        return 6;
+    }
+
+    BN gcd=gcdEuclidean(bn1,mod);
+    if(gcd!=gcdBinary(bn1,mod)) {
+        printBN("bn1", bn1);
+        printBN("bn2", mod);
+        printBN("gcd Euclidean",  gcdEuclidean(bn1,mod));
+        printBN("gcd Binary", gcdBinary(bn1,mod));
+        return 7;
+    }
+
+    BN gcdInverse=gcdInverseEuclidean(bn1,mod);
+    BN gcdInverseBin=gcdInverseEuclideanBinary(bn1,mod);
+    if(gcdInverse != gcdInverseBin) {
+        printBN("bn", bn1);
+        printBN("mod", mod);
+        printBN("inverse (Euclidean)", gcdInverse);
+        printBN("inverse (Binary)", gcdInverseBin);
+        return 8;
+    }
+
+    bool modIsInvalid = gcd != BN::bn1() || mod == BN::bn1();
+
+    if(
+        (modIsInvalid && gcdInverse != BN::bn0()) ||
+        (!modIsInvalid && (gcdInverse*bn1%mod!= BN::bn1() || gcdInverse>=mod))
+    ) {
+        printBN("bn", bn1);
+        printBN("mod", mod);
+        printBN("inverse", gcdInverseEuclidean(bn1, mod));
+        printBN("nod", gcdBinary(bn1,mod));
+        printBN("f1", gcdInverseEuclidean(bn1,mod)*bn1);
+        printBN("f2", gcdInverseEuclidean(bn1,mod)*bn1%mod);
+        return 9;
+    }
+    if(i < 2) {
+        BN sqrt = bn1.Sqrt();
+        BN sqrt1 = sqrt;
+        ++sqrt1;
+        BN odin(1);
+        if(sqrt*sqrt>bn1||sqrt1*sqrt1<=bn1) {
+            printBN("bn", bn1);
+            printBN("sqrt", sqrt);
+            return 11;
+        }
+    }
+    return 0;
 }
 
+int testingLoopBN(int max1, int max2) {
+    for (size_t i = 0; i < 1000; ++i) {
+        if(i % 250 == 0)
+            cout << max1 << " x " << max2 << "\ti = " << i << endl;
+        int res = testing_ij(max1, max2, i);
+        if (res) {
+            printTestError("BN", max1, max2, i, res);
+            return res;
+        }
+    }
+    return 0;
+}
 int testingBN()
 {
-        for(int i=0;i<=3;i++)
-        {
-                int max1=0;
-                int max2=0;
-                switch(i) {
-                    case 0:
-                        max1=3;
-                        max2=3;
-                        break;
-                    case 1:
-                        max1=100;
-                        max2=3;
-                        break;
-                    case 2:
-                        max1=3;
-                        max2=100;
-                        break;
-                    case 3:
-                        max1=100;
-                        max2=100;
-                        break;
-                }
-                for(int j=0;j<1000;j++)
-                {
-                        if(j%250==0)
-                                cout<<"i="<<i<<"\tj="<<j<<'\n';
-                        int res=testing_ij(max1,max2,i,j);
-                        if(res!=0)
-                        {
-                                printf("Error: i=%d j=%d\ttest=%d\n",i,j,res);
-                                return res;
-                        }
-                }
-        }
-        return 0;
+    for (auto i : {
+            make_pair(3, 3),
+            make_pair(100, 3),
+            make_pair(3, 100),
+            make_pair(100, 100)
+    }) {
+        int result = testingLoopBN(i.first, i.second);
+        if (result)
+            return result;
+    }
+    return 0;
 }
 
 void testing() {
     BN bn1(BN::makeRandom(15000));
     BN bn2(BN::makeRandom(15000));
-    std::cout << "Test 1:\t";
+
+    cout << "Test 1:\t";
     cout.flush();
     if(bn1 + bn2 - bn1 != bn1 * bn2 / bn1) {
-        bn1.PrintHex();
-        bn2.PrintHex();
-        (bn1 + bn2).PrintHex();
-        (bn1 + bn2 - bn1).PrintHex();
-        (bn1 * bn2).PrintHex();
-        (bn1 * bn2 / bn1).PrintHex();
-        cout <<" FAIL" << endl;
+        printBN("bn1", bn1);
+        printBN("bn2", bn2);
+        printBN("f1", bn1 + bn2);
+        printBN("f2", bn1 + bn2 - bn1);
+        printBN("f3", bn1 * bn2);
+        printBN("f4", bn1 * bn2 / bn1);
+        cerr << "FAIL" << endl;
     } else
         cout << "OK" << endl;
 
-        cout<<"Test 2:\t";
-        cout.flush();
-        if((bn1*bn2/bn1/bn2).get64()!=1)
-                cout<<"FAIL\n";
-        else
-                cout<<"OK\n";
-        cout<<"Test 3:\t";
-        cout.flush();
-        if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
-                cout<<"FAIL\n";
-        else
-                cout<<"OK\n";
-        cout<<"Test 4:\t";
-        cout.flush();
-        if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
-                cout<<"FAIL\n";
-        else
-                cout<<"OK\n";
-        cout<<"Test sqrt:\t";
-        cout.flush();
-        BN sqrt;
-        BN bnn(BN::makeRandom(400));
-        sqrt=bnn.Sqrt();
-        BN sqrt1=sqrt;
-        ++sqrt1;
-        if(bnn-sqrt*sqrt>bnn||(++sqrt)*(++sqrt)<=bnn)
-                cout<<"FAIL\n";
-        else
-                cout<<"OK\n";
-        cout<<"Test qrt:\t";
-        cout.flush();
-        if(bn1*bn1!=bn1.Qrt())
-                cout<<"FAIL\n";
-        else
-                cout<<"OK\n";
-        cout.flush();
-        cout<<"Test gcd:\t";
-        cout.flush();
-        BN bnn1(BN::makeRandom(2500));
-        BN bnn2(BN::makeRandom(2500));
-        BN bngcd1=gcdEuclidean(bnn1,bnn2);
-        cout<<"HaBePHo OK :)"<<endl;
-        cout<<"Test binary gcd:\t";
-        cout.flush();
-        BN bngcd2=gcdBinary(bnn1,bnn2);
-        if(bngcd1==bngcd2)
-                cout<<"OK\n";
-        else
-                cout<<"FAIL\n";
+    cout << "Test 2:\t";
+    cout.flush();
+    if((bn1*bn2/bn1/bn2).get64()!=1)
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
 
-        cout.flush();
+    cout << "Test 3:\t";
+    cout.flush();
+    if(bn1 - bn1 / bn2 * bn2 != bn1 % bn2 + BN::bn0())
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout<<"Test 4:\t";
+    cout.flush();
+    if((bn1*bn2).get64()!=bn1.get64()*bn2.get64())
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout << "Test sqrt:\t";
+    cout.flush();
+    BN sqrt;
+    BN bnn(BN::makeRandom(400));
+    sqrt=bnn.Sqrt();
+    BN sqrt1=sqrt;
+    ++sqrt1;
+    if(bnn-sqrt*sqrt>bnn||(++sqrt)*(++sqrt)<=bnn)
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout << "Test qrt:\t";
+    cout.flush();
+    if(bn1*bn1!=bn1.Qrt())
+        cout << "FAIL" << endl;
+    else
+        cout << "OK" << endl;
+
+    cout<<"Test gcd:\t";
+    cout.flush();
+    BN bnn1(BN::makeRandom(2500));
+    BN bnn2(BN::makeRandom(2500));
+    BN bngcd1 = gcdEuclidean(bnn1,bnn2);
+    cout << "Finally" << endl;
+
+    cout<<"Test binary gcd:\t";
+    cout.flush();
+    BN bngcd2 = gcdBinary(bnn1,bnn2);
+    if(bngcd1 == bngcd2)
+        cout << "OK" << endl;
+    else
+        cout << "FAIL" << endl;
 }
 
 void multest(int base,int test)
