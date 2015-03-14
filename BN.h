@@ -130,20 +130,26 @@ public:
     BN Pow(uint64_t)const;
     BN PowMod(uint64_t power, const BN& mod) const;
     BN PowMod(const BN& power, const BN& mod) const;
+
     BN PowModBarrett(const BN& power, const BN& mod) const;
+
     BN expRightToLeft(const BN& power, const BN& mod) const;
-    std::vector <BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
+
+    std::vector<BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
     BN expLeftToRightK_ary(const BN& exponent, const BN& mod, const std::vector<BN>& g) const;
-    std::vector <BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;
-    BN expLeftToRightK_aryVar(BN, BN, std::vector <BN>, int K)const;
-    std::vector <BN> expLeftToRightK_aryModifPrecomputation(BN)const;
-    BN expLeftToRightK_aryMod(BN, BN, std::vector <BN> )const;
-    std::vector <BN> expSlidingWindowPrecomputation(BN, int)const;
-    BN expSlidingWindow(BN,BN, std::vector <BN>, int k)const;
+
+    std::vector<BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;
+    BN expLeftToRightK_aryVar(const BN&, const BN&, const std::vector<BN>&, int K) const;
+
+    std::vector<BN> expLeftToRightK_aryModifPrecomputation(const BN&) const;
+    BN expLeftToRightK_aryMod(const BN&, const BN&, const std::vector<BN>&) const;
+
+    std::vector <BN> expSlidingWindowPrecomputation(const BN&, int) const;
+    BN expSlidingWindow(const BN&, const BN&, const std::vector<BN>&, int k) const;
 
     //for best result:
-    std::vector <BN> expBest_SlidePrecomp(BN mod) const;
-    BN expBest_Slide(BN exponent, BN mod, std::vector <BN> g) const;
+    std::vector <BN> expBest_SlidePrecomp(const BN& mod) const;
+    BN expBest_Slide(const BN& exponent, const BN& mod, const std::vector<BN>& g) const;
 
     BN Sqrt()const;
     BN Qrt()const;

@@ -774,7 +774,6 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
     if(power.is0())
         return BN::bn1();
 
-
     BN mu = reductionBarrettPrecomputation(mod);
     BN res(BN::bn1());
     BN t = (*this) % mod;
@@ -798,7 +797,7 @@ BN BN::PowModBarrett(const BN& power, const BN& mod) const {
 }
 
 
-BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
+BN BN::expRightToLeft(const BN& exponent, const BN& mod) const {
     if(exponent.is0())
         return BN::bn1();
 
@@ -814,23 +813,23 @@ BN BN::expRightToLeft(const BN& exponent, const BN& mod)const {
             ++curr;
         }
         if(*curr & mask)
-            result = result * S % mod;
+            result = move(result * S % mod);
 
         if (i + 1 != len)
-            S = S.Qrt() % mod;
+            S = move(S.Qrt() % mod);
         mask <<= 1;
     }
     return result;
 }
 
-vector <BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
+vector<BN> BN::expLeftToRightK_aryPrecomputation(const BN& mod) const {
     BN g = *this % mod;
     vector <BN> garr(KarySize);
     garr[0] = BN::bn1();
     for(size_t i = 1; i < KarySize; i++) {
         garr[i] = garr[i-1] * g % mod;
     }
-    return garr;
+    return move(garr);
 }
 
 BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& g) const {
@@ -849,7 +848,7 @@ BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& 
     return A;
 }
 
-vector <BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const {
+vector<BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const {
     int Kmax = (1 << K);
     BN g = *this % mod;
     vector <BN> garr(Kmax);
@@ -857,10 +856,10 @@ vector <BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const
     for(int i = 1; i < Kmax; i++) {
         garr[i] = garr[i-1] * g % mod;
     }
-    return garr;
+    return move(garr);
 }
 
-BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
+BN BN::expLeftToRightK_aryVar(const BN& exponent, const BN& mod, const vector<BN>& g, int K) const {
     if(exponent.is0())
         return BN::bn1();
 
@@ -888,7 +887,7 @@ BN BN::expLeftToRightK_aryVar(BN exponent, BN mod, vector <BN> g, int K) const {
     return A * g[curr] % mod;
 }
 
-vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
+vector <BN> BN::expLeftToRightK_aryModifPrecomputation(const BN& mod) const {
     BN g = *this % mod;
 
     vector<BN> garr(KarySize);
@@ -898,10 +897,10 @@ vector <BN> BN::expLeftToRightK_aryModifPrecomputation(BN mod) const {
     garr[2] = g.Qrt() % mod;
     for(size_t i = 1; i < KarySize / 2; i++)
         garr[2 * i + 1] = garr[2 * i - 1] * garr[2] % mod;
-    return garr;
+    return move(garr);
 }
 
-BN BN::expLeftToRightK_aryMod(BN exponent, BN mod, vector <BN> g) const {
+BN BN::expLeftToRightK_aryMod(const BN& exponent, const BN& mod, const vector<BN>& g) const {
     if(exponent.is0())
         return BN::bn1();
 
@@ -929,7 +928,7 @@ BN BN::expLeftToRightK_aryMod(BN exponent, BN mod, vector <BN> g) const {
 
 }
 
-vector <BN> BN::expSlidingWindowPrecomputation(BN mod, int k) const {
+vector<BN> BN::expSlidingWindowPrecomputation(const BN& mod, int k) const {
     int k_pow = 2 << (k-1);
     vector <BN> garr (k_pow);
     BN g = *this % mod;
@@ -938,10 +937,10 @@ vector <BN> BN::expSlidingWindowPrecomputation(BN mod, int k) const {
     garr[2] = g.Qrt() % mod;
     for(int i = 1; i < k_pow/2; i++)
         garr[2*i+1] = garr[2*i-1] * garr[2] % mod;
-    return garr;
+    return move(garr);
 }
 
-BN BN::expSlidingWindow(BN exponent, BN mod, vector <BN> g, int k) const {
+BN BN::expSlidingWindow(const BN& exponent, const BN& mod, const vector<BN>& g, int k) const {
     BN A(BN::bn1());
     int i = exponent.bitCount() - 1;
     while (i >= 0) {
@@ -965,7 +964,7 @@ BN BN::expSlidingWindow(BN exponent, BN mod, vector <BN> g, int k) const {
     return A;
 }
 
-vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
+vector<BN> BN::expBest_SlidePrecomp(const BN& mod) const {
     vector <BN> garr (KarySize);
     BN mu = reductionBarrettPrecomputation(mod);
     BN g = this -> reductionBarrett(mod, mu);
@@ -974,13 +973,11 @@ vector <BN> BN::expBest_SlidePrecomp(BN mod) const {
     garr[2] = g.Qrt().reductionBarrett(mod,mu);
     for(bt2 i = 1; i < KarySize/ 2; i++)
         garr[2 * i + 1] = (garr[2 * i - 1] * garr[2]).reductionBarrett(mod,mu);
-    return garr;
+    return move(garr);
 
 }
 
-
-
-BN BN::expBest_Slide(BN exponent, BN mod, vector <BN> g) const {
+BN BN::expBest_Slide(const BN& exponent, const BN& mod, const vector<BN>& g) const {
     BN A(BN::bn1());
     BN mu = reductionBarrettPrecomputation(mod);
     int i = exponent.bitCount() - 1;
