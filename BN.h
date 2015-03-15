@@ -37,6 +37,8 @@ constexpr bt bmax = 65535;
 constexpr bt bz = sizeof(bt);
 constexpr bt bz8 = sizeof(bt) * 8;
 
+enum class RadixBN { hex, dec };
+
 class BN {
 public:
     static const BN bn0() noexcept;
@@ -63,7 +65,7 @@ public:
     BN(std::vector<bt>&&, size_t rbc);
     BN(const std::vector<bt>&, size_t rbc);
 
-    BN(const std::string &, const int & base = 0);        // base - 0: Hex, 1: Dec
+    BN(const std::string &, RadixBN = RadixBN::hex);
 
     void swap(BN& bn) noexcept;
 

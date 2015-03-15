@@ -100,9 +100,9 @@ BN::BN(const vector<bt>& _ba, size_t rbc)
 {
 }
 
-BN::BN(const string &str,const int &status)
+BN::BN(const string &str, RadixBN radix)
 {
-    if(status == 1)
+    if(radix == RadixBN::dec)
     {
         BN bn(1,0);
         for (auto i : str) {
@@ -115,6 +115,7 @@ BN::BN(const string &str,const int &status)
         return;
     }
 
+    // radix: hex
     size_t length = str.size();
     ba.resize((length + bz * 2 - 1) / (bz * 2));
 
@@ -123,19 +124,19 @@ BN::BN(const string &str,const int &status)
 
     for (size_t i = 0; i < length; ++i) {
         bt d;
-        if (str[i] >= 'A' && str[i] <= 'F')
+        if (str[i] >= '0' && str[i] <= '9')
+            d = str[i] - '0';
+        else if (str[i] >= 'A' && str[i] <= 'F')
             d = str[i] - 'A' + 10;
         else if (str[i] >= 'a' && str[i] <= 'f')
             d = str[i] - 'a' + 10;
-        else if (str[i] >= '0' && str[i] <= '9')
-            d = str[i] - '0';
         else
             throw invalid_argument(string("BN constructor: invalid char '") + str[i] + "' in HEX string");
         ba[index] = (ba[index] << 4) | d;
-        shift--;
+        --shift;
         if (shift == 0) {
             shift = bz * 2;
-            index--;
+            --index;
         }
     }
     Norm(ba);
