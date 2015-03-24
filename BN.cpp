@@ -510,32 +510,32 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
         return;
     }
 
-    BN delimoe(*this);
-    BN delitel(bn);
+    BN dividend(*this);
+    BN divider(bn);
 
     bt d = bsize  / (bn.ba.back() + 1);
     if (d != 1) {
-        delimoe.mulbaseappr(d);
-        delitel.mulbaseappr(d);
+        dividend.mulbaseappr(d);
+        divider.mulbaseappr(d);
     }
 
-    size_t n = delitel.ba.size();
-    size_t m = delimoe.ba.size() - n + 1;
+    size_t n = divider.ba.size();
+    size_t m = dividend.ba.size() - n + 1;
 
-    delimoe.ba.resize(delimoe.ba.size() + 2);
-    delitel.ba.resize(delitel.ba.size() + 1);
+    dividend.ba.resize(dividend.ba.size() + 2);
+    divider.ba.resize(divider.ba.size() + 1);
 
     div.ba.resize(m + 1);
 
     vector<bt> temp(n + 1);
     for (size_t j = m; j <= m; --j) {
-        bt2 q = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) / delitel.ba[n-1];
-        bt2 r = (delimoe.ba[j + n] * bsize + delimoe.ba[j + n - 1]) % delitel.ba[n-1];
+        bt2 q = (dividend.ba[j + n] * bsize + dividend.ba[j + n - 1]) / divider.ba[n-1];
+        bt2 r = (dividend.ba[j + n] * bsize + dividend.ba[j + n - 1]) % divider.ba[n-1];
 
-        if (q == bsize || q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2]) {
+        if (q == bsize || q * divider.ba[n-2] > bsize * r + dividend.ba[j + n - 2]) {
             --q;
-            r += delitel.ba[n-1];
-            if (r < bsize && q * delitel.ba[n-2] > bsize * r + delimoe.ba[j + n - 2])
+            r += divider.ba[n-1];
+            if (r < bsize && q * divider.ba[n-2] > bsize * r + dividend.ba[j + n - 2])
                 --q;
         }
 
@@ -546,37 +546,37 @@ void BN::divmod(const BN& bn, BN& div, BN& mod) const
 
         bt4s x = 0;
         for (size_t i = 0; i < n; ++i) {
-            x += delimoe.ba[j + i];
-            x -= q * delitel.ba[i];
-            delimoe.ba[j + i] = x;
+            x += dividend.ba[j + i];
+            x -= q * divider.ba[i];
+            dividend.ba[j + i] = x;
             x >>= bz8;
         }
-        x += delimoe.ba[j + n];
-        delimoe.ba[j + n] = x;
+        x += dividend.ba[j + n];
+        dividend.ba[j + n] = x;
 
         // If `x' is negative, than `q' is too large.
-        // Decrement `q' and update `delimoe'.
+        // Decrement `q' and update `dividend'.
         if (x < 0) {
             --q;
             x = 0;
             for (size_t i = 0; i < n; ++i) {
-                x += delimoe.ba[j + i];
-                x += delitel.ba[i];
-                delimoe.ba[j + i] = x;
+                x += dividend.ba[j + i];
+                x += divider.ba[i];
+                dividend.ba[j + i] = x;
                 x >>= bz8;
             }
-            x += delimoe.ba[j + n];
-            delimoe.ba[j + n] = x;
+            x += dividend.ba[j + n];
+            dividend.ba[j + n] = x;
         }
 
         div.ba[j] = q;
     }
     Norm(div.ba);
-    Norm(delimoe.ba);
+    Norm(dividend.ba);
 
     if (d != 1)
-        delimoe.divbaseappr(d);
-    mod = move(delimoe);
+        dividend.divbaseappr(d);
+    mod = move(dividend);
 }
 
 const BN BN::operator / (const BN&bn)const
