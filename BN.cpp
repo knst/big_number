@@ -849,7 +849,7 @@ BN BN::expLeftToRightK_ary(const BN& exponent, const BN& mod, const vector<BN>& 
     return A;
 }
 
-vector<BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const {
+vector<BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, size_t K) const {
     int Kmax = (1 << K);
     BN g = *this % mod;
     vector <BN> garr(Kmax);
@@ -860,19 +860,19 @@ vector<BN> BN::expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const 
     return move(garr);
 }
 
-BN BN::expLeftToRightK_aryVar(const BN& exponent, const BN& mod, const vector<BN>& g, int K) const {
+BN BN::expLeftToRightK_aryVar(const BN& exponent, const BN& mod, const vector<BN>& g, size_t K) const {
     if(exponent.is0())
         return BN::bn1();
 
     BN A(BN::bn1());
 
     int x = K;
-    for(int i = exponent.ba.size() * bz8 - 1; i >= K; i -= K) {
+    for(size_t i = exponent.ba.size() * bz8 - 1; i >= K; i -= K) {
         x = i;
-        for(int k = 0; k < K; k++)
+        for(size_t k = 0; k < K; k++)
             A = A.Qrt() % mod;
         int curr = 0;
-        for(int k = 0; k < K; k++) {
+        for(size_t k = 0; k < K; k++) {
             curr <<= 1;
             curr |= exponent.bitI(i-k);
         }
@@ -910,7 +910,7 @@ BN BN::expLeftToRightK_aryMod(const BN& exponent, const BN& mod, const vector<BN
         for (size_t b = bz - 1; b < bz; --b) {
             bt ei = (exponent.ba[i] >> KaryBits * b) & KaryMask;
 
-            int hi = 0;
+            size_t hi = 0;
             if(ei != 0) {
                 while(! (ei & 1)) {
                     ei >>= 1;
@@ -921,7 +921,7 @@ BN BN::expLeftToRightK_aryMod(const BN& exponent, const BN& mod, const vector<BN
             for(size_t k = 0; k + hi < KaryBits; k++)
                 A = A.Qrt() % mod;
             A = A * g[ei] % mod;
-            for(int k = 0; k < hi; k++)
+            for(size_t k = 0; k < hi; k++)
                 A = A.Qrt() % mod;
         }
     }
@@ -929,19 +929,19 @@ BN BN::expLeftToRightK_aryMod(const BN& exponent, const BN& mod, const vector<BN
 
 }
 
-vector<BN> BN::expSlidingWindowPrecomputation(const BN& mod, int k) const {
-    int k_pow = 2 << (k-1);
+vector<BN> BN::expSlidingWindowPrecomputation(const BN& mod, size_t k) const {
+    size_t k_pow = 2 << (k-1);
     vector <BN> garr (k_pow);
     BN g = *this % mod;
     garr[0] = BN::bn1();
     garr[1] = g;
     garr[2] = g.Qrt() % mod;
-    for(int i = 1; i < k_pow/2; i++)
-        garr[2*i+1] = garr[2*i-1] * garr[2] % mod;
+    for(size_t i = 1; i < k_pow / 2; i++)
+        garr[2 * i + 1] = garr[2 * i - 1] * garr[2] % mod;
     return move(garr);
 }
 
-BN BN::expSlidingWindow(const BN& exponent, const BN& mod, const vector<BN>& g, int k) const {
+BN BN::expSlidingWindow(const BN& exponent, const BN& mod, const vector<BN>& g, size_t K) const {
     BN A(BN::bn1());
     int i = exponent.bitCount() - 1;
     while (i >= 0) {
@@ -950,7 +950,7 @@ BN BN::expSlidingWindow(const BN& exponent, const BN& mod, const vector<BN>& g, 
             i--;
             continue;
         }
-        int l = max(i - k + 1, 0);
+        int l = max(i - static_cast<int>(K) + 1, 0);
         while(exponent.bitI(l) == 0)
             l++;
 
@@ -1076,7 +1076,7 @@ BN BN::Qrt() const
     return res;
 }
 
-int BN::countzeroright() const noexcept
+size_t BN::countzeroright() const noexcept
 {
     if (ba[0] & 1)
         return 0;

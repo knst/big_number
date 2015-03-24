@@ -140,14 +140,14 @@ public:
     std::vector<BN> expLeftToRightK_aryPrecomputation(const BN& mod) const;
     BN expLeftToRightK_ary(const BN& exponent, const BN& mod, const std::vector<BN>& g) const;
 
-    std::vector<BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, int K) const;
-    BN expLeftToRightK_aryVar(const BN&, const BN&, const std::vector<BN>&, int K) const;
+    std::vector<BN> expLeftToRightK_aryVarPrecomputation(const BN& mod, size_t K) const;
+    BN expLeftToRightK_aryVar(const BN&, const BN&, const std::vector<BN>&, size_t K) const;
 
     std::vector<BN> expLeftToRightK_aryModifPrecomputation(const BN&) const;
     BN expLeftToRightK_aryMod(const BN&, const BN&, const std::vector<BN>&) const;
 
-    std::vector <BN> expSlidingWindowPrecomputation(const BN&, int) const;
-    BN expSlidingWindow(const BN&, const BN&, const std::vector<BN>&, int k) const;
+    std::vector <BN> expSlidingWindowPrecomputation(const BN&, size_t K) const;
+    BN expSlidingWindow(const BN&, const BN&, const std::vector<BN>&, size_t k) const;
 
     //for best result:
     std::vector <BN> expBest_SlidePrecomp(const BN& mod) const;
@@ -156,7 +156,7 @@ public:
     BN Sqrt()const;
     BN Qrt()const;
     BN fastQrt()const;
-    int countzeroright() const noexcept;
+    size_t countzeroright() const noexcept;
     bool bitI(size_t i) const noexcept;
     uint64_t get64() const noexcept;
     bool is0() const noexcept;
