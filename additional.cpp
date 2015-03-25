@@ -178,7 +178,7 @@ vector <BN> multi_inverse(const vector <BN> &x, const BN &mod)
 BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
 {
     if(m.size()!=v.size())
-        throw "Garner: size's M and V are different!";
+        throw invalid_argument("Garner: Sizes of arrays are different");
     int t = m.size();
     vector<BN> C(t);
     BN u;
@@ -209,7 +209,7 @@ BN Garner(const std::vector <BN>& m, const std::vector <BN>& v)
 BN CTO(const std::vector <BN>& m, const std::vector <BN>& v)
 {
     if(m.size()!=v.size())
-        throw "CTO: size's M and V are different!";
+        throw invalid_argument("CTO: Sizes of arrays are different");
 
     int t = m.size();
     BN M = m[0];

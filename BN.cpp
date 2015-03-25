@@ -48,6 +48,19 @@ constexpr size_t KaryBits = 8;
 
 } // namespace
 
+//
+// implementation of divide_by_zero
+//
+
+divide_by_zero::divide_by_zero()
+: logic_error("Divide by zero")
+{
+}
+
+//
+// implementation of BN
+//
+
 BN::BN()
 : ba(1)
 {
@@ -450,7 +463,7 @@ const BN BN::divbase(const bt& diviser) const
 BN& BN::divbaseappr(const bt &diviser)
 {
     if(diviser == 0)
-            throw "Div by 0";
+        throw divide_by_zero();
     bt2 curr = 0;
     for (size_t i = ba.size(); i; --i) {
         curr = (curr % diviser << bz8) + ba[i - 1];
@@ -463,7 +476,7 @@ BN& BN::divbaseappr(const bt &diviser)
 const BN BN::modbase(const bt &diviser)const
 {
     if(diviser == 0)
-        throw "Div by 0";
+        throw divide_by_zero();
     bt2 curr=0;
     for (size_t i = ba.size()- 1; i < ba.size(); --i) {
         curr <<= bz8;
@@ -480,7 +493,7 @@ const BN BN::modbase(const bt &diviser)const
 BN& BN::modbaseappr(const bt &diviser)
 {
     if(diviser == 0)
-        throw "Div by 0";
+        throw divide_by_zero();
     bt2 curr = 0;
     for(size_t i = ba.size() - 1; i < ba.size(); --i) {
         curr <<= bz8;
@@ -496,7 +509,7 @@ BN& BN::modbaseappr(const bt &diviser)
 void BN::divmod(const BN& bn, BN& div, BN& mod) const
 {
     if(bn.is0())
-        throw "Div by 0";
+        throw divide_by_zero();
 
     if(bn.ba.size() == 1) {
         div = move(this -> divbase(bn.ba.front()));

@@ -8,6 +8,7 @@
 #ifndef _BN_H
 #define _BN_H
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -38,6 +39,10 @@ constexpr bt bz = sizeof(bt);
 constexpr bt bz8 = sizeof(bt) * 8;
 
 enum class RadixBN { hex, dec };
+
+struct divide_by_zero : std::logic_error {
+    divide_by_zero();
+};
 
 class BN {
 public:
