@@ -223,3 +223,30 @@ BN CTO(const std::vector <BN>& m, const std::vector <BN>& v)
     }
     return x % M;
 }
+
+bool isPrimeMillerRabin(const BN& n, size_t k) {
+    if (n.isEven()) {
+        return false;
+    }
+    BN n1(n);
+    --n1;
+    size_t s = n1.countzeroright();
+    BN t = n1 >> s;
+    for (size_t i = 0; i < k; ++i) {
+        BN a(uint64_t(i + 2));
+        BN x = a.PowMod(t, n);
+        if (x == BN::bn1() || x == n1)
+            continue;
+        bool stop = false;
+        for (size_t j = 0; !stop && j < s - 1; ++j) {
+            x = x.Qrt() % n;
+            if (x == BN::bn1())
+                return false;
+            if (x == n1)
+                stop = true;
+        }
+        if (!stop)
+            return false;
+    }
+    return true;
+}
