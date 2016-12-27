@@ -1,10 +1,3 @@
-/*
- * File:   main.cpp
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:09
- */
-
 #include "BN.h"
 #include "testing.h"
 

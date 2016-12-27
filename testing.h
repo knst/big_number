@@ -1,10 +1,3 @@
-/*
- * File:   testing.h
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:48
- */
-
 #ifndef _TESTING_H
 #define _TESTING_H
 

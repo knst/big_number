@@ -1,10 +1,3 @@
-/*
- * File:   BNsign.cpp
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:18
- */
-
 #include "BNsign.h"
 
 using namespace std;

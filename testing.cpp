@@ -569,7 +569,7 @@ void multest(int base,int test)
 
 void resulttest() {
     cout<<"Test \"multiplication\":"<<endl;
-    cout<<"Base\tBit\tTests\tClassic (µs)\tComma's (µs)\tKaratsuba (µs)"<<endl;
+    cout<<"Base\tBit\tTests\tClassic (ms)\tComma's (ms)\tKaratsuba (ms)"<<endl;
 
     multest(16, 500000);
     multest(32, 100000);

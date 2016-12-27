@@ -1,10 +1,3 @@
-/*
- * File:   BN.cpp
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:16
- */
-
 #include "BN.h"
 
 #include <cstdlib>
@@ -1129,6 +1122,7 @@ uint64_t BN::get64() const noexcept {
 }
 
 string to_hexstring(const BN& bn) {
+    // TODO: make tests
     string result;
 
     const auto& raw = bn.raw();
@@ -1142,6 +1136,7 @@ string to_hexstring(const BN& bn) {
 }
 
 string to_string(BN bn) {
+    // TODO: make tests
     stack<char> chars;
     do {
         chars.push(bn.modbase(10).get64() + '0');

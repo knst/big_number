@@ -1,10 +1,3 @@
-/*
- * File:   additional.h
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:50
- */
-
 #ifndef _ADDITIONAL_H
 #define _ADDITIONAL_H
 

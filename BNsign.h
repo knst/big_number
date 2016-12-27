@@ -1,10 +1,3 @@
-/*
- * File:   BNsign.h
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:18
- */
-
 #ifndef _BNSIGN_H
 #define _BNSIGN_H
 

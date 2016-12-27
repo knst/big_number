@@ -1,10 +1,3 @@
-/*
- * File:   BN.h
- * Author: knst
- *
- * Created on 27 Май 2010 г., 3:16
- */
-
 #ifndef _BN_H
 #define _BN_H
 
